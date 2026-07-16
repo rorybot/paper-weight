@@ -19,10 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · N2 #7 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · N3 #8 · L1 #11 · D2 #19 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
-| **Ready** | — |
-| **Backlog** | N3 · L1 · D1–D3 |
+| **In review** | **N2 #7** (`lane/spotify-n2`) |
+| **Ready** | **D1 #18 · D3 #20** |
+| **Backlog** | — |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -115,21 +116,23 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas. Done: 31 mocked
   tests green under `host/test/paper_weight/spotify/`, see spec.md Next Session chunk.
 
-### N2 [now-playing] Screen 4a UI · #7 ✅ Done
+### N2 [now-playing] Screen 4a UI · #7 · In review (`lane/spotify-n2`)
 - **Goal**: build final pick 4a.
 - **Scope**: 1-bit dithered art square (P5), title/metadata, up-next queue pane (wheel scrolls
   queue is WRONG — wheel = volume; queue is display-only), footer "⟲ volume · press words".
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
-- **Done**: pure Preact 4a screen renders PBM art, metadata, progress, volume, and a display-only
-  queue at 800x480; 81 device-UI tests plus typecheck/build pass; #7 closed 2026-07-16.
+- **PR WIP**: pure Preact 4a screen — PBM art, metadata, progress, volume, display-only queue @
+  800×480; coexists with N3 `LyricsOverlay` on same tree after master merge.
 
-### N3 [now-playing] Lyrics overlay — design + build · #8
+### N3 [now-playing] Lyrics overlay — design + build · #8 ✅ Done
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.
 - **Scope**: design in BERG language first (paper card over dimmed 4a suggested), then build;
   synced or static lyrics per what Spotify service exposes; press again / back dismisses.
 - **Acceptance**: design snippet approved on the claude.ai/design canvas; overlay toggles on
   device without disturbing NP state.
+- **Done**: PR #36 — `LyricsOverlay` BERG paper card + pure active-line sync; shell owns toggle;
+  design snippet in feature spec; wave-3 wires `renderOverlay`.
 
 ## Epic: weather (screen 4b)
 
@@ -152,11 +155,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: playlist (screen 4c)
 
-### L1 [playlist] Playlist grid screen 4c · #11
+### L1 [playlist] Playlist grid screen 4c · #11 ✅ Done
 - **Goal**: build final pick 4c.
 - **Scope**: 2×3 (or 4-wide) dithered cover grid (P5), fat labels; selected tile pops onto paper
   card with ▶; wheel walks grid, press plays via Spotify service (N1).
 - **Acceptance**: matches `playlist-4c.png`; press starts playback and switches to Now Playing.
+- **Done**: `screens/playlist/**` + `protocol/playlist.ts` (PR #34); pure reduce for wheel/play;
+  fixture mockup names; play → `play_playlist` args; NP host/navigate remains wave 3.
 
 ## Epic: feed (screen 4f)
 
@@ -218,19 +223,21 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: design (remaining design work — can run anytime)
 
-### D1 [design] Home screen — design + build · #18
+### D1 [design] Home screen — design + build · #18 · Ready
 - **Goal**: the button-hold target. Not yet mocked.
 - **Scope**: design in BERG language on the claude.ai/design canvas, get approval, then build;
   likely a glanceable launcher/status card for the 6 screens.
 - **Acceptance**: mock approved; hold from any screen lands here; presets 1–4 still work from it.
 
-### D2 [design] Settings screen — design + build (konami entry) · #19
+### D2 [design] Settings screen — design + build (konami entry) · #19 ✅ Done
 - **Goal**: hidden config screen. Not yet mocked.
 - **Scope**: konami-code entry (P3 hook), wheel moves field / press edits / back exits;
   minimal fields (wifi, brightness, feed handles, photo source, hold-threshold).
 - **Acceptance**: mock approved; unreachable via presets; full wheel-only operation.
+- **Done**: PR #37 — `screens/settings/**` BERG card + pure move/edit reduce; shell owns
+  konami/back; wave-3 wires `SettingsScreen`.
 
-### D3 [design] Decision — reskin 4a/4b/4c TUI→BERG or keep two-layer mix · #20
+### D3 [design] Decision — reskin 4a/4b/4c TUI→BERG or keep two-layer mix · #20 · Ready
 - **Goal**: settle the open visual question.
 - **Scope**: try one screen (suggest 4b) in full BERG on the design canvas; compare on-device
   legibility vs gruvbox TUI chrome; document verdict in design spec + this board.

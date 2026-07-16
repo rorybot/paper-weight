@@ -9,8 +9,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
-| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** |
-| N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | Backlog (after N2) |
+| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **In review** (`lane/spotify-n2`) |
+| N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 
 ## Ownership (only these paths)
 
@@ -87,6 +87,22 @@ type NowPlayingSnapshotV1 = {
 - Chrome: gruvbox TUI until D3.
 - Queue pane display-only.
 
+## Lyrics overlay (N3) — design snippet (approved direction)
+
+Not on the design canvas; card + design-spec interaction map are authoritative:
+
+| Element | Spec |
+|---------|------|
+| Layer | Shell `overlay: "lyrics"` over 4a (not a top-level screen) |
+| Backdrop | Existing shell dim (`[data-shell-layer="overlay"]`) |
+| Card | BERG **paper** card, hard outline + accent offset shadow |
+| Content | Timed lines from `snapshot.lyrics`; active = last `t_ms ≤ progress_ms` |
+| Empty | `lyrics: null` or empty lines → “no lyrics for this track” |
+| Dismiss | Shell: press again or **back** (no local state mutation of NP) |
+| Wheel | Still volume on now-playing (shell); overlay is display-only |
+
+Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,fixture}.*`
+
 ## Acceptance
 
 ### N1
@@ -102,6 +118,13 @@ type NowPlayingSnapshotV1 = {
 - [x] No transport controls
 - [x] No shell edits
 
+### N3
+- [x] BERG paper-card overlay UI (fixture-driven)
+- [x] Pure active-line sync from `progress_ms`
+- [x] Empty state when `lyrics` null
+- [x] No shell / Application edits (shell already toggles `lyrics`)
+- [ ] Wave-3: `ShellApp.renderOverlay("lyrics")` → `LyricsOverlay`
+
 ## Deps request
 
 - mix: none added — client/auth use Erlang `:httpc` (like the weather lane), injected
@@ -113,25 +136,10 @@ type NowPlayingSnapshotV1 = {
 
 ## Next Session Context Chunk
 
-- N1 done: `host/lib/paper_weight/spotify/{config,json_lite,auth,client,volume,snapshot,fetch,art,service}.ex`
-  + full test suite under `host/test/paper_weight/spotify/` (31 tests, mocked HTTP, no live network).
-  Run: `cd host && mix test test/paper_weight/spotify/`.
-- Public API: `PaperWeight.Spotify.Service.now_playing/1`, `.queue/1`, `.set_volume/2` (delta,
-  clamped 0..100, best-effort persisted to Spotify then cached even on API failure).
-  **No** play/pause/skip/previous anywhere in the module.
-- Snapshot assembly (`Snapshot.assemble/1`) is pure and matches `NowPlayingSnapshotV1` exactly;
-  `art_pbm_base64` ships `null` — `Spotify.Art.dither_to_base64/3` wraps P5 dither (untouched)
-  for when N2/L1 wire real album-art bytes in.
-  On poll failure the service keeps the last-good snapshot and flips `stale: true`.
-- Token refresh (`Auth.refresh_access_token/2`) and the Spotify client are both HTTP-injected;
-  swap in `Auth.default_http_post/0` / `Client.default_http/0` (both use `:httpc`) for wave-3 wiring.
-- Volume intent name frozen: `set_volume`. Use P5 dither as library; don't edit it.
-- N1 deliberately excluded the Preact screen; N2 now supplies it. Lyrics content (N3),
-  Application/mix.exs registration (wave 3), and playlist play-by-id (L1) remain unwired.
-- N2 done: `src/device-ui/src/screens/now-playing/` provides the pure 4a view model, fixture,
-  Preact screen, local gruvbox layout, and focused SSR/model tests.
-- The frozen N1 payload drives title, metadata, progress, volume, and a display-only queue;
-  host P4 PBM artwork is converted through the existing browser-safe P5 renderer.
-- No buttons, transport actions, shell edits, protocol edits, or other-lane edits were added.
-- Validation: `npm run check` passes 17 files / 81 tests plus typecheck/build; Chromium was
-  visually checked at exactly 800x480 with rendered 1-bit art and no clipping.
+- N2 screen: `NowPlayingScreen` + pure `buildNowPlayingViewModel` (progress, volume segments,
+  display-only queue). Gruvbox TUI chrome; PBM art via photo `pbm` decode.
+- N3 overlay: `LyricsOverlay` + `lyricsModel` (already on master, PR #36). Shared fixture
+  carries timed lyrics + N2 queue/art; `nowPlayingFixtureNoLyrics` for empty overlay.
+- Shell: wheel → `adjust-volume`; press → `lyrics` overlay — **do not edit shell**.
+- Wave-3: wire `now-playing` → `NowPlayingScreen` and `renderOverlay("lyrics")` → `LyricsOverlay`.
+- Host: `cd host && mix test test/paper_weight/spotify/` (N1, 31 tests); lyrics still null from host.
