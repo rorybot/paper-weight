@@ -19,7 +19,7 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
 | **Ready** | — |
 | **Backlog** | N2–N3 · L1 · D1–D3 |
@@ -80,6 +80,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: `src/device-ui/src/shell/` pure `routeShellInput` + `ScreenShell` + P2 SSE bridge
   adapter + dev keyboard map; interaction-map tests (presets/hold/back/konami/wheel/press per
   screen). `npm run check` 41 tests. Harness: `ShellApp` (`?bridge=0` keyboard-only).
+
+### P3-1 [platform] Fix swapped preset 2/3 preview routing · #23 ✅ Done
+- **Goal**: preset 2 opens Playlist and preset 3 opens Weather everywhere.
+- **Scope**: correct the Preact shell mapping and standalone device-smoke frame order; add explicit regression assertions.
+- **Constraints**: keep evdev numeric translation unchanged; preserve presets 1 and 4; do not edit data-service lanes.
+- **Acceptance**: both previews route 2 → Playlist and 3 → Weather; device UI checks pass.
+- **Done**: Preact shell and device-smoke mappings corrected; explicit preset 2/3 regression assertions added; 53 device-UI tests pass.
 
 ### P4 [platform] BERG design system tokens + card component · #4 ✅ Done
 - **Goal**: shared visual layer for all screens.

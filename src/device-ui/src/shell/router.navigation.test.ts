@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   KONAMI_SEQUENCE,
-  PRESET_SCREENS,
   initialShellState,
   type ScreenId,
   type ShellCommand,
@@ -34,7 +33,12 @@ const layered = (
 });
 
 describe("shell navigation — presets / hold / back / konami", () => {
-  it.each(Object.entries(PRESET_SCREENS))(
+  it.each([
+    [1, "now-playing"],
+    [2, "playlist"],
+    [3, "weather"],
+    [4, "feed"],
+  ] as const)(
     "preset %s hard-switches to %s (clears overlay + history)",
     (preset, screen) => {
       const state = layered("feed", {
@@ -46,7 +50,7 @@ describe("shell navigation — presets / hold / back / konami", () => {
       expect(
         stateAfter(state, {
           type: "preset",
-          preset: Number(preset) as keyof typeof PRESET_SCREENS,
+          preset,
         }),
       ).toEqual(initialShellState(screen));
     },

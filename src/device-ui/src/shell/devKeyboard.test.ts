@@ -7,6 +7,9 @@ describe("dev keyboard map", () => {
     expect(mapDevKeyboardEvent({ key: "2", code: "Digit2" })).toEqual({
       inputs: [{ type: "preset", preset: 2 }],
     });
+    expect(mapDevKeyboardEvent({ key: "3", code: "Digit3" })).toEqual({
+      inputs: [{ type: "preset", preset: 3 }],
+    });
     expect(mapDevKeyboardEvent({ key: "H", code: "KeyH" })).toEqual({
       inputs: [{ type: "hold" }],
     });

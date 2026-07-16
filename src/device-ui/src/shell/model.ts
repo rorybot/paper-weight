@@ -1,7 +1,7 @@
 export const PRESET_SCREENS = {
   1: "now-playing",
-  2: "weather",
-  3: "playlist",
+  2: "playlist",
+  3: "weather",
   4: "feed",
 } as const;
 
