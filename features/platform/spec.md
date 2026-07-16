@@ -6,7 +6,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| P0-1 | [#22](https://github.com/rorybot/paper-weight/issues/22) | Device bootstrap — backup, flash, shell | **Ready** |
+| P0-1 | [#22](https://github.com/rorybot/paper-weight/issues/22) | Device bootstrap — backup, flash, shell | **Done** (closed) |
 | P0 | [#21](https://github.com/rorybot/paper-weight/issues/21) | Device smoke — kiosk + presets 1–4 → mock frames | **Done** (closed) |
 | P1 | [#2](https://github.com/rorybot/paper-weight/issues/2) | Architecture spike — runtime & stack | **Done** (closed) |
 | P2 | [#1](https://github.com/rorybot/paper-weight/issues/1) | Input daemon — evdev → event bus | **Done** (closed) |
@@ -23,9 +23,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 ## Next Session Context Chunk (2026-07-16 hygiene)
 
-- GH + `kanban/board.md` + this table: Done P0/P1/P2/P4/P5; Ready P0-1 #22; rest Backlog.
+- GH + `kanban/board.md` + this table: Done P0-1/P0/P1/P2/P3/P4/P5; rest Backlog/Ready by lane.
 - Prefer `scripts/set-card-status.ps1`; do not claim status via local edit alone.
-- **P0-1 #22** still Ready: device is flashed and P0 passed, but formal stock-backup/hash acceptance may still be incomplete — confirm before Done.
+- **P0-1 #22** is Done: owner accepted the completed device bootstrap and successful P0 run.
 
 ## Next Session Context Chunk (P3 — 2026-07-16)
 
@@ -34,7 +34,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Wheel turns do **not** reset `konamiIndex` (sequence can complete alongside volume/scroll).
 - Settings: presets inactive; back exits (history or home). Feed enlarge / NP lyrics are overlays.
 - Validate: `cd src/device-ui && npm run check` (41 tests). Dev: `npm run dev` · `?bridge=0` skips SSE.
-- #3 closed + project Status Done. Next: screen cards (N1/W1/…) or finish P0-1 formal backup.
+- #3 closed + project Status Done. Next: screen cards (N1/W1/…).
 
 ## Next Session Context Chunk (P5)
 
@@ -73,3 +73,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - P3 subscribes at loopback SSE `/v1/events`; JSON v1 covers wheel, wheel press, presets, home, and back.
 - `bash scripts/check.sh` passes 14 tests, strict Clippy, and all-target aarch64 compilation.
 - GitHub project P2 is verified Done and issue #1 is closed; implementation remains uncommitted locally.
+
+## Next Session Context Chunk (P0-1 closeout - 2026-07-16)
+- #22 is closed and its GitHub project Status is verified Done.
+- Owner accepted flash, shell, transfer, Chromium, and the successful P0 hardware run as sufficient.
+- No further platform P-cards remain; P0-1 and P0–P5 are all Done.
+- Next implementation work is one Ready lane card: N1 #6, W1 #9, or F1 #12.

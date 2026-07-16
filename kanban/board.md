@@ -10,7 +10,7 @@ implements from the card + its feature spec only). Epic prefix in title. Each ca
 **repo issue** (`#N`) on the project board — **not draft items**.
 
 Dependency order: **P0-1** (device flash) → **P0** (hardware smoke) in parallel with host work;
-**P1–P5 done** (platform foundation complete except optional P0-1 formal backup); screen
+**P0–P5 done** (platform foundation complete); screen
 epics parallel now; design epic anytime.
 
 **Status = GitHub project Status field.** This file is a mirror only. Never mark a card
@@ -19,9 +19,9 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
 | **In progress** | — |
-| **Ready** | P0-1 #22 · **N1 #6 · W1 #9 · F1 #12** (parallel wave-1 lanes) |
+| **Ready** | **N1 #6 · W1 #9 · F1 #12** (parallel wave-1 lanes) |
 | **Backlog** | N2–N3 · W2 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -30,12 +30,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: platform (foundation — blocks everything)
 
-### P0-1 [platform] Device bootstrap — backup, flash, shell · #22 · Ready
+### P0-1 [platform] Device bootstrap — backup, flash, shell · #22 ✅ Done
 - **Goal**: prepare stock Car Thing so P0 can run on a known Chromium-capable image.
 - **Scope**: stock backup + hashes; choose image; flash (no fastboot); shell + file-transfer path;
   record image/tools/Chromium @ 800×480 in `docs/architecture/device-smoke.md`.
 - **Constraints**: stop if backup unverified; do not run P0 mock acceptance or build P2 here.
 - **Acceptance**: device boots selected image; shell + copy works; P0 unblocked at `device-smoke/`.
+- **Done**: owner accepted the completed flash, shell/file-transfer, Chromium, and successful P0
+  hardware run as sufficient; project Status set to Done and #22 closed on 2026-07-16.
 
 ### P0 [platform] Device smoke — Chromium kiosk paints a frame · #21 ✅ Done
 - **Goal**: prove Chromium kiosk + preset buttons work on real Car Thing before platform/UI.
