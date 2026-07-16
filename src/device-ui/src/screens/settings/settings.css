@@ -1,0 +1,173 @@
+/* D2 settings — BERG hidden config; 800×480; konami-only entry (shell) */
+
+.st-screen {
+  display: grid;
+  grid-template-rows: 36px 1fr 36px;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 14% 8%, rgb(255 255 255 / 3%), transparent 22%),
+    var(--pw-desk);
+  color: var(--pw-paper);
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  letter-spacing: -0.03em;
+}
+
+/* —— topbar —— */
+.st-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  border-bottom: 2px solid color-mix(in srgb, var(--pw-paper) 14%, transparent);
+  font-weight: 700;
+}
+
+.st-topbar__badge {
+  padding: 2px 8px;
+  border: 1px solid color-mix(in srgb, var(--pw-accent) 55%, transparent);
+  color: var(--pw-accent);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.st-topbar__title {
+  font-family: var(--pw-font-display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.st-topbar__note {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--pw-paper) 50%, transparent);
+  font-weight: 500;
+}
+
+/* —— main card —— */
+.st-main {
+  display: flex;
+  min-height: 0;
+  align-items: stretch;
+  justify-content: center;
+  padding: 16px 20px 12px;
+}
+
+.st-card {
+  display: flex;
+  width: 100%;
+  max-width: 720px;
+  min-height: 0;
+  flex-direction: column;
+  padding: 14px 16px 12px;
+  border: var(--pw-outline) solid var(--pw-ink);
+  border-radius: var(--pw-radius);
+  background: var(--pw-paper);
+  color: var(--pw-ink);
+  box-shadow: var(--pw-shadow-offset) var(--pw-shadow-offset) 0 var(--pw-accent-alt);
+}
+
+.st-card__eyebrow {
+  margin: 0 0 10px;
+  color: #a0533e;
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.st-fields {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-field {
+  display: grid;
+  grid-template-columns: 148px 1fr auto;
+  gap: 10px 14px;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 2px solid transparent;
+  border-radius: calc(var(--pw-radius) - 2px);
+}
+
+.st-field[data-selected="true"] {
+  border-color: var(--pw-ink);
+  background: color-mix(in srgb, var(--pw-paper) 88%, #fff);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--pw-accent) 70%, transparent);
+}
+
+.st-field[data-editing="true"] {
+  border-color: #a0533e;
+  box-shadow: 3px 3px 0 #a0533e;
+}
+
+.st-field__label {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.st-field__value {
+  margin: 0;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--pw-ink) 78%, transparent);
+  font-family: var(--pw-font-display);
+  font-size: 17px;
+  font-style: italic;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-field[data-selected="true"] .st-field__value {
+  color: var(--pw-ink);
+  font-style: normal;
+}
+
+.st-field__meta {
+  margin: 0;
+  color: color-mix(in srgb, var(--pw-ink) 45%, transparent);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.st-field[data-editing="true"] .st-field__meta {
+  color: #a0533e;
+}
+
+/* —— footer —— */
+.st-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  border-top: 2px solid color-mix(in srgb, var(--pw-paper) 14%, transparent);
+  color: color-mix(in srgb, var(--pw-paper) 60%, transparent);
+  font-weight: 600;
+}
+
+.st-footer [data-hint="wheel"] {
+  color: var(--pw-accent);
+}
+
+.st-footer [data-hint="press"] strong {
+  color: var(--pw-accent);
+}
+
+.st-footer__mode {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--pw-paper) 50%, transparent);
+}
