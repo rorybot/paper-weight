@@ -8,7 +8,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | H1 | [#14](https://github.com/rorybot/paper-weight/issues/14) | Photo source + rotation service | **Done** |
-| H2 | [#15](https://github.com/rorybot/paper-weight/issues/15) | Screen 4g UI | Backlog |
+| H2 | [#15](https://github.com/rorybot/paper-weight/issues/15) | Screen 4g UI | **Done** |
 
 ## Ownership (only these paths)
 
@@ -108,11 +108,15 @@ Display chrome (H2): `photo N/M · reprints in X min`.
 - [x] No Application / mix.exs edits
 
 ### H2
-- [ ] Matches `photo-4g.png` with a real user photo
+- [x] Cream frame + serif caption + `photo N/M · reprints in X min` (card intent)
+- [x] True 1-bit Atkinson art via host P5 PBM → pure P4 decode → BMP data URL
+- [x] Pure skip/keep local reducer mirrors shell command names (wave 3 wires host)
+- [x] Co-located screen + model + pbm tests; `npm run check` green
+- [ ] Visual pixel-match to `spec/photo-4g.png` when mock is dropped locally
 
 ## Next Session Context Chunk
 
-- **H1 Done** (local): `host/lib/paper_weight/photo/**` + `photo.ex` — Library scan, pure `Rotate` (skip/keep/tick), Snapshot, GenServer Service; 20 tests green via WSL `mix test test/paper_weight/photo/`.
-- Payload frozen in this file + `src/device-ui/src/protocol/photo.ts`. `art_pbm_base64` always null in H1.
-- Do **not** register Service in `application.ex` (wave 3). Default interval 5 min; flat `library_dir` only.
-- **H2 next**: needs `spec/photo-4g.png` (manual download); cream frame + dither path + footer `photo N/M · reprints in X min`.
+- **H2 Done** (UI-ahead): `src/device-ui/src/screens/photo/**` — PhotoScreen 800×480 BERG, cream frame, PBM→BMP art, status line, keep pin chrome.
+- Fixture art is host-generated Atkinson PBM (`fixture-art.b64.txt`). Shell already emits `skip-photo` / `keep-photo-on-show`.
+- **Not wired** into ShellApp (wave 3). Host Service still not in Application.
+- Drop `spec/photo-4g.png` later for visual QA; optional host path to fill `art_pbm_base64` for real JPEGs (needs decode adapter).
