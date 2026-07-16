@@ -20,8 +20,8 @@ Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · L1 #11 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
-| **In progress** | — |
-| **Ready** | **N2 #7 · N3 #8 · D1 #18 · D2 #19 · D3 #20** |
+| **In progress** | **N3 #8** |
+| **Ready** | **N2 #7 · D1 #18 · D2 #19 · D3 #20** |
 | **Backlog** | — |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -122,12 +122,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
 
-### N3 [now-playing] Lyrics overlay — design + build · #8 · Ready
+### N3 [now-playing] Lyrics overlay — design + build · #8 · In progress
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.
 - **Scope**: design in BERG language first (paper card over dimmed 4a suggested), then build;
   synced or static lyrics per what Spotify service exposes; press again / back dismisses.
 - **Acceptance**: design snippet approved on the claude.ai/design canvas; overlay toggles on
   device without disturbing NP state.
+- **WIP**: `screens/now-playing/LyricsOverlay` BERG paper card + pure active-line sync; shell
+  already owns toggle; design snippet in `features/now-playing/spec.md`.
 
 ## Epic: weather (screen 4b)
 
