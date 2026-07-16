@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · N1 #6 · E1 #16** |
-| **In progress** | **E2 #17** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17** |
+| **In progress** | — |
 | **Ready** | — |
-| **Backlog** | N2–N3 · L1 · F2 · H1–H2 · D1–D3 |
+| **Backlog** | N2–N3 · L1 · H1–H2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -159,13 +159,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: read-only; snapshot semantics (no live updates mid-view).
 - **Acceptance**: fixture snapshot renders ≥3 posts; refresh swaps atomically.
 
-### F2 [feed] Screen 4f UI · #13
+### F2 [feed] Screen 4f UI · #13 ✅ Done
 - **Goal**: build final pick 4f (BERG-pushed 3d renderer).
 - **Scope**: dark desk, ~3 posts visible, selected post on cream hard-outline+offset card, serif
   bodies, mono handles, dashed dividers, mustard footer, receipt-roll progress rail (right).
   Wheel scrolls, press enlarges, back collapses.
 - **Constraints**: "Grus Gazette" mini-newspaper concept is REJECTED — do not build.
 - **Acceptance**: matches `feed-4f.png`; big type readable on the 3.97" panel.
+- **Done**: `src/device-ui/src/screens/feed/**` pure `reduceFeedUi` + `FeedScreen` @ 800×480 BERG;
+  ~3-post window, cream selected card, mustard footer, receipt rail; enlarge/collapse; 12 tests;
+  no shell edits. Branch `lane/feed-f2`.
 
 ## Epic: photo (screen 4g)
 
