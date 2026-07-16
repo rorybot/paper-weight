@@ -8,7 +8,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Ready** (lane wave 1) |
+| N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | Backlog (wave 2) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | Backlog (after N2) |
 
@@ -90,11 +90,11 @@ type NowPlayingSnapshotV1 = {
 ## Acceptance
 
 ### N1
-- [ ] Mocked Spotify HTTP tests
-- [ ] `set_volume(delta)` clamps and returns new level
-- [ ] Snapshot matches `NowPlayingSnapshotV1`
-- [ ] No play/pause endpoints
-- [ ] No Application / mix.exs edits
+- [x] Mocked Spotify HTTP tests
+- [x] `set_volume(delta)` clamps and returns new level
+- [x] Snapshot matches `NowPlayingSnapshotV1`
+- [x] No play/pause endpoints
+- [x] No Application / mix.exs edits
 
 ### N2
 - [ ] Matches now-playing-4a intent
@@ -104,9 +104,27 @@ type NowPlayingSnapshotV1 = {
 
 ## Deps request
 
-_(lane agents append here — e.g. HTTP client for Spotify)_
+- mix: none added — client/auth use Erlang `:httpc` (like the weather lane), injected
+  as an HTTP fn so tests never hit the network.
+  (reason: Spotify Web API + Accounts token exchange over HTTPS)
+- For **live** (non-test) calls, wave-3 orchestrator needs to add `:inets` and `:ssl`
+  to `extra_applications` in `host/mix.exs` — same requirement weather already has.
+  Mocked tests do not need this.
 
 ## Next Session Context Chunk
 
-- Parallel lane ready: own only `host/lib/paper_weight/spotify/` + tests + protocol now_playing types.
-- Volume intent name frozen: `set_volume`. Use P5 dither as library; don’t edit it.
+- N1 done: `host/lib/paper_weight/spotify/{config,json_lite,auth,client,volume,snapshot,fetch,art,service}.ex`
+  + full test suite under `host/test/paper_weight/spotify/` (31 tests, mocked HTTP, no live network).
+  Run: `cd host && mix test test/paper_weight/spotify/`.
+- Public API: `PaperWeight.Spotify.Service.now_playing/1`, `.queue/1`, `.set_volume/2` (delta,
+  clamped 0..100, best-effort persisted to Spotify then cached even on API failure).
+  **No** play/pause/skip/previous anywhere in the module.
+- Snapshot assembly (`Snapshot.assemble/1`) is pure and matches `NowPlayingSnapshotV1` exactly;
+  `art_pbm_base64` ships `null` — `Spotify.Art.dither_to_base64/3` wraps P5 dither (untouched)
+  for when N2/L1 wire real album-art bytes in.
+  On poll failure the service keeps the last-good snapshot and flips `stale: true`.
+- Token refresh (`Auth.refresh_access_token/2`) and the Spotify client are both HTTP-injected;
+  swap in `Auth.default_http_post/0` / `Client.default_http/0` (both use `:httpc`) for wave-3 wiring.
+- Volume intent name frozen: `set_volume`. Use P5 dither as library; don't edit it.
+- Not done (by design, N1 scope): Preact screen (N2), lyrics content (N3), Application/mix.exs
+  registration (wave 3), playlist play-by-id (L1).

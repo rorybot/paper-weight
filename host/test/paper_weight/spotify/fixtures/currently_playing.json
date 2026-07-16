@@ -1,0 +1,9 @@
+{
+  "progress_ms": 45000,
+  "item": {
+    "name": "Track Title",
+    "duration_ms": 200000,
+    "artists": [{"name": "Artist One"}, {"name": "Artist Two"}],
+    "album": {"name": "Album Name"}
+  }
+}

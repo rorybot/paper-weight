@@ -1,0 +1,10 @@
+{
+  "currently_playing": {
+    "name": "Track Title",
+    "artists": [{"name": "Artist One"}]
+  },
+  "queue": [
+    {"name": "Next Track", "artists": [{"name": "Someone"}]},
+    {"name": "Another Track", "artists": [{"name": "Someone Else"}, {"name": "Third"}]}
+  ]
+}
