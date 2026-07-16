@@ -19,9 +19,9 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · F1 #12 |
 | **In progress** | — |
-| **Ready** | **N1 #6 · W1 #9 · F1 #12** (parallel wave-1 lanes) |
+| **Ready** | **N1 #6 · W1 #9** (parallel wave-1 lanes) |
 | **Backlog** | N2–N3 · W2 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -147,7 +147,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: feed (screen 4f)
 
-### F1 [feed] X/Twitter snapshot service · #12 · Ready (lane wave 1)
+### F1 [feed] X/Twitter snapshot service · #12 · Done
 - **Goal**: periodic read-only feed snapshot.
 - **Scope**: fetch N recent posts from followed handles/list; strip to text+handle+time;
   per-handle accent color assignment; refresh on interval.
