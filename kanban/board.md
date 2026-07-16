@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · N1 #6** |
-| **In progress** | — |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · N1 #6 · E1 #16** |
+| **In progress** | **E2 #17** |
 | **Ready** | — |
-| **Backlog** | N2–N3 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
+| **Backlog** | N2–N3 · L1 · F2 · H1–H2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -183,13 +183,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: etymology (screens 2a→2b→2c)
 
-### E1 [etymology] Word-origin data service · #16
+### E1 [etymology] Word-origin data service · #16 ✅ Done
 - **Goal**: day's word + nested origin trace.
 - **Scope**: Wiktionary-style source; recursive trace structure (stage → sub-trace → … → root);
   daily selection; cache the day's tree.
 - **Acceptance**: `travailler`-style fixture yields a ≥3-depth tree with a terminal root.
+- **Done**: `host/lib/paper_weight/etymology/**` catalog + recursive tree + day cache GenServer;
+  travel/travailler fixture depth ≥3 with trepālium terminal root; 16 tests green; payload
+  frozen in `features/etymology/spec.md` + `protocol/etymology.ts`. No Application registration.
 
-### E2 [etymology] Drill-down screen (one state machine, 3 depths) · #17
+### E2 [etymology] Drill-down screen (one state machine, 3 depths) · #17 · In progress
 - **Goal**: build 2a/2b/2c as ONE screen with depth states — not three screens.
 - **Scope**: depth 0 = root-of-day + trace ladder (wheel scrolls stages); press digs into
   highlighted stage (depth 1, breadcrumb grows); bottom = dead-end reveal (depth 2); back walks
