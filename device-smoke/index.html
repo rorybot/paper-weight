@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=800, height=480, initial-scale=1" />
+  <title>paper-weight · device smoke</title>
+  <style>
+    /* Fixed Car Thing panel; BERG desk only as chrome — frames are the locked mockups. */
+    html, body {
+      margin: 0;
+      width: 800px;
+      height: 480px;
+      overflow: hidden;
+      background: #20201d;
+      color: #f4ecd8;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      user-select: none;
+      cursor: none;
+    }
+    #frame {
+      display: block;
+      width: 800px;
+      height: 480px;
+      object-fit: fill;
+      background: #17130f;
+    }
+    #hud {
+      position: fixed;
+      left: 8px;
+      bottom: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      line-height: 1.3;
+      background: rgba(23, 19, 15, 0.82);
+      border: 2px solid #17130f;
+      box-shadow: 3px 3px 0 #f7b301;
+      color: #f4ecd8;
+      pointer-events: none;
+      max-width: 780px;
+    }
+    #hud strong { color: #f7b301; }
+    #fail {
+      display: none;
+      box-sizing: border-box;
+      width: 800px;
+      height: 480px;
+      padding: 32px;
+      background: #20201d;
+      color: #f4ecd8;
+      font-size: 18px;
+    }
+    #fail code { color: #f7b301; }
+  </style>
+</head>
+<body>
+  <img id="frame" alt="screen mockup" draggable="false" />
+  <div id="fail">
+    <p><strong>image failed to load</strong></p>
+    <p>Serve from repo root so mockups resolve, e.g.</p>
+    <p><code>python -m http.server 8080</code> → <code>/device-smoke/</code></p>
+    <p>Expected: <code id="fail-path"></code></p>
+  </div>
+  <div id="hud" role="status" aria-live="polite"><strong>—</strong></div>
+
+  <script>
+    // Preset buttons 1–4 → locked mockups in /spec (relative to this page).
+    // Dev: keyboard Digit1–4 / Numpad1–4. Device: map hardware presets to those keys
+    // (see device-smoke README / P0 notes) or inject the same key events from evdev.
+    const FRAMES = {
+      1: {
+        id: "now-playing",
+        file: "now-playing-4a.png",
+        label: "1 · Now Playing (4a)",
+      },
+      2: {
+        id: "weather",
+        file: "weather-4b.png",
+        label: "2 · Weather (4b)",
+      },
+      3: {
+        id: "playlist",
+        file: "playlist-4c.png",
+        label: "3 · Playlist (4c)",
+      },
+      4: {
+        id: "feed",
+        file: "feed-4f.png",
+        label: "4 · Feed (4f)",
+      },
+    };
+
+    const img = document.getElementById("frame");
+    const hud = document.getElementById("hud");
+    const fail = document.getElementById("fail");
+    const failPath = document.getElementById("fail-path");
+    const query = new URLSearchParams(window.location.search);
+
+    let current = 1;
+
+    if (query.get("hud") === "0") {
+      hud.hidden = true;
+    }
+
+    function srcFor(file) {
+      // Prefer sibling ../spec when page is /device-smoke/; also works from file:// if cwd allows.
+      return new URL("../spec/" + file, window.location.href).href;
+    }
+
+    function show(n) {
+      const frame = FRAMES[n];
+      if (!frame) return;
+      current = n;
+      const src = srcFor(frame.file);
+      fail.style.display = "none";
+      img.style.display = "block";
+      img.onload = () => {
+        hud.innerHTML =
+          "<strong>" +
+          frame.label +
+          "</strong> · presets 1–4 switch · smoke P0";
+      };
+      img.onerror = () => {
+        img.style.display = "none";
+        fail.style.display = "block";
+        failPath.textContent = src;
+        hud.innerHTML = "<strong>load error</strong> · " + frame.label;
+      };
+      img.alt = frame.label;
+      img.src = src;
+      // cache-bust only if query already present is unnecessary for static files
+    }
+
+    const presetKeys = {
+      Digit1: 1, Digit2: 2, Digit3: 3, Digit4: 4,
+      Numpad1: 1, Numpad2: 2, Numpad3: 3, Numpad4: 4,
+      F1: 1, F2: 2, F3: 3, F4: 4,
+      "1": 1, "2": 2, "3": 3, "4": 4,
+    };
+
+    // If the device exposes different DOM KeyboardEvent.code values, launch with
+    // ?codes=CodeForPreset1,CodeForPreset2,CodeForPreset3,CodeForPreset4.
+    const customCodes = query.get("codes")
+      ?.split(",")
+      .map((code) => code.trim())
+      .filter(Boolean)
+      .slice(0, 4) || [];
+    customCodes.forEach((code, index) => {
+      presetKeys[code] = index + 1;
+    });
+
+    function onPresetKey(e) {
+      const n = presetKeys[e.code] || presetKeys[e.key];
+      if (!n) {
+        hud.textContent =
+          "unmapped key · code=" + (e.code || "—") +
+          " · key=" + (e.key || "—");
+        return;
+      }
+      e.preventDefault();
+      show(n);
+    }
+
+    window.addEventListener("keydown", onPresetKey, { passive: false });
+
+    // Optional: postMessage / custom event from a future evdev bridge
+    window.addEventListener("message", (e) => {
+      const n = e.data && e.data.preset;
+      if (n >= 1 && n <= 4) show(n);
+    });
+    window.smokeShow = show;
+    window.smokeCurrent = () => current;
+
+    show(1);
+  </script>
+</body>
+</html>

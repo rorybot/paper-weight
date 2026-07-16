@@ -1,69 +1,112 @@
 # Kanban mirror — CarThing custom app
 
-Remote board: https://github.com/users/rorybot/projects/1
-Push script: `scripts/push-cards.ps1` (creates draft items via `gh`; needs `project` scope).
+Remote board: https://github.com/users/rorybot/projects/1  
+Issues: https://github.com/rorybot/paper-weight/issues  
+Status helper: `scripts/set-card-status.ps1`  
+Create helper (legacy): `scripts/push-cards.ps1` — do **not** re-run for existing cards.
 
 Card format: **Goal / Scope / Constraints / Acceptance** (compressed contracts — a junior agent
-implements from the card + its feature spec only). Epic prefix in title.
+implements from the card + its feature spec only). Epic prefix in title. Each card maps to a
+**repo issue** (`#N`) on the project board — **not draft items**.
 
-Dependency order: platform epic first (P1–P5); screen epics are then parallelizable;
-design epic (D1–D3) can run any time.
+Dependency order: **P0-1** (device flash) → **P0** (hardware smoke) in parallel with host work;
+**P1, P2 done**; **P0 done**; now **P3** (screen shell, in progress); screen epics parallel
+after shell; design epic anytime.
+
+**Status = GitHub project Status field.** This file is a mirror only. Never mark a card
+In progress / Done here unless the same change succeeded on the remote project.
+
+Status snapshot (2026-07-16, verified against remote project):
+| Status | Cards |
+|--------|--------|
+| **Done** | P0 #21 · P1 #2 · P2 #1 · P4 #4 · P5 #5 |
+| **In progress** | P3 #3 |
+| **Ready** | P0-1 #22 |
+| **Backlog** | N1–N3 · W1–W2 · L1 · F1–F2 · H1–H2 · E1–E2 · D1–D3 |
 
 ---
 
 ## Epic: platform (foundation — blocks everything)
 
-### P1 [platform] Architecture spike — runtime & stack decision
+### P0-1 [platform] Device bootstrap — backup, flash, shell · #22 · Ready
+- **Goal**: prepare stock Car Thing so P0 can run on a known Chromium-capable image.
+- **Scope**: stock backup + hashes; choose image; flash (no fastboot); shell + file-transfer path;
+  record image/tools/Chromium @ 800×480 in `docs/architecture/device-smoke.md`.
+- **Constraints**: stop if backup unverified; do not run P0 mock acceptance or build P2 here.
+- **Acceptance**: device boots selected image; shell + copy works; P0 unblocked at `device-smoke/`.
+
+### P0 [platform] Device smoke — Chromium kiosk paints a frame · #21 ✅ Done
+- **Goal**: prove Chromium kiosk + preset buttons work on real Car Thing before platform/UI.
+- **Scope**: kiosk @ 800×480 loads `device-smoke/index.html`; **buttons 1–4 switch mock frames**
+  from `spec/`: 1→`now-playing-4a` · 2→`weather-4b` · 3→`playlist-4c` · 4→`feed-4f`. Record
+  image, flags, RAM, `/dev/input`, preset→page mapping (keys / evdev bridge).
+- **Constraints**: static HTML only (no Elixir/Preact). Photo/etymology not on 1–4 for this smoke.
+- **Acceptance**: each preset shows the correct mockup (captures); `docs/architecture/device-smoke.md`
+  with go/no-go (or fallback if kiosk/input fails).
+- **Done**: flashed via nixos-superbird (manual pyamlboot fallback); USB CDC-NCM gadget network
+  routed through WSL (Windows lacks a driver for the Linux gadget's NCM interface); kiosk confirmed
+  loading `device-smoke/` at exact 800×480; all four presets verified correct one-at-a-time via
+  CDP screenshots (gpio-keys emits standard `KEY_1`–`KEY_4`, no injector needed). GO verdict
+  recorded in `docs/architecture/device-smoke.md`.
+
+### P1 [platform] Architecture spike — runtime & stack decision · #2 ✅ Done
 - **Goal**: pick the on-device stack before any src/ code.
 - **Scope**: evaluate template default (Elixir backend + web frontend) vs alternatives
   (webview/kiosk browser on device, native framebuffer app, host-serves/device-renders split)
   against Car Thing hardware: ARM SoC, ~512MB RAM, reflashed Linux, evdev input, 800×480 LCD.
 - **Constraints**: functional paradigm non-negotiable; deviation from Elixir must be justified.
 - **Acceptance**: `docs/architecture/workflow-v1.md` with decision, rationale, deploy story.
+- **Decision**: host Elixir services + device Chromium kiosk + Preact/TS pure UI + evdev bridge;
+  P5 dither on host. See `docs/architecture/workflow-v1.md`.
 
-### P2 [platform] Input daemon — evdev → event bus
+### P2 [platform] Input daemon — evdev → event bus · #1 ✅ Done
 - **Goal**: one process/module normalizing all hardware input.
 - **Scope**: wheel turn (±ticks), wheel press, buttons 1–4, button-hold (→home), back. Emit
   typed events on an internal bus; screens subscribe.
 - **Constraints**: app must be fully usable without touch; hold-vs-press debounce; pure handlers.
 - **Acceptance**: fake-evdev test feed produces the exact event stream; hold threshold configurable.
+- **Done**: `src/input-bridge/` provides configurable 64-bit Linux evdev normalization, a versioned loopback SSE bus, systemd unit, and 14 passing tests.
 
-### P3 [platform] Screen shell — router, overlays, back stack
+### P3 [platform] Screen shell — router, overlays, back stack · #3 · **In progress**
 - **Goal**: top-level navigation container.
 - **Scope**: presets 1–4 hard-switch screens; hold→Home from anywhere; back = up one level /
   dismiss overlay; overlay layer (lyrics); konami-code listener → Settings.
 - **Constraints**: screens are pure `state → view` functions; router owns all input routing.
 - **Acceptance**: interaction map in design spec §Interaction reproduced exactly in tests.
 
-### P4 [platform] BERG design system tokens + card component
+### P4 [platform] BERG design system tokens + card component · #4 ✅ Done
 - **Goal**: shared visual layer for all screens.
 - **Scope**: color tokens, DM Serif Display / JetBrains Mono / Space Grotesk, signature card
   recipe (hard outline + hard offset shadow), dark-desk chrome, min-size rules (≥13px).
 - **Constraints**: 800×480 fixed; gruvbox TUI palette kept available as fallback theme.
 - **Acceptance**: token module + card component render a sample screen matching the spec recipe.
+- **Done**: `src/device-ui/` provides immutable BERG/gruvbox tokens, bundled fonts, reusable
+  hard-outline/offset-shadow `Card`, and a visually checked 800×480 feed sample; 6 tests pass.
 
-### P5 [platform] 1-bit Atkinson dither utility
+### P5 [platform] 1-bit Atkinson dither utility · #5 ✅ Done
 - **Goal**: shared image pipeline for album art (NP), covers (Playlist), photos (Photo frame).
 - **Scope**: image → 1-bit Atkinson-dithered bitmap sized for target slot; cache results.
-- **Constraints**: fast enough on device (or pre-dither host-side per P1 decision); pure core fn.
+- **Constraints**: host-side (P1); pure core fn; golden-image tests required.
 - **Acceptance**: golden-image tests; visually matches mockups' dither character.
+- **Done**: `host/lib/paper_weight/` provides Image/Resize/Atkinson/Bitmap/Cache; 11 tests pass,
+  including the 8×8 gradient golden PBM; user approved and #5 closed.
 
 ## Epic: now-playing (screen 4a)
 
-### N1 [now-playing] Spotify data service
+### N1 [now-playing] Spotify data service · #6
 - **Goal**: now-playing metadata, up-next queue, volume control.
 - **Scope**: Spotify API/connect client; expose `now_playing()`, `queue()`, `set_volume(delta)`.
 - **Constraints**: NO play/pause anywhere (flagged off); token refresh handled internally.
 - **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas.
 
-### N2 [now-playing] Screen 4a UI
+### N2 [now-playing] Screen 4a UI · #7
 - **Goal**: build final pick 4a.
 - **Scope**: 1-bit dithered art square (P5), title/metadata, up-next queue pane (wheel scrolls
   queue is WRONG — wheel = volume; queue is display-only), footer "⟲ volume · press words".
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
 
-### N3 [now-playing] Lyrics overlay — design + build
+### N3 [now-playing] Lyrics overlay — design + build · #8
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.
 - **Scope**: design in BERG language first (paper card over dimmed 4a suggested), then build;
   synced or static lyrics per what Spotify service exposes; press again / back dismisses.
@@ -72,13 +115,13 @@ design epic (D1–D3) can run any time.
 
 ## Epic: weather (screen 4b)
 
-### W1 [weather] Weather data service — NWS + OpenUV
+### W1 [weather] Weather data service — NWS + OpenUV · #9
 - **Goal**: current conditions, 5-day + 7-day forecast, hourly UV index.
 - **Scope**: NWS forecast API + OpenUV client; walk-verdict generator (plain-spoken italic quote
   from temp/UV/precip windows); cache + periodic refresh (glanceable snapshot, not live).
 - **Acceptance**: fixture tests incl. verdict phrasing rules; graceful stale-data state.
 
-### W2 [weather] Screen 4b UI
+### W2 [weather] Screen 4b UI · #10
 - **Goal**: build final pick 4b.
 - **Scope**: thin status topbar → compact UV "WALK?" band (~¼ height; solid=extreme,
   dithered-lines=high, faint=low, legend ▮▤▮) → big current temp left + 5-day right → footer.
@@ -87,7 +130,7 @@ design epic (D1–D3) can run any time.
 
 ## Epic: playlist (screen 4c)
 
-### L1 [playlist] Playlist grid screen 4c
+### L1 [playlist] Playlist grid screen 4c · #11
 - **Goal**: build final pick 4c.
 - **Scope**: 2×3 (or 4-wide) dithered cover grid (P5), fat labels; selected tile pops onto paper
   card with ▶; wheel walks grid, press plays via Spotify service (N1).
@@ -95,14 +138,14 @@ design epic (D1–D3) can run any time.
 
 ## Epic: feed (screen 4f)
 
-### F1 [feed] X/Twitter snapshot service
+### F1 [feed] X/Twitter snapshot service · #12
 - **Goal**: periodic read-only feed snapshot.
 - **Scope**: fetch N recent posts from followed handles/list; strip to text+handle+time;
   per-handle accent color assignment; refresh on interval.
 - **Constraints**: read-only; snapshot semantics (no live updates mid-view).
 - **Acceptance**: fixture snapshot renders ≥3 posts; refresh swaps atomically.
 
-### F2 [feed] Screen 4f UI
+### F2 [feed] Screen 4f UI · #13
 - **Goal**: build final pick 4f (BERG-pushed 3d renderer).
 - **Scope**: dark desk, ~3 posts visible, selected post on cream hard-outline+offset card, serif
   bodies, mono handles, dashed dividers, mustard footer, receipt-roll progress rail (right).
@@ -112,13 +155,13 @@ design epic (D1–D3) can run any time.
 
 ## Epic: photo (screen 4g)
 
-### H1 [photo] Photo source + rotation service
+### H1 [photo] Photo source + rotation service · #14
 - **Goal**: local photo library with slideshow rotation.
 - **Scope**: photo ingest (local dir/drop), rotation timer ("reprints in X min"), ordering,
   "keep on show" pin (wheel press), skip (wheel turn); caption metadata.
 - **Acceptance**: N/M counter + reprint countdown correct across skip/keep interactions.
 
-### H2 [photo] Screen 4g UI
+### H2 [photo] Screen 4g UI · #15
 - **Goal**: build final pick 4g.
 - **Scope**: cream frame, true 1-bit Atkinson dither over the real photo (P5), printed serif
   caption, "photo N/M · reprints in X min" line.
@@ -126,13 +169,13 @@ design epic (D1–D3) can run any time.
 
 ## Epic: etymology (screens 2a→2b→2c)
 
-### E1 [etymology] Word-origin data service
+### E1 [etymology] Word-origin data service · #16
 - **Goal**: day's word + nested origin trace.
 - **Scope**: Wiktionary-style source; recursive trace structure (stage → sub-trace → … → root);
   daily selection; cache the day's tree.
 - **Acceptance**: `travailler`-style fixture yields a ≥3-depth tree with a terminal root.
 
-### E2 [etymology] Drill-down screen (one state machine, 3 depths)
+### E2 [etymology] Drill-down screen (one state machine, 3 depths) · #17
 - **Goal**: build 2a/2b/2c as ONE screen with depth states — not three screens.
 - **Scope**: depth 0 = root-of-day + trace ladder (wheel scrolls stages); press digs into
   highlighted stage (depth 1, breadcrumb grows); bottom = dead-end reveal (depth 2); back walks
@@ -141,19 +184,19 @@ design epic (D1–D3) can run any time.
 
 ## Epic: design (remaining design work — can run anytime)
 
-### D1 [design] Home screen — design + build
+### D1 [design] Home screen — design + build · #18
 - **Goal**: the button-hold target. Not yet mocked.
 - **Scope**: design in BERG language on the claude.ai/design canvas, get approval, then build;
   likely a glanceable launcher/status card for the 6 screens.
 - **Acceptance**: mock approved; hold from any screen lands here; presets 1–4 still work from it.
 
-### D2 [design] Settings screen — design + build (konami entry)
+### D2 [design] Settings screen — design + build (konami entry) · #19
 - **Goal**: hidden config screen. Not yet mocked.
 - **Scope**: konami-code entry (P3 hook), wheel moves field / press edits / back exits;
   minimal fields (wifi, brightness, feed handles, photo source, hold-threshold).
 - **Acceptance**: mock approved; unreachable via presets; full wheel-only operation.
 
-### D3 [design] Decision — reskin 4a/4b/4c TUI→BERG or keep two-layer mix
+### D3 [design] Decision — reskin 4a/4b/4c TUI→BERG or keep two-layer mix · #20
 - **Goal**: settle the open visual question.
 - **Scope**: try one screen (suggest 4b) in full BERG on the design canvas; compare on-device
   legibility vs gruvbox TUI chrome; document verdict in design spec + this board.
