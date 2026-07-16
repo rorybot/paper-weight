@@ -9,7 +9,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
-| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | Backlog (wave 2) |
+| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | Backlog (after N2) |
 
 ## Ownership (only these paths)
@@ -97,10 +97,10 @@ type NowPlayingSnapshotV1 = {
 - [x] No Application / mix.exs edits
 
 ### N2
-- [ ] Matches now-playing-4a intent
-- [ ] Shows art / title / queue / volume affordance
-- [ ] No transport controls
-- [ ] No shell edits
+- [x] Matches now-playing-4a intent
+- [x] Shows art / title / queue / volume affordance
+- [x] No transport controls
+- [x] No shell edits
 
 ## Deps request
 
@@ -126,5 +126,12 @@ type NowPlayingSnapshotV1 = {
 - Token refresh (`Auth.refresh_access_token/2`) and the Spotify client are both HTTP-injected;
   swap in `Auth.default_http_post/0` / `Client.default_http/0` (both use `:httpc`) for wave-3 wiring.
 - Volume intent name frozen: `set_volume`. Use P5 dither as library; don't edit it.
-- Not done (by design, N1 scope): Preact screen (N2), lyrics content (N3), Application/mix.exs
-  registration (wave 3), playlist play-by-id (L1).
+- N1 deliberately excluded the Preact screen; N2 now supplies it. Lyrics content (N3),
+  Application/mix.exs registration (wave 3), and playlist play-by-id (L1) remain unwired.
+- N2 done: `src/device-ui/src/screens/now-playing/` provides the pure 4a view model, fixture,
+  Preact screen, local gruvbox layout, and focused SSR/model tests.
+- The frozen N1 payload drives title, metadata, progress, volume, and a display-only queue;
+  host P4 PBM artwork is converted through the existing browser-safe P5 renderer.
+- No buttons, transport actions, shell edits, protocol edits, or other-lane edits were added.
+- Validation: `npm run check` passes 17 files / 81 tests plus typecheck/build; Chromium was
+  visually checked at exactly 800x480 with rendered 1-bit art and no clipping.

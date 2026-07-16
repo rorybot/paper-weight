@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · N2 #7 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
 | **Ready** | — |
-| **Backlog** | N2–N3 · L1 · D1–D3 |
+| **Backlog** | N3 · L1 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -115,12 +115,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas. Done: 31 mocked
   tests green under `host/test/paper_weight/spotify/`, see spec.md Next Session chunk.
 
-### N2 [now-playing] Screen 4a UI · #7
+### N2 [now-playing] Screen 4a UI · #7 ✅ Done
 - **Goal**: build final pick 4a.
 - **Scope**: 1-bit dithered art square (P5), title/metadata, up-next queue pane (wheel scrolls
   queue is WRONG — wheel = volume; queue is display-only), footer "⟲ volume · press words".
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
+- **Done**: pure Preact 4a screen renders PBM art, metadata, progress, volume, and a display-only
+  queue at 800x480; 81 device-UI tests plus typecheck/build pass; #7 closed 2026-07-16.
 
 ### N3 [now-playing] Lyrics overlay — design + build · #8
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.
