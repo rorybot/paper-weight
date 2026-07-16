@@ -10,7 +10,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P0 | [#21](https://github.com/rorybot/paper-weight/issues/21) | Device smoke — kiosk + presets 1–4 → mock frames | **Done** (closed) |
 | P1 | [#2](https://github.com/rorybot/paper-weight/issues/2) | Architecture spike — runtime & stack | **Done** (closed) |
 | P2 | [#1](https://github.com/rorybot/paper-weight/issues/1) | Input daemon — evdev → event bus | **Done** (closed) |
-| P3 | [#3](https://github.com/rorybot/paper-weight/issues/3) | Screen shell — router, overlays, back stack | **In progress** (integrating against P2 events) |
+| P3 | [#3](https://github.com/rorybot/paper-weight/issues/3) | Screen shell — router, overlays, back stack | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 
@@ -23,10 +23,18 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 ## Next Session Context Chunk (2026-07-16 hygiene)
 
-- GH + `kanban/board.md` + this table: Done P0/P1/P2/P4/P5; **In progress P3 #3**; Ready P0-1 #22; rest Backlog.
-- Done implementations now in-tree: `src/input-bridge/` (P2), `src/device-ui/` design tokens+Card (P4), `host/` dither (P5), shell WIP under `src/device-ui/src/shell/` (P3).
+- GH + `kanban/board.md` + this table: Done P0/P1/P2/P4/P5; Ready P0-1 #22; rest Backlog.
 - Prefer `scripts/set-card-status.ps1`; do not claim status via local edit alone.
 - **P0-1 #22** still Ready: device is flashed and P0 passed, but formal stock-backup/hash acceptance may still be incomplete — confirm before Done.
+
+## Next Session Context Chunk (P3 — 2026-07-16)
+
+- Shell lives in `src/device-ui/src/shell/`: pure `routeShellInput`, `ScreenShell`, `ShellApp` harness.
+- Interaction map (design §Interaction) covered in `router.navigation.test.ts`; P2 JSON v1 via `bridge.ts`; host keys via `devKeyboard.ts`.
+- Wheel turns do **not** reset `konamiIndex` (sequence can complete alongside volume/scroll).
+- Settings: presets inactive; back exits (history or home). Feed enlarge / NP lyrics are overlays.
+- Validate: `cd src/device-ui && npm run check` (41 tests). Dev: `npm run dev` · `?bridge=0` skips SSE.
+- #3 closed + project Status Done. Next: screen cards (N1/W1/…) or finish P0-1 formal backup.
 
 ## Next Session Context Chunk (P5)
 

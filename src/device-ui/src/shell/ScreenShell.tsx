@@ -1,6 +1,6 @@
-import type { ComponentChildren } from preact;
+import type { ComponentChildren } from "preact";
 
-import type { OverlayId, ScreenId, ShellState } from ./model;
+import type { OverlayId, ScreenId, ShellState } from "./model";
 
 interface ScreenShellProps {
   readonly state: ShellState;
@@ -8,15 +8,16 @@ interface ScreenShellProps {
   readonly renderOverlay: (overlay: OverlayId) => ComponentChildren;
 }
 
+/** Navigation chrome only — screens stay pure `state → view` outside this. */
 export const ScreenShell = ({
   state,
   renderScreen,
   renderOverlay,
 }: ScreenShellProps) => (
-  <main data-screen={state.screen} data-shell=screen>
-    <section data-shell-layer=screen>{renderScreen(state.screen)}</section>
+  <main data-screen={state.screen} data-shell="screen">
+    <section data-shell-layer="screen">{renderScreen(state.screen)}</section>
     {state.overlay === null ? null : (
-      <section data-overlay={state.overlay} data-shell-layer=overlay>
+      <section data-overlay={state.overlay} data-shell-layer="overlay">
         {renderOverlay(state.overlay)}
       </section>
     )}

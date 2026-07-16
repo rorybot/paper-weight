@@ -10,8 +10,8 @@ implements from the card + its feature spec only). Epic prefix in title. Each ca
 **repo issue** (`#N`) on the project board — **not draft items**.
 
 Dependency order: **P0-1** (device flash) → **P0** (hardware smoke) in parallel with host work;
-**P1, P2 done**; **P0 done**; now **P3** (screen shell, in progress); screen epics parallel
-after shell; design epic anytime.
+**P1–P5 done** (platform foundation complete except optional P0-1 formal backup); screen
+epics parallel now; design epic anytime.
 
 **Status = GitHub project Status field.** This file is a mirror only. Never mark a card
 In progress / Done here unless the same change succeeded on the remote project.
@@ -19,8 +19,8 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0 #21 · P1 #2 · P2 #1 · P4 #4 · P5 #5 |
-| **In progress** | P3 #3 |
+| **Done** | P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
+| **In progress** | — |
 | **Ready** | P0-1 #22 |
 | **Backlog** | N1–N3 · W1–W2 · L1 · F1–F2 · H1–H2 · E1–E2 · D1–D3 |
 
@@ -67,12 +67,15 @@ Status snapshot (2026-07-16, verified against remote project):
 - **Acceptance**: fake-evdev test feed produces the exact event stream; hold threshold configurable.
 - **Done**: `src/input-bridge/` provides configurable 64-bit Linux evdev normalization, a versioned loopback SSE bus, systemd unit, and 14 passing tests.
 
-### P3 [platform] Screen shell — router, overlays, back stack · #3 · **In progress**
+### P3 [platform] Screen shell — router, overlays, back stack · #3 ✅ Done
 - **Goal**: top-level navigation container.
 - **Scope**: presets 1–4 hard-switch screens; hold→Home from anywhere; back = up one level /
   dismiss overlay; overlay layer (lyrics); konami-code listener → Settings.
 - **Constraints**: screens are pure `state → view` functions; router owns all input routing.
 - **Acceptance**: interaction map in design spec §Interaction reproduced exactly in tests.
+- **Done**: `src/device-ui/src/shell/` pure `routeShellInput` + `ScreenShell` + P2 SSE bridge
+  adapter + dev keyboard map; interaction-map tests (presets/hold/back/konami/wheel/press per
+  screen). `npm run check` 41 tests. Harness: `ShellApp` (`?bridge=0` keyboard-only).
 
 ### P4 [platform] BERG design system tokens + card component · #4 ✅ Done
 - **Goal**: shared visual layer for all screens.

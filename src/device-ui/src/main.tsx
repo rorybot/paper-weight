@@ -6,7 +6,7 @@ import "@fontsource/space-grotesk/700.css";
 
 import { render } from "preact";
 
-import { FeedSample } from "./sample/FeedSample";
+import { ShellApp } from "./shell/ShellApp";
 import "./styles/app.css";
 
 const root = document.getElementById("app");
@@ -15,5 +15,10 @@ if (!root) {
   throw new Error("Missing #app mount point");
 }
 
-render(<FeedSample />, root);
+// P3 shell harness (P4 FeedSample still renders on preset 4 / feed).
+// ?bridge=0 disables P2 EventSource for pure keyboard dev.
+const params = new URLSearchParams(window.location.search);
+const bridgeUrl =
+  params.get("bridge") === "0" ? null : "http://127.0.0.1:9137/v1/events";
 
+render(<ShellApp bridgeUrl={bridgeUrl} />, root);

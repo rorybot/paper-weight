@@ -23,6 +23,87 @@ body {
   font-size: var(--pw-text-min);
 }
 
+/* P3 shell chrome */
+.shell-root {
+  position: relative;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+}
+
+.shell-root [data-shell="screen"] {
+  width: 800px;
+  height: 480px;
+}
+
+.shell-root [data-shell-layer="overlay"] {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 55%);
+  pointer-events: none;
+}
+
+.shell-overlay-chrome {
+  width: min(720px, 92%);
+  pointer-events: auto;
+}
+
+.shell-placeholder {
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  width: 800px;
+  height: 480px;
+  padding: 24px;
+  background: var(--pw-desk);
+  color: var(--pw-paper);
+  text-align: center;
+}
+
+.shell-placeholder__label {
+  margin: 0;
+  font-family: var(--pw-font-display);
+  font-size: 42px;
+  line-height: 1;
+}
+
+.shell-placeholder__detail {
+  margin: 0;
+  max-width: 36rem;
+  color: color-mix(in srgb, var(--pw-paper) 70%, transparent);
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+}
+
+.shell-hud {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--pw-paper) 20%, transparent);
+  background: rgb(0 0 0 / 70%);
+  color: var(--pw-paper);
+  font-family: var(--pw-font-mono);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.shell-hud__hint {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--pw-paper) 65%, transparent);
+}
+
+.shell-hud__cmd {
+  color: var(--pw-accent);
+}
+
 .sample-screen {
   display: grid;
   grid-template-rows: 34px 1fr 38px;
