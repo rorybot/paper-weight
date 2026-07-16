@@ -9,6 +9,7 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
 - **Kanban**: https://github.com/users/rorybot/projects/1 (mirror: `kanban/board.md`)
 - **Status updates**: `scripts/set-card-status.ps1` via `gh` (not MCP alone). See `AGENTS.md` / `CLAUDE.md` kanban rules.
 - **GitHub auth check**: `scripts/check-gh-auth.ps1` — Windows `gh` keyring is SoT; do not reauth unless it fails.
+- **CI / PR process**: `docs/architecture/ci-and-pr.md` — **no direct commits to `master`**; open a PR; required check is **`ci`**.
 
 ## Immutable principles
 1. **Token optimization first** — high-signal artifacts only (specs, contracts, pseudo-code);
@@ -36,7 +37,8 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
 3. Designer output (if UI work beyond the locked spec) → `features/<name>/design.md`.
 4. PM breaks spec into kanban cards → GitHub project + `features/<name>/cards.md`.
 5. Junior implements from the compressed card ONLY, in `features/<name>/impl/` → merged to `src/`.
-6. Senior reviews critical paths, security, and function purity only.
+6. Open a **PR** from a branch (`lane/*`, `chore/*`, `fix/*`, …); wait for **`ci`** green; merge to `master`.
+7. Senior reviews critical paths, security, and function purity only (selective).
 
 ## Parallel multi-agent lanes (screen epics)
 When running **weather + feed + Spotify** agents together, follow

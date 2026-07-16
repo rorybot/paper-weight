@@ -112,4 +112,5 @@ src/                 # application code (after platform cards land)
 - One kanban card per session; implement from card + its feature slice only.  
 - Functional style: pure functions, composition, immutability.  
 - No `src/` app code that fights `workflow-v1.md`.  
-- Details: `PROJECT_INSTRUCTIONS.md` and `CLAUDE.md`.
+- **All changes via PR** — do not push commits straight to `master` (branch protection + CI).  
+- Details: `PROJECT_INSTRUCTIONS.md`, `CLAUDE.md`, **`docs/architecture/ci-and-pr.md`**.

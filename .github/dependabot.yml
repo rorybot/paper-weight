@@ -1,0 +1,23 @@
+# Tier 3 — keep Actions + npm + Cargo patches from rotting
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels: [ci, dependencies]
+
+  - package-ecosystem: npm
+    directory: "/src/device-ui"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels: [device-ui, dependencies]
+
+  - package-ecosystem: cargo
+    directory: "/src/input-bridge"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels: [input-bridge, dependencies]
