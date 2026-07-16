@@ -19,9 +19,9 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **N1 #6** |
 | **In progress** | — |
-| **Ready** | **N1 #6 · W1 #9 · F1 #12** (parallel wave-1 lanes) |
+| **Ready** | **W1 #9 · F1 #12** (parallel wave-1 lanes) |
 | **Backlog** | N2–N3 · W2 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -100,12 +100,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: now-playing (screen 4a)
 
-### N1 [now-playing] Spotify data service · #6 · Ready (lane wave 1)
+### N1 [now-playing] Spotify data service · #6 · Done (lane wave 1)
 - **Goal**: now-playing metadata, up-next queue, volume control.
 - **Scope**: Spotify API/connect client; expose `now_playing()`, `queue()`, `set_volume(delta)`.
 - **Constraints**: NO play/pause anywhere (flagged off); token refresh handled internally.
   Own only `host/lib/paper_weight/spotify/**` — see `features/now-playing/spec.md`.
-- **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas.
+- **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas. Done: 31 mocked
+  tests green under `host/test/paper_weight/spotify/`, see spec.md Next Session chunk.
 
 ### N2 [now-playing] Screen 4a UI · #7
 - **Goal**: build final pick 4a.
