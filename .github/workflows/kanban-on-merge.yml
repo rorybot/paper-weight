@@ -1,0 +1,28 @@
+# After a PR merges, best-effort close linked issues + set project Status=Done.
+# User projects often need a PAT with `project` scope in secret PROJECT_TOKEN.
+# Without it the job still succeeds (soft-fail).
+
+name: kanban-on-merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  sync:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync kanban for Closes #N
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN != '' && secrets.PROJECT_TOKEN || github.token }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          REPO: ${{ github.repository }}
+          OWNER: rorybot
+        run: bash scripts/ci/kanban-on-merge.sh

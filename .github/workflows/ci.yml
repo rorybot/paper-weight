@@ -1,0 +1,140 @@
+# Path-filtered CI. Branch protection requires the single status check "ci".
+# Sub-jobs may skip when paths are untouched; "ci" always runs and aggregates.
+
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      device_ui: ${{ steps.filter.outputs.device_ui }}
+      host: ${{ steps.filter.outputs.host }}
+      input_bridge: ${{ steps.filter.outputs.input_bridge }}
+      screens: ${{ steps.filter.outputs.screens }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            device_ui:
+              - 'src/device-ui/**'
+            host:
+              - 'host/**'
+            input_bridge:
+              - 'src/input-bridge/**'
+            screens:
+              - 'src/device-ui/src/screens/**'
+
+  device-ui:
+    needs: changes
+    if: needs.changes.outputs.device_ui == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/device-ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/device-ui/package-lock.json
+      - run: npm ci
+      - run: npm run check
+
+  host:
+    needs: changes
+    if: needs.changes.outputs.host == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: host
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.17"
+          otp-version: "27"
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+      - run: mix deps.get || true
+      - run: mix test
+
+  input-bridge:
+    needs: changes
+    if: needs.changes.outputs.input_bridge == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/input-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: fmt + test + clippy (linux host)
+        run: |
+          cargo fmt --check
+          cargo test
+          cargo clippy --all-targets -- -D warnings
+
+  screen-tests:
+    needs: changes
+    if: needs.changes.outputs.screens == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require co-located tests for Screen modules
+        run: bash scripts/ci/check-screen-tests.sh
+
+  lane-guard:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Parallel-lane ownership guard
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: bash scripts/ci/lane-guard.sh
+
+  # Single required check for branch protection (skipped sub-jobs do not fail this).
+  ci:
+    if: always()
+    needs: [changes, device-ui, host, input-bridge, screen-tests, lane-guard]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate results
+        run: |
+          set -euo pipefail
+          ok() {
+            local name="$1" result="$2"
+            case "$result" in
+              success|skipped) echo "OK  $name=$result" ;;
+              *) echo "FAIL $name=$result"; return 1 ;;
+            esac
+          }
+          fail=0
+          ok device-ui "${{ needs.device-ui.result }}" || fail=1
+          ok host "${{ needs.host.result }}" || fail=1
+          ok input-bridge "${{ needs.input-bridge.result }}" || fail=1
+          ok screen-tests "${{ needs.screen-tests.result }}" || fail=1
+          # lane-guard only on PRs; on push to master it is skipped
+          ok lane-guard "${{ needs.lane-guard.result }}" || fail=1
+          exit "$fail"

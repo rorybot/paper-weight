@@ -24,6 +24,13 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Copy-paste agent prompts: `features/_lanes/agent-prompts.md`
 - Wave 1 = three host services in parallel (W1/F1/N1); **do not** edit `application.ex`, shell, or other lanes.
 
+## Git / PR (mandatory)
+
+- **Never commit directly to `master`.** Branch → PR → wait for required check **`ci`** → merge.
+- Path-filtered jobs: device-ui (`npm run check`), host (`mix test`), input-bridge (fmt/test/clippy),
+  lane-guard, screen-test co-location. Docs: `docs/architecture/ci-and-pr.md`.
+- Multi-lane code changes need label `cross-lane` or branch `chore/*`.
+
 ## Kanban rules (mandatory — GitHub is source of truth)
 
 Board: https://github.com/users/rorybot/projects/1  

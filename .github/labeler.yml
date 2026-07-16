@@ -1,0 +1,67 @@
+# Auto-label PRs by path (Tier 2)
+
+device-ui:
+  - changed-files:
+      - any-glob-to-any-file: src/device-ui/**
+
+host:
+  - changed-files:
+      - any-glob-to-any-file: host/**
+
+input-bridge:
+  - changed-files:
+      - any-glob-to-any-file: src/input-bridge/**
+
+feed:
+  - changed-files:
+      - any-glob-to-any-file:
+          - host/lib/paper_weight/feed/**
+          - host/test/paper_weight/feed/**
+          - src/device-ui/src/screens/feed/**
+          - src/device-ui/src/protocol/feed.ts
+          - features/feed/**
+
+weather:
+  - changed-files:
+      - any-glob-to-any-file:
+          - host/lib/paper_weight/weather/**
+          - host/test/paper_weight/weather/**
+          - src/device-ui/src/screens/weather/**
+          - src/device-ui/src/protocol/weather.ts
+          - features/weather/**
+
+now-playing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - host/lib/paper_weight/spotify/**
+          - host/test/paper_weight/spotify/**
+          - src/device-ui/src/screens/now-playing/**
+          - src/device-ui/src/protocol/now_playing.ts
+          - features/now-playing/**
+
+etymology:
+  - changed-files:
+      - any-glob-to-any-file:
+          - host/lib/paper_weight/etymology/**
+          - host/lib/paper_weight/etymology.ex
+          - host/test/paper_weight/etymology/**
+          - src/device-ui/src/screens/etymology/**
+          - src/device-ui/src/protocol/etymology.ts
+          - features/etymology/**
+
+shell:
+  - changed-files:
+      - any-glob-to-any-file: src/device-ui/src/shell/**
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - '**/*.md'
+          - kanban/**
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - scripts/ci/**
