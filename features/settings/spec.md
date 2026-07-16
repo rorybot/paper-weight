@@ -7,7 +7,7 @@ Shell already implements konami → `settings` + `move-settings-field` / `edit-s
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| D2 | [#19](https://github.com/rorybot/paper-weight/issues/19) | Settings screen — design + build | **In review** (PR #37) |
+| D2 | [#19](https://github.com/rorybot/paper-weight/issues/19) | Settings screen — design + build | **Done** (PR #37) |
 
 ## Ownership
 
