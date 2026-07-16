@@ -20,9 +20,9 @@ Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
-| **In progress** | — |
+| **In progress** | **L1 #11** |
 | **Ready** | — |
-| **Backlog** | N2–N3 · L1 · D1–D3 |
+| **Backlog** | N2–N3 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -150,11 +150,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: playlist (screen 4c)
 
-### L1 [playlist] Playlist grid screen 4c · #11
+### L1 [playlist] Playlist grid screen 4c · #11 · In progress
 - **Goal**: build final pick 4c.
 - **Scope**: 2×3 (or 4-wide) dithered cover grid (P5), fat labels; selected tile pops onto paper
   card with ▶; wheel walks grid, press plays via Spotify service (N1).
 - **Acceptance**: matches `playlist-4c.png`; press starts playback and switches to Now Playing.
+- **WIP**: `src/device-ui/src/screens/playlist/**` + `protocol/playlist.ts` on `lane/playlist-l1`;
+  pure reduce for wheel/play; fixture mockup names; play → `play_playlist` args (NP navigate = wave 3).
 
 ## Epic: feed (screen 4f)
 
