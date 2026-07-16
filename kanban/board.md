@@ -19,9 +19,8 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · L1 #11 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · N3 #8 · L1 #11 · D2 #19 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
-| **In review** | **N3 #8** (PR #36) · **D2 #19** (PR #37) |
 | **Ready** | **N2 #7 · D1 #18 · D3 #20** |
 | **Backlog** | — |
 
@@ -123,14 +122,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
 
-### N3 [now-playing] Lyrics overlay — design + build · #8 · In review (PR #36)
+### N3 [now-playing] Lyrics overlay — design + build · #8 ✅ Done
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.
 - **Scope**: design in BERG language first (paper card over dimmed 4a suggested), then build;
   synced or static lyrics per what Spotify service exposes; press again / back dismisses.
 - **Acceptance**: design snippet approved on the claude.ai/design canvas; overlay toggles on
   device without disturbing NP state.
-- **PR**: https://github.com/rorybot/paper-weight/pull/36 — `LyricsOverlay` BERG paper card +
-  pure active-line sync; shell already owns toggle; design snippet in feature spec.
+- **Done**: PR #36 — `LyricsOverlay` BERG paper card + pure active-line sync; shell owns toggle;
+  design snippet in feature spec; wave-3 wires `renderOverlay`.
 
 ## Epic: weather (screen 4b)
 
@@ -227,13 +226,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   likely a glanceable launcher/status card for the 6 screens.
 - **Acceptance**: mock approved; hold from any screen lands here; presets 1–4 still work from it.
 
-### D2 [design] Settings screen — design + build (konami entry) · #19 · In review (PR #37)
+### D2 [design] Settings screen — design + build (konami entry) · #19 ✅ Done
 - **Goal**: hidden config screen. Not yet mocked.
 - **Scope**: konami-code entry (P3 hook), wheel moves field / press edits / back exits;
   minimal fields (wifi, brightness, feed handles, photo source, hold-threshold).
 - **Acceptance**: mock approved; unreachable via presets; full wheel-only operation.
-- **PR**: https://github.com/rorybot/paper-weight/pull/37 — `screens/settings/**` BERG card +
-  pure move/edit reduce; design snippet in `features/settings/spec.md`; shell owns konami/back.
+- **Done**: PR #37 — `screens/settings/**` BERG card + pure move/edit reduce; shell owns
+  konami/back; wave-3 wires `SettingsScreen`.
 
 ### D3 [design] Decision — reskin 4a/4b/4c TUI→BERG or keep two-layer mix · #20 · Ready
 - **Goal**: settle the open visual question.
