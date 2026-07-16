@@ -1,8 +1,8 @@
 import type { NowPlayingSnapshotV1 } from "../../protocol/now_playing";
 
 /**
- * Fixture shaped for `spec/now-playing-4a.png` + N3 lyrics overlay.
- * Timed lines around progress 1:22 (82_000 ms).
+ * Fixture shaped for `spec/now-playing-4a.png` (N2) + timed lyrics (N3).
+ * Progress 1:22 (82_000 ms); volume 70% matches mockup segments.
  */
 export const nowPlayingFixtureSnapshot: NowPlayingSnapshotV1 = Object.freeze({
   as_of: "2026-07-16T14:32:00Z",
@@ -10,18 +10,27 @@ export const nowPlayingFixtureSnapshot: NowPlayingSnapshotV1 = Object.freeze({
   track: Object.freeze({
     title: "Galactic",
     artist: "Tenure",
-    album: "Sink",
-    art_pbm_base64: null,
+    album: "Sink · 2020",
+    art_pbm_base64: "UDQKMTYgMTYKqlVVqqpVVaqqVVWqqlVVqqpVVaqqVVWqqlVVqqpVVao=",
     duration_ms: 221_000,
     progress_ms: 82_000,
   }),
   queue: Object.freeze([
     Object.freeze({ title: "Last'en", artist: "Tenure" }),
     Object.freeze({ title: "Housebound", artist: "Tenure" }),
-    Object.freeze({ title: "Natural Light", artist: "Tenure" }),
+    Object.freeze({ title: "Natural Light", artist: "Sink" }),
     Object.freeze({ title: "Circuits", artist: "Tenure" }),
+    Object.freeze({ title: "Soft Static", artist: "Night Bus" }),
+    Object.freeze({ title: "Monorail", artist: "Night Bus" }),
+    Object.freeze({ title: "New Geometry", artist: "Tenure" }),
+    Object.freeze({ title: "Star Map", artist: "Sink" }),
+    Object.freeze({ title: "Receiver", artist: "Night Bus" }),
+    Object.freeze({ title: "Signal Path", artist: "Tenure" }),
+    Object.freeze({ title: "Night Window", artist: "Sink" }),
+    Object.freeze({ title: "Arc Lamp", artist: "Tenure" }),
+    Object.freeze({ title: "Terminal", artist: "Night Bus" }),
   ]),
-  volume: Object.freeze({ level: 62 }),
+  volume: Object.freeze({ level: 70 }),
   lyrics: Object.freeze({
     lines: Object.freeze([
       Object.freeze({ t_ms: 0, text: "tape hiss, then a door" }),

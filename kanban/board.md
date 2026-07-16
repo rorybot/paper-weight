@@ -21,7 +21,8 @@ Status snapshot (2026-07-16, verified against remote project):
 |--------|--------|
 | **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · N3 #8 · L1 #11 · D2 #19 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
-| **Ready** | **N2 #7 · D1 #18 · D3 #20** |
+| **In review** | **N2 #7** (PR #39) |
+| **Ready** | **D1 #18 · D3 #20** |
 | **Backlog** | — |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -115,12 +116,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas. Done: 31 mocked
   tests green under `host/test/paper_weight/spotify/`, see spec.md Next Session chunk.
 
-### N2 [now-playing] Screen 4a UI · #7 · Ready
+### N2 [now-playing] Screen 4a UI · #7 · In review (PR #39)
 - **Goal**: build final pick 4a.
 - **Scope**: 1-bit dithered art square (P5), title/metadata, up-next queue pane (wheel scrolls
   queue is WRONG — wheel = volume; queue is display-only), footer "⟲ volume · press words".
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
+- **PR**: https://github.com/rorybot/paper-weight/pull/39 — pure Preact 4a screen (PBM art,
+  metadata, progress, volume, display-only queue); coexists with N3 `LyricsOverlay`.
 
 ### N3 [now-playing] Lyrics overlay — design + build · #8 ✅ Done
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.

@@ -9,7 +9,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
-| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Ready** (wave 2) |
+| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **In review** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 
 ## Ownership (only these paths)
@@ -113,10 +113,10 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - [x] No Application / mix.exs edits
 
 ### N2
-- [ ] Matches now-playing-4a intent
-- [ ] Shows art / title / queue / volume affordance
-- [ ] No transport controls
-- [ ] No shell edits
+- [x] Matches now-playing-4a intent
+- [x] Shows art / title / queue / volume affordance
+- [x] No transport controls
+- [x] No shell edits
 
 ### N3
 - [x] BERG paper-card overlay UI (fixture-driven)
@@ -136,10 +136,10 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 
 ## Next Session Context Chunk
 
-- N3 UI: `screens/now-playing/LyricsOverlay` + pure `lyricsModel` (active line, window, format).
-  Fixture: `nowPlayingFixtureSnapshot` (Galactic/Tenure timed lines @ 1:22).
-  Shell already toggles `overlay: "lyrics"` on NP press / dismiss on press+back — **do not edit shell**.
-  Wave-3 wires `renderOverlay("lyrics")` → `<LyricsOverlay snapshot={…} />`.
-- N1 still stubs host `lyrics: null`; live lyrics fetch is a later host follow-up.
-- N2 (4a base screen) still Ready — overlay is independent of full N2 chrome.
-- N1 path: `cd host && mix test test/paper_weight/spotify/` (31 tests).
+- N2 screen: `NowPlayingScreen` + pure `buildNowPlayingViewModel` (progress, volume segments,
+  display-only queue). Gruvbox TUI chrome; PBM art via photo `pbm` decode.
+- N3 overlay: `LyricsOverlay` + `lyricsModel` (already on master, PR #36). Shared fixture
+  carries timed lyrics + N2 queue/art; `nowPlayingFixtureNoLyrics` for empty overlay.
+- Shell: wheel → `adjust-volume`; press → `lyrics` overlay — **do not edit shell**.
+- Wave-3: wire `now-playing` → `NowPlayingScreen` and `renderOverlay("lyrics")` → `LyricsOverlay`.
+- Host: `cd host && mix test test/paper_weight/spotify/` (N1, 31 tests); lyrics still null from host.
