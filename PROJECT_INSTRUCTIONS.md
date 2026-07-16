@@ -38,6 +38,11 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
 5. Junior implements from the compressed card ONLY, in `features/<name>/impl/` → merged to `src/`.
 6. Senior reviews critical paths, security, and function purity only.
 
+## Parallel multi-agent lanes (screen epics)
+When running **weather + feed + Spotify** agents together, follow
+`docs/architecture/parallel-lanes-v1.md` (path ownership, frozen WS envelope, wave 1 services
+then wave 2 screens then wave 3 wire-up). Prompts: `features/_lanes/agent-prompts.md`.
+
 ## Escalation rules (senior review required)
 - Anything touching the input daemon or screen router (shared platform code).
 - External API contracts (Spotify, NWS, OpenUV, X, Wiktionary).

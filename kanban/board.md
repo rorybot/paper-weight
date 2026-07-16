@@ -21,8 +21,10 @@ Status snapshot (2026-07-16, verified against remote project):
 |--------|--------|
 | **Done** | P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
 | **In progress** | — |
-| **Ready** | P0-1 #22 |
-| **Backlog** | N1–N3 · W1–W2 · L1 · F1–F2 · H1–H2 · E1–E2 · D1–D3 |
+| **Ready** | P0-1 #22 · **N1 #6 · W1 #9 · F1 #12** (parallel wave-1 lanes) |
+| **Backlog** | N2–N3 · W2 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
+
+Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
 ---
 
@@ -96,10 +98,11 @@ Status snapshot (2026-07-16, verified against remote project):
 
 ## Epic: now-playing (screen 4a)
 
-### N1 [now-playing] Spotify data service · #6
+### N1 [now-playing] Spotify data service · #6 · Ready (lane wave 1)
 - **Goal**: now-playing metadata, up-next queue, volume control.
 - **Scope**: Spotify API/connect client; expose `now_playing()`, `queue()`, `set_volume(delta)`.
 - **Constraints**: NO play/pause anywhere (flagged off); token refresh handled internally.
+  Own only `host/lib/paper_weight/spotify/**` — see `features/now-playing/spec.md`.
 - **Acceptance**: mocked-API tests; volume responds to wheel-tick deltas.
 
 ### N2 [now-playing] Screen 4a UI · #7
@@ -118,10 +121,11 @@ Status snapshot (2026-07-16, verified against remote project):
 
 ## Epic: weather (screen 4b)
 
-### W1 [weather] Weather data service — NWS + OpenUV · #9
+### W1 [weather] Weather data service — NWS + OpenUV · #9 · Ready (lane wave 1)
 - **Goal**: current conditions, 5-day + 7-day forecast, hourly UV index.
 - **Scope**: NWS forecast API + OpenUV client; walk-verdict generator (plain-spoken italic quote
   from temp/UV/precip windows); cache + periodic refresh (glanceable snapshot, not live).
+  Own only `host/lib/paper_weight/weather/**` — see `features/weather/spec.md`.
 - **Acceptance**: fixture tests incl. verdict phrasing rules; graceful stale-data state.
 
 ### W2 [weather] Screen 4b UI · #10
@@ -141,10 +145,11 @@ Status snapshot (2026-07-16, verified against remote project):
 
 ## Epic: feed (screen 4f)
 
-### F1 [feed] X/Twitter snapshot service · #12
+### F1 [feed] X/Twitter snapshot service · #12 · Ready (lane wave 1)
 - **Goal**: periodic read-only feed snapshot.
 - **Scope**: fetch N recent posts from followed handles/list; strip to text+handle+time;
   per-handle accent color assignment; refresh on interval.
+  Own only `host/lib/paper_weight/feed/**` — see `features/feed/spec.md`.
 - **Constraints**: read-only; snapshot semantics (no live updates mid-view).
 - **Acceptance**: fixture snapshot renders ≥3 posts; refresh swaps atomically.
 

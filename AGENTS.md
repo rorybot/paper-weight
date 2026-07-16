@@ -18,6 +18,13 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Functional style: pure functions, composition, immutability; small single-purpose modules.
 - Stack is decided in `docs/architecture/workflow-v1.md` (host Elixir + device Preact kiosk + evdev bridge).
 
+## Parallel lanes (weather / feed / spotify)
+- Playbook: `docs/architecture/parallel-lanes-v1.md`
+- Envelope (frozen): `docs/architecture/host-device-protocol-v1.md`
+- Copy-paste agent prompts: `features/_lanes/agent-prompts.md`
+- Wave 1 = three host services in parallel (W1/F1/N1); **do not** edit `application.ex`, shell, or other lanes.
+- Each agent owns only its tree under `host/lib/paper_weight/{weather,feed,spotify}/` + matching tests + `src/device-ui/src/protocol/<channel>.ts`.
+
 ## Kanban rules (mandatory — GitHub is source of truth)
 
 Board: https://github.com/users/rorybot/projects/1  
