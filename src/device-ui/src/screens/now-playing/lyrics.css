@@ -1,0 +1,132 @@
+/* N3 lyrics overlay — BERG paper card over shell dim; 800×480 safe */
+
+.ly-overlay {
+  display: flex;
+  width: min(640px, 92vw);
+  max-height: min(400px, 86vh);
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.ly-card {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  padding: 14px 18px 12px;
+  border: var(--pw-outline) solid var(--pw-ink);
+  border-radius: var(--pw-radius);
+  background: var(--pw-paper);
+  color: var(--pw-ink);
+  box-shadow: var(--pw-shadow-offset) var(--pw-shadow-offset) 0 var(--pw-accent);
+}
+
+.ly-card__eyebrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 8px;
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ly-card__eyebrow-label {
+  color: #a0533e;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ly-card__track {
+  overflow: hidden;
+  color: color-mix(in srgb, var(--pw-ink) 72%, transparent);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ly-card__body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0 8px;
+  overflow: hidden;
+}
+
+.ly-lines {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ly-line {
+  margin: 0;
+  color: color-mix(in srgb, var(--pw-ink) 42%, transparent);
+  font-family: var(--pw-font-display);
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.2;
+  letter-spacing: 0;
+  transition: color 80ms linear;
+}
+
+.ly-line[data-active="true"] {
+  color: var(--pw-ink);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.ly-line[data-past="true"] {
+  color: color-mix(in srgb, var(--pw-ink) 55%, transparent);
+}
+
+.ly-empty {
+  margin: 0;
+  padding: 28px 8px;
+  color: color-mix(in srgb, var(--pw-ink) 55%, transparent);
+  font-family: var(--pw-font-display);
+  font-size: 20px;
+  font-style: italic;
+  text-align: center;
+}
+
+.ly-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px dashed color-mix(in srgb, var(--pw-ink) 22%, transparent);
+  color: color-mix(in srgb, var(--pw-ink) 55%, transparent);
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  font-weight: 700;
+}
+
+.ly-card__footer [data-hint="dismiss"] {
+  color: var(--pw-ink);
+}
+
+.ly-card__footer [data-hint="dismiss"] strong {
+  color: #a0533e;
+}
+
+.ly-card__pos {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.ly-card__time {
+  color: color-mix(in srgb, var(--pw-ink) 45%, transparent);
+}

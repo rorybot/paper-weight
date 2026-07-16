@@ -123,12 +123,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: TUI/gruvbox chrome for now (reskin decision = D3); wheel press → lyrics (N3).
 - **Acceptance**: matches `now-playing-4a.png`; wheel=volume, press=lyrics overlay, no transport UI.
 
-### N3 [now-playing] Lyrics overlay — design + build · #8 · Ready
+### N3 [now-playing] Lyrics overlay — design + build · #8 · In review (PR #36)
 - **Goal**: press-to-toggle overlay over 4a (NOT a top-level screen). Not yet mocked.
 - **Scope**: design in BERG language first (paper card over dimmed 4a suggested), then build;
   synced or static lyrics per what Spotify service exposes; press again / back dismisses.
 - **Acceptance**: design snippet approved on the claude.ai/design canvas; overlay toggles on
   device without disturbing NP state.
+- **PR**: https://github.com/rorybot/paper-weight/pull/36 — `LyricsOverlay` BERG paper card +
+  pure active-line sync; shell already owns toggle; design snippet in feature spec.
 
 ## Epic: weather (screen 4b)
 
