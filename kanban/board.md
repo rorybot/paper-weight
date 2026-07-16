@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14** |
 | **In progress** | — |
 | **Ready** | — |
-| **Backlog** | N2–N3 · L1 · H1–H2 · D1–D3 |
+| **Backlog** | N2–N3 · L1 · H2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -172,11 +172,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: photo (screen 4g)
 
-### H1 [photo] Photo source + rotation service · #14
+### H1 [photo] Photo source + rotation service · #14 ✅ Done
 - **Goal**: local photo library with slideshow rotation.
 - **Scope**: photo ingest (local dir/drop), rotation timer ("reprints in X min"), ordering,
   "keep on show" pin (wheel press), skip (wheel turn); caption metadata.
 - **Acceptance**: N/M counter + reprint countdown correct across skip/keep interactions.
+- **Done**: `host/lib/paper_weight/photo/**` pure Rotate + Library scan + Service; 20 tests;
+  payload frozen in `features/photo/spec.md` + `protocol/photo.ts`. No Application registration.
 
 ### H2 [photo] Screen 4g UI · #15
 - **Goal**: build final pick 4g.
