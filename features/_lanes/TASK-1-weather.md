@@ -110,7 +110,7 @@ Types live in `src/device-ui/src/protocol/weather.ts`. Elixir maps should use **
 
 ```ts
 type WeatherSnapshotV1 = {
-  location_label: string;       // e.g. "Castle Rock, CO"
+  location_label: string;       // display only; env/NWS, not hardcoded home
   as_of: string;                // ISO-8601
   stale: boolean;
   current: {
@@ -168,7 +168,7 @@ Optional helper: `PaperWeight.Protocol.Envelope.wrap(:weather, gen, payload)` al
 | `grade_uv(index)` | Pure |
 | `walk_verdict(inputs)` | Pure |
 | GenServer service | Periodic refresh; keep last good snapshot; on failure keep last good + `stale: true` |
-| Config | lat/lon (default Castle Rock / Denver metro OK), refresh interval, NWS User-Agent string |
+| Config | lat/lon via `WEATHER_LAT`/`WEATHER_LON` (no home default), refresh, NWS User-Agent |
 
 **NWS:** free, no key; requires a descriptive User-Agent.  
 **OpenUV:** typically needs API key via config/env — support `OPENUV_API_KEY` or config; tests must **never** call real network (mock).

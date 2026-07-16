@@ -37,7 +37,7 @@ defmodule PaperWeight.Weather.ServiceTest do
          auto_refresh: false,
          refresh_ms: :infinity,
          openuv_api_key: "test-key",
-         nws_points_url: "https://api.weather.gov/points/39.37,-104.85",
+         nws_points_url: "https://api.weather.gov/points/0,0",
          openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
          openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
        ]}
@@ -48,7 +48,7 @@ defmodule PaperWeight.Weather.ServiceTest do
     pid = start_service(good_http())
     assert {:ok, snap} = Service.get_snapshot(pid)
     assert snap["stale"] == false
-    assert snap["location_label"] == "Castle Rock, CO"
+    assert snap["location_label"] == "Exampleville, EX"
     assert Service.get_gen(pid) == 1
   end
 
@@ -59,7 +59,7 @@ defmodule PaperWeight.Weather.ServiceTest do
         auto_refresh: false,
         refresh_ms: :infinity,
         openuv_api_key: "test-key",
-        nws_points_url: "https://api.weather.gov/points/39.37,-104.85",
+        nws_points_url: "https://api.weather.gov/points/0,0",
         openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
         openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
       ])

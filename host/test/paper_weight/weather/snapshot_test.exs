@@ -6,7 +6,7 @@ defmodule PaperWeight.Weather.SnapshotTest do
   defp sample_parts(overrides \\ %{}) do
     Map.merge(
       %{
-        location_label: "Castle Rock, CO",
+        location_label: "Exampleville, EX",
         as_of: "2026-07-16T20:00:00Z",
         current: %{temp_f: 88, summary: "Sunny"},
         days: [
@@ -33,7 +33,7 @@ defmodule PaperWeight.Weather.SnapshotTest do
       assert Map.has_key?(snap, key), "missing key #{key}"
     end
 
-    assert snap["location_label"] == "Castle Rock, CO"
+    assert snap["location_label"] == "Exampleville, EX"
     assert snap["as_of"] == "2026-07-16T20:00:00Z"
     assert snap["stale"] == false
     assert snap["current"] == %{"temp_f" => 88, "summary" => "Sunny"}

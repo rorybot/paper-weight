@@ -11,7 +11,7 @@ export const feedFixtureSnapshot: FeedSnapshotV1 = Object.freeze({
     Object.freeze({
       id: "p-nws",
       handle: "@NWSBoulder",
-      body: "Severe t-storm watch for Douglas County until 9 PM. Hail possible south of Castle Rock.",
+      body: "Severe t-storm watch for the metro until 9 PM. Hail possible south of town.",
       time_label: "12m",
       accent: "#ff6b35",
     }),

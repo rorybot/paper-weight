@@ -8,14 +8,14 @@ defmodule PaperWeight.Feed.StripTest do
 
     raw = %{
       "id" => 42,
-      "handle" => "RoryBot",
+      "handle" => "ExampleUser",
       "body" => "<p>Hello&nbsp; <b>world</b> &amp; friends\u200B</p>",
       "created_at" => "2026-07-16T12:57:00Z"
     }
 
     assert Strip.strip_post(raw, now) == %{
              id: "42",
-             handle: "@rorybot",
+             handle: "@exampleuser",
              body: "Hello world & friends",
              time_label: "3m"
            }

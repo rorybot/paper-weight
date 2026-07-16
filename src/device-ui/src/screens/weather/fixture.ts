@@ -2,7 +2,7 @@ import type { WeatherSnapshotV1 } from "../../protocol/weather";
 
 /** Fixture snapshot shaped for `spec/weather-4b.png` (W2 UI-ahead). */
 export const weatherFixtureSnapshot: WeatherSnapshotV1 = Object.freeze({
-  location_label: "castle rock, co",
+  location_label: "exampleville, ex",
   as_of: "2026-07-16T20:00:00Z",
   stale: false,
   current: Object.freeze({

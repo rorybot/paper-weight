@@ -12,7 +12,7 @@ defmodule PaperWeight.Weather.NwsTest do
   end
 
   test "parse_points extracts label and forecast URL" do
-    assert {:ok, %{location_label: "Castle Rock, CO", forecast_url: url}} =
+    assert {:ok, %{location_label: "Exampleville, EX", forecast_url: url}} =
              Nws.parse_points(load("nws_points.json"))
 
     assert String.contains?(url, "gridpoints")

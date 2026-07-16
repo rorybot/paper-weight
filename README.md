@@ -22,6 +22,11 @@ Host ↔ device: versioned WebSocket JSON. Device keeps a last-snapshot cache fo
 
 Full decision, deploy story, and module map: **`docs/architecture/workflow-v1.md`**.
 
+### Local secrets / location
+
+Copy [`.env.example`](.env.example) to `.env` (never commit). Weather lat/lon and API keys
+come from env — there is **no** home-location default in the codebase.
+
 ### Why this shape
 
 | Constraint | Implication |

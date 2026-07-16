@@ -13,7 +13,7 @@ const posts = Object.freeze<ReadonlyArray<Post>>([
   {
     handle: "@mattgolder",
     time: "3m",
-    body: "Severe t-storm watch for Douglas County until 9 PM. Hail possible south of Castle Rock.",
+    body: "Severe t-storm watch for the metro until 9 PM. Hail possible south of town.",
   },
   {
     handle: "@stoneband",
