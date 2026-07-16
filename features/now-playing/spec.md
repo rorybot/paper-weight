@@ -9,8 +9,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
-| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | Backlog (wave 2) |
-| N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | Backlog (after N2) |
+| N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Ready** (wave 2) |
+| N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Ready** (after N2) |
 
 ## Ownership (only these paths)
 
