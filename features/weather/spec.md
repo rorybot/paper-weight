@@ -8,8 +8,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Ready** (lane wave 1) |
-| W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | Backlog (wave 2) |
+| W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
+| W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
 
 ## Ownership (only these paths)
 
@@ -98,23 +98,34 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 ## Acceptance
 
 ### W1
-- [ ] Fixture tests for NWS/OpenUV adapters (mocked HTTP)
-- [ ] UV grade + walk_verdict pure tests
-- [ ] Snapshot matches `WeatherSnapshotV1`
-- [ ] Stale path when upstream fails
-- [ ] No Application / mix.exs edits
+- [x] Fixture tests for NWS/OpenUV adapters (mocked HTTP)
+- [x] UV grade + walk_verdict pure tests
+- [x] Snapshot matches `WeatherSnapshotV1`
+- [x] Stale path when upstream fails
+- [x] No Application / mix.exs edits
 
 ### W2
-- [ ] Renders fixture snapshot @ 800×480 matching mockup intent
-- [ ] Wheel toggles 5-day ↔ 7-day
-- [ ] UV band shows extreme / high / low correctly
-- [ ] No shell edits
+- [x] Renders fixture snapshot @ 800×480 matching mockup intent
+- [x] Wheel toggles 5-day ↔ 7-day
+- [x] UV band shows extreme / high / low correctly
+- [x] No shell edits
 
 ## Deps request
 
 _(lane agents append here; do not edit mix.exs)_
 
+- ~~app: add `:inets` and `:ssl`~~ **done** — `mix.exs` adds them via `optional_http_apps/0` when OTP provides `:inets` (skipped on minimal installs). Tests still inject mocks.
+- No new Hex packages required.
+
+## Supervisor child (wave 3)
+
+```elixir
+{PaperWeight.Weather.Service, []}
+```
+
 ## Next Session Context Chunk
 
-- Parallel lane ready: own only `host/lib/paper_weight/weather/` + tests + protocol weather types.
-- Envelope frozen; wave 3 wires supervisor + WS.
+- **Weather fully wired (W1+W2+shell/host)**: `PaperWeight.Weather.Service` under Application (disabled in test via `config :paper_weight_host, weather_service: :disabled`); `:inets`/`:ssl` in `mix.exs`.
+- Device: `ShellApp` renders `WeatherScreen` with fixture snapshot; wheel → `toggle-weather-range` flips local `weatherRange` 5d↔7d (`data-weather-range` on root).
+- Still later: host WebSocket push of live snapshots (replace fixture); no more weather kanban cards.
+- Other lanes: F1 feed host, N2 now-playing UI, etc.

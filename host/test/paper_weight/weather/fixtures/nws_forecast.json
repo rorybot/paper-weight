@@ -1,0 +1,160 @@
+{
+  "properties": {
+    "periods": [
+      {
+        "number": 1,
+        "name": "This Afternoon",
+        "startTime": "2026-07-16T14:00:00-06:00",
+        "endTime": "2026-07-16T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 88,
+        "temperatureUnit": "F",
+        "shortForecast": "Sunny",
+        "detailedForecast": "Sunny. High near 88."
+      },
+      {
+        "number": 2,
+        "name": "Tonight",
+        "startTime": "2026-07-16T18:00:00-06:00",
+        "endTime": "2026-07-17T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 58,
+        "temperatureUnit": "F",
+        "shortForecast": "Mostly Clear",
+        "detailedForecast": "Mostly clear. Low around 58."
+      },
+      {
+        "number": 3,
+        "name": "Friday",
+        "startTime": "2026-07-17T06:00:00-06:00",
+        "endTime": "2026-07-17T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 90,
+        "temperatureUnit": "F",
+        "shortForecast": "Mostly Sunny",
+        "detailedForecast": "Mostly sunny. High near 90."
+      },
+      {
+        "number": 4,
+        "name": "Friday Night",
+        "startTime": "2026-07-17T18:00:00-06:00",
+        "endTime": "2026-07-18T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 60,
+        "temperatureUnit": "F",
+        "shortForecast": "Partly Cloudy",
+        "detailedForecast": "Partly cloudy. Low around 60."
+      },
+      {
+        "number": 5,
+        "name": "Saturday",
+        "startTime": "2026-07-18T06:00:00-06:00",
+        "endTime": "2026-07-18T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 85,
+        "temperatureUnit": "F",
+        "shortForecast": "Slight Chance Showers",
+        "detailedForecast": "Slight chance of showers. High near 85."
+      },
+      {
+        "number": 6,
+        "name": "Saturday Night",
+        "startTime": "2026-07-18T18:00:00-06:00",
+        "endTime": "2026-07-19T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 55,
+        "temperatureUnit": "F",
+        "shortForecast": "Partly Cloudy",
+        "detailedForecast": "Partly cloudy. Low around 55."
+      },
+      {
+        "number": 7,
+        "name": "Sunday",
+        "startTime": "2026-07-19T06:00:00-06:00",
+        "endTime": "2026-07-19T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 82,
+        "temperatureUnit": "F",
+        "shortForecast": "Partly Sunny",
+        "detailedForecast": "Partly sunny. High near 82."
+      },
+      {
+        "number": 8,
+        "name": "Sunday Night",
+        "startTime": "2026-07-19T18:00:00-06:00",
+        "endTime": "2026-07-20T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 54,
+        "temperatureUnit": "F",
+        "shortForecast": "Mostly Clear",
+        "detailedForecast": "Mostly clear. Low around 54."
+      },
+      {
+        "number": 9,
+        "name": "Monday",
+        "startTime": "2026-07-20T06:00:00-06:00",
+        "endTime": "2026-07-20T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 84,
+        "temperatureUnit": "F",
+        "shortForecast": "Sunny",
+        "detailedForecast": "Sunny. High near 84."
+      },
+      {
+        "number": 10,
+        "name": "Monday Night",
+        "startTime": "2026-07-20T18:00:00-06:00",
+        "endTime": "2026-07-21T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 56,
+        "temperatureUnit": "F",
+        "shortForecast": "Clear",
+        "detailedForecast": "Clear. Low around 56."
+      },
+      {
+        "number": 11,
+        "name": "Tuesday",
+        "startTime": "2026-07-21T06:00:00-06:00",
+        "endTime": "2026-07-21T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 86,
+        "temperatureUnit": "F",
+        "shortForecast": "Mostly Sunny",
+        "detailedForecast": "Mostly sunny. High near 86."
+      },
+      {
+        "number": 12,
+        "name": "Tuesday Night",
+        "startTime": "2026-07-21T18:00:00-06:00",
+        "endTime": "2026-07-22T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 57,
+        "temperatureUnit": "F",
+        "shortForecast": "Partly Cloudy",
+        "detailedForecast": "Partly cloudy. Low around 57."
+      },
+      {
+        "number": 13,
+        "name": "Wednesday",
+        "startTime": "2026-07-22T06:00:00-06:00",
+        "endTime": "2026-07-22T18:00:00-06:00",
+        "isDaytime": true,
+        "temperature": 87,
+        "temperatureUnit": "F",
+        "shortForecast": "Sunny",
+        "detailedForecast": "Sunny. High near 87."
+      },
+      {
+        "number": 14,
+        "name": "Wednesday Night",
+        "startTime": "2026-07-22T18:00:00-06:00",
+        "endTime": "2026-07-23T06:00:00-06:00",
+        "isDaytime": false,
+        "temperature": 59,
+        "temperatureUnit": "F",
+        "shortForecast": "Clear",
+        "detailedForecast": "Clear. Low around 59."
+      }
+    ]
+  }
+}
