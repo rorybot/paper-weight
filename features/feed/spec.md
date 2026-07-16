@@ -9,7 +9,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | F1 | [#12](https://github.com/rorybot/paper-weight/issues/12) | X/Twitter snapshot service | **Done** |
-| F2 | [#13](https://github.com/rorybot/paper-weight/issues/13) | Screen 4f UI | Backlog (wave 2) |
+| F2 | [#13](https://github.com/rorybot/paper-weight/issues/13) | Screen 4f UI | **Done** |
 
 ## Ownership (only these paths)
 
@@ -84,10 +84,10 @@ type FeedPostV1 = {
 - [x] No Application / mix.exs edits
 
 ### F2
-- [ ] Matches feed-4f intent; ≥3 posts visible layout
-- [ ] Wheel scroll + press enlarge + back collapse
-- [ ] Big type readable @ 800×480
-- [ ] No shell edits
+- [x] Matches feed-4f intent; ≥3 posts visible layout
+- [x] Wheel scroll + press enlarge + back collapse
+- [x] Big type readable @ 800×480
+- [x] No shell edits
 
 ## Deps request
 
@@ -95,9 +95,8 @@ _(lane agents append here)_
 
 ## Next Session Context Chunk
 
-- Parallel lane ready: own only `host/lib/paper_weight/feed/` + tests + protocol feed types.
-- Reuse BERG Card; leave `sample/FeedSample` as P4 acceptance artifact.
-- F1 host lane is implemented with pure strip/accent/snapshot modules, environment config, a read-only provider behaviour, and a three-post fixture.
-- `PaperWeight.Feed.Service` atomically replaces successful snapshots, advances `gen`, and retains the last full list with `stale: true` after failure.
-- `cd host && mix test test/paper_weight/feed/` passes 7 tests in WSL; no dependency request or protocol type change was needed.
-- F1 implementation lives on `lane/feed-f1`; GitHub card #12 is Done and issue #12 is closed.
+- **Feed epic complete** (F1 + F2): host snapshot service + `FeedScreen` 4f UI.
+- F1: `host/lib/paper_weight/feed/**` — strip/accent/snapshot/Service; not registered in Application yet.
+- F2: `src/device-ui/src/screens/feed/**` — pure `reduceFeedUi` (`scroll-feed` / toggle enlarge); BERG desk + cream selected card + mustard footer + receipt rail; 12 vitest.
+- Shell already emits `scroll-feed` + `feed-detail` overlay; wave 3 wires props into ShellApp. Leave `sample/FeedSample` as P4 artifact.
+- Branch: `lane/feed-f2` for F2.
