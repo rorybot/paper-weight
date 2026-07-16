@@ -132,9 +132,9 @@ export const PlaylistScreen = ({
         <span>[cthing]</span>
         <nav class="pl-topbar__presets" aria-label="Presets">
           <span>1:np</span>
-          <span data-active="true">2:pl*</span>
-          <span>3:wx</span>
-          <span>4:fd</span>
+          <span>2:wx</span>
+          <span>3:fd</span>
+          <span>4:et</span>
         </nav>
         <span class="pl-topbar__count">{count}</span>
       </header>

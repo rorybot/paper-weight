@@ -21,7 +21,8 @@ Status snapshot (2026-07-16, verified against remote project):
 |--------|--------|
 | **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · **P3-1 #23** · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · N2 #7 · N3 #8 · L1 #11 · D2 #19 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
-| **Ready** | **D1 #18 · D3 #20** |
+| **In review** | **D1 #18** (PR #42) |
+| **Ready** | **D3 #20** |
 | **Backlog** | — |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -222,11 +223,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: design (remaining design work — can run anytime)
 
-### D1 [design] Home screen — design + build · #18 · Ready
+### D1 [design] Home screen — design + build · #18 · In review (PR #42)
 - **Goal**: the button-hold target. Not yet mocked.
 - **Scope**: design in BERG language on the claude.ai/design canvas, get approval, then build;
   likely a glanceable launcher/status card for the 6 screens.
 - **Acceptance**: mock approved; hold from any screen lands here; presets 1–4 still work from it.
+- **Note**: mock went TUI (gruvbox) instead of BERG, approved in-thread. Presets changed to
+  1:now-playing 2:weather 3:feed 4:etymology — playlist folds into Now Playing (no button of
+  its own); photo has no preset either. See PR #42 for the full topbar-rail rewiring.
 
 ### D2 [design] Settings screen — design + build (konami entry) · #19 ✅ Done
 - **Goal**: hidden config screen. Not yet mocked.

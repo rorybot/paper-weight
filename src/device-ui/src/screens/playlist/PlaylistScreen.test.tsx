@@ -23,7 +23,7 @@ describe("PlaylistScreen", () => {
     expect(html).toContain('data-screen="playlist"');
     expect(html).toMatch(/800px/);
     expect(html).toMatch(/480px/);
-    expect(html).toContain("2:pl*");
+    expect(html).toContain("2:wx");
     expect(html).toContain("playlists · 8");
     expect(html).toContain("Sink");
     expect(html).toContain("drive.exe");

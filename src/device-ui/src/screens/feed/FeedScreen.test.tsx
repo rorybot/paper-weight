@@ -22,7 +22,7 @@ describe("FeedScreen", () => {
     expect(html).toContain('data-screen="feed"');
     expect(html).toMatch(/800px/);
     expect(html).toMatch(/480px/);
-    expect(html).toContain("4:fd*");
+    expect(html).toContain("3:fd*");
     expect(html).toContain("the feed, printed for you");
     expect(html).toContain("14:20");
     expect(html).toContain("@NWSBoulder");
