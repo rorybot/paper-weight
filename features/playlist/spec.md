@@ -8,7 +8,7 @@ Mockup: `spec/playlist-4c.png`.
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| L1 | [#11](https://github.com/rorybot/paper-weight/issues/11) | Playlist grid screen 4c | **In progress** |
+| L1 | [#11](https://github.com/rorybot/paper-weight/issues/11) | Playlist grid screen 4c | **In review** (PR #34) |
 
 ## Ownership (only these paths)
 
