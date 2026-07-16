@@ -123,9 +123,9 @@ export const WeatherScreen = ({
         <span>[cthing]</span>
         <nav class="wx-topbar__presets" aria-label="Presets">
           <span>1:np</span>
-          <span>2:pl</span>
-          <span data-active="true">3:wx*</span>
-          <span>4:fd</span>
+          <span data-active="true">2:wx*</span>
+          <span>3:fd</span>
+          <span>4:et</span>
         </nav>
         <span class="wx-topbar__loc">{snapshot.location_label}</span>
       </header>

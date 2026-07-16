@@ -1,8 +1,8 @@
 export const PRESET_SCREENS = {
   1: "now-playing",
-  2: "playlist",
-  3: "weather",
-  4: "feed",
+  2: "weather",
+  3: "feed",
+  4: "etymology",
 } as const;
 
 /** Konami entry to Settings (hidden; not on presets 1–4). */

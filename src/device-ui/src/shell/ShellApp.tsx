@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 
 import { FeedSample } from "../sample/FeedSample";
+import { HomeScreen, homeFixtureGlance } from "../screens/home";
 import {
   WeatherScreen,
   weatherFixtureSnapshot,
@@ -165,6 +166,10 @@ export const ShellApp = ({
   }, [bridgeUrl, onCommands]);
 
   const renderScreen = (screen: ScreenId) => {
+    if (screen === "home") {
+      return <HomeScreen glance={homeFixtureGlance} theme="gruvbox" />;
+    }
+
     if (screen === "feed") {
       return <FeedSample />;
     }

@@ -1,0 +1,236 @@
+/* D1 home screen 800×480 — gruvbox TUI, terminal-dashboard chrome (same idiom as
+   weather.css: hairline dividers, flat panels, mono-only, topbar/footer bars).
+
+   Row heights are explicit px, not fr/auto: a grid item's default min-height:auto
+   makes it grow to fit its content even inside a 1fr track, which silently
+   overflowed past this screen's fixed 480px height when first built. 176+176+72
+   sums to the exact 424px available after the 30px topbar and 26px footer. */
+
+.hm-screen {
+  display: grid;
+  grid-template-rows: 30px 1fr 26px;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  background: var(--pw-desk);
+  color: var(--pw-paper);
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  letter-spacing: -0.02em;
+}
+
+.hm-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  font-weight: 700;
+}
+
+.hm-topbar__presets {
+  display: flex;
+  gap: 10px;
+  color: color-mix(in srgb, var(--pw-paper) 70%, transparent);
+  font-weight: 500;
+}
+
+.hm-topbar__clock {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 176px 176px 72px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hm-tile--wide {
+  grid-column: 1 / -1;
+}
+
+.hm-tile {
+  position: relative;
+  border-right: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  padding: 18px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--pw-desk);
+}
+.hm-tile:nth-child(2n) {
+  border-right: none;
+}
+.hm-tile:last-child {
+  border-right: none;
+  border-bottom: none;
+}
+
+.hm-tile__title {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  transform: translateY(-50%);
+  background: var(--pw-desk);
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--pw-paper);
+  font-size: 16px;
+  margin: 0;
+}
+.hm-tile__title .hm-bracket {
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+}
+.hm-tile__title .hm-badge {
+  color: var(--tile-accent, var(--pw-accent));
+}
+.hm-tile__title .hm-badge--dim {
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+}
+
+.hm-tile__rule {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: -1px;
+  width: 3px;
+  background: var(--tile-accent, var(--pw-accent));
+  opacity: 0.9;
+}
+.hm-tile:last-child .hm-tile__rule {
+  bottom: 0;
+}
+
+.hm-tile--wide {
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+  padding: 14px 24px;
+}
+.hm-tile--wide .hm-hero {
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+}
+.hm-tile--wide .hm-hero-num {
+  font-size: 40px;
+}
+.hm-tile--wide .hm-hero-num small {
+  font-size: 16px;
+}
+.hm-tile--wide .hm-foot {
+  flex: 1 1 auto;
+  border-top: none;
+  padding-top: 0;
+  text-align: right;
+  font-size: 14px;
+}
+
+.hm-hero {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+.hm-hero-num {
+  display: flex;
+  align-items: baseline;
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--pw-paper);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+.hm-hero-num small {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--tile-accent, var(--pw-accent));
+  margin-left: 6px;
+}
+.hm-hero-line {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--pw-paper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+.hm-hero-sub {
+  font-size: 14px;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.hm-bar {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  margin: 0;
+}
+.hm-bar .hm-bar__fill {
+  color: var(--tile-accent, var(--pw-accent));
+}
+
+.hm-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.hm-dots span:not(.hm-dots__label) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  flex: 0 0 auto;
+}
+.hm-dots span.hm-dot--on {
+  background: var(--tile-accent, var(--pw-accent));
+}
+.hm-dots__label {
+  font-size: 12px;
+  margin-left: 10px;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+}
+
+.hm-foot {
+  flex: 0 0 auto;
+  font-size: 14px;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  padding-top: 8px;
+  border-top: 1px dashed color-mix(in srgb, var(--pw-paper) 15%, transparent);
+  margin: 0;
+}
+
+.hm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-top: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  font-size: 11.5px;
+}
+.hm-footer b {
+  color: var(--pw-accent);
+}

@@ -146,9 +146,9 @@ export const FeedScreen = ({
         <span>[cthing]</span>
         <nav class="fd-topbar__presets" aria-label="Presets">
           <span>1:np</span>
-          <span>2:pl</span>
-          <span>3:wx</span>
-          <span data-active="true">4:fd*</span>
+          <span>2:wx</span>
+          <span data-active="true">3:fd*</span>
+          <span>4:et</span>
         </nav>
         <span class="fd-topbar__quote">
           the feed, printed for you

@@ -39,9 +39,9 @@ export const NowPlayingScreen = ({
         <strong class="np-brand">[cthing]</strong>
         <nav class="np-presets" aria-label="Preset screens">
           <span data-active="true">1:np*</span>
-          <span>2:pl</span>
-          <span>3:wx</span>
-          <span>4:fd</span>
+          <span>2:wx</span>
+          <span>3:fd</span>
+          <span>4:et</span>
         </nav>
         <time dateTime={snapshot.as_of}>{view.clock}</time>
       </header>

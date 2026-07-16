@@ -35,9 +35,9 @@ const layered = (
 describe("shell navigation — presets / hold / back / konami", () => {
   it.each([
     [1, "now-playing"],
-    [2, "playlist"],
-    [3, "weather"],
-    [4, "feed"],
+    [2, "weather"],
+    [3, "feed"],
+    [4, "etymology"],
   ] as const)(
     "preset %s hard-switches to %s (clears overlay + history)",
     (preset, screen) => {
