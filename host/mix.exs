@@ -13,8 +13,18 @@ defmodule PaperWeightHost.MixProject do
 
   def application do
     [
-      extra_applications: [:crypto, :logger],
+      extra_applications: [:crypto, :logger] ++ optional_http_apps(),
       mod: {PaperWeight.Application, []}
     ]
   end
+
+  # Live NWS/OpenUV use :httpc. Include when OTP ships them; skip on minimal installs.
+  defp optional_http_apps do
+    case :code.lib_dir(:inets) do
+      {:error, _} -> []
+      _ -> [:inets, :ssl]
+    end
+  end
 end
+
+

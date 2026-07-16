@@ -114,7 +114,7 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 
 _(lane agents append here; do not edit mix.exs)_
 
-- app: add `:inets` and `:ssl` to `extra_applications` in `host/mix.exs` (reason: live NWS/OpenUV via `:httpc`; tests inject mocks and do not need them)
+- ~~app: add `:inets` and `:ssl`~~ **done** — `mix.exs` adds them via `optional_http_apps/0` when OTP provides `:inets` (skipped on minimal installs). Tests still inject mocks.
 - No new Hex packages required.
 
 ## Supervisor child (wave 3)
@@ -125,7 +125,7 @@ _(lane agents append here; do not edit mix.exs)_
 
 ## Next Session Context Chunk
 
-- **Weather lane complete (W1+W2)**. Host: `PaperWeight.Weather.*`. UI: `src/device-ui/src/screens/weather/` (`WeatherScreen`, fixture, pure `reduceWeatherUi`).
-- Shell already emits `toggle-weather-range`; screen accepts `range` / `command` props — **wave 3** maps weather in `ShellApp.renderScreen` and forwards commands.
-- Wave 3 also: `{PaperWeight.Weather.Service, []}` + `:inets`/`:ssl` in host app extras.
-- No further weather cards; next project work is F1/N1 or orchestrator wire-up.
+- **Weather fully wired (W1+W2+shell/host)**: `PaperWeight.Weather.Service` under Application (disabled in test via `config :paper_weight_host, weather_service: :disabled`); `:inets`/`:ssl` in `mix.exs`.
+- Device: `ShellApp` renders `WeatherScreen` with fixture snapshot; wheel → `toggle-weather-range` flips local `weatherRange` 5d↔7d (`data-weather-range` on root).
+- Still later: host WebSocket push of live snapshots (replace fixture); no more weather kanban cards.
+- Other lanes: F1 feed host, N2 now-playing UI, etc.

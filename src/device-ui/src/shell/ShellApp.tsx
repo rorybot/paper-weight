@@ -1,6 +1,11 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 import { FeedSample } from "../sample/FeedSample";
+import {
+  WeatherScreen,
+  weatherFixtureSnapshot,
+  type WeatherRange,
+} from "../screens/weather";
 import { bridgePayloadToShellInput } from "./bridge";
 import { mapDevKeyboardEvent } from "./devKeyboard";
 import {
@@ -30,6 +35,20 @@ const applyInputs = (
   return { state: next, commands };
 };
 
+/** Pure: apply each `toggle-weather-range` command to local range state. */
+export const applyWeatherRangeToggles = (
+  range: WeatherRange,
+  commands: readonly ShellCommand[],
+): WeatherRange => {
+  let next = range;
+  for (const command of commands) {
+    if (command.type === "toggle-weather-range") {
+      next = next === "5d" ? "7d" : "5d";
+    }
+  }
+  return next;
+};
+
 const Placeholder = ({
   label,
   detail,
@@ -42,19 +61,6 @@ const Placeholder = ({
     <p class="shell-placeholder__detail">{detail}</p>
   </div>
 );
-
-const renderScreen = (screen: ScreenId) => {
-  if (screen === "feed") {
-    return <FeedSample />;
-  }
-
-  return (
-    <Placeholder
-      label={screen}
-      detail="Screen UI ships on its feature card; shell owns navigation only."
-    />
-  );
-};
 
 const renderOverlay = (overlay: OverlayId) => (
   <div class="shell-overlay-chrome" data-overlay-panel={overlay}>
@@ -74,33 +80,52 @@ export interface ShellAppProps {
   readonly initialScreen?: ScreenId;
   /** Test / debug: observe commands without host services. */
   readonly onCommands?: (commands: readonly ShellCommand[]) => void;
+  /** Override weather snapshot (defaults to W2 fixture until host WS). */
+  readonly weatherSnapshot?: typeof weatherFixtureSnapshot;
 }
 
 /**
- * P3 harness: pure router + ScreenShell + dev keyboard + optional P2 SSE.
+ * Shell harness: pure router + ScreenShell + wired screens + optional P2 SSE.
+ * Weather is wired: fixture snapshot + wheel toggles 5d ↔ 7d.
  */
 export const ShellApp = ({
   bridgeUrl = DEFAULT_BRIDGE_URL,
   initialScreen = "home",
   onCommands,
+  weatherSnapshot = weatherFixtureSnapshot,
 }: ShellAppProps) => {
   const [state, setState] = useState<ShellState>(() =>
     initialShellState(initialScreen),
   );
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
   const [lastCommands, setLastCommands] = useState<readonly ShellCommand[]>(
     [],
   );
+  const [weatherRange, setWeatherRange] = useState<WeatherRange>("5d");
+  const weatherRangeRef = useRef(weatherRange);
+  weatherRangeRef.current = weatherRange;
 
   const dispatch = (inputs: readonly ShellInput[]) => {
     if (inputs.length === 0) {
       return;
     }
-    setState((current) => {
-      const result = applyInputs(current, inputs);
-      setLastCommands(result.commands);
-      onCommands?.(result.commands);
-      return result.state;
-    });
+
+    const result = applyInputs(stateRef.current, inputs);
+    stateRef.current = result.state;
+    setState(result.state);
+    setLastCommands(result.commands);
+    onCommands?.(result.commands);
+
+    const nextRange = applyWeatherRangeToggles(
+      weatherRangeRef.current,
+      result.commands,
+    );
+    if (nextRange !== weatherRangeRef.current) {
+      weatherRangeRef.current = nextRange;
+      setWeatherRange(nextRange);
+    }
   };
 
   useEffect(() => {
@@ -115,7 +140,7 @@ export const ShellApp = ({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [onCommands]);
 
   useEffect(() => {
     if (bridgeUrl === null || typeof EventSource === "undefined") {
@@ -137,10 +162,33 @@ export const ShellApp = ({
     };
 
     return () => source.close();
-  }, [bridgeUrl]);
+  }, [bridgeUrl, onCommands]);
+
+  const renderScreen = (screen: ScreenId) => {
+    if (screen === "feed") {
+      return <FeedSample />;
+    }
+
+    if (screen === "weather") {
+      return (
+        <WeatherScreen
+          snapshot={weatherSnapshot}
+          range={weatherRange}
+          theme="gruvbox"
+        />
+      );
+    }
+
+    return (
+      <Placeholder
+        label={screen}
+        detail="Screen UI ships on its feature card; shell owns navigation only."
+      />
+    );
+  };
 
   return (
-    <div class="shell-root" data-shell-root>
+    <div class="shell-root" data-shell-root data-weather-range={weatherRange}>
       <ScreenShell
         state={state}
         renderScreen={renderScreen}
@@ -150,6 +198,7 @@ export const ShellApp = ({
         <span>
           {state.screen}
           {state.overlay ? ` · overlay:${state.overlay}` : ""}
+          {state.screen === "weather" ? ` · range:${weatherRange}` : ""}
         </span>
         <span class="shell-hud__hint">
           1–4 presets · H hold · Esc back · ↑↓ wheel · Enter press · konami

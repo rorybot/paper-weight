@@ -3,7 +3,10 @@ defmodule PaperWeight.Weather.Service do
   GenServer: periodic weather refresh with last-good cache.
 
   On fetch failure keeps the previous snapshot and sets `stale: true`.
-  Wave 3 registers `{PaperWeight.Weather.Service, []}` — do not add to Application here.
+
+  Registered in `PaperWeight.Application` as
+  `{PaperWeight.Weather.Service, [name: PaperWeight.Weather.Service]}`.
+  Disable in tests via `config :paper_weight_host, weather_service: :disabled`.
   """
 
   use GenServer
