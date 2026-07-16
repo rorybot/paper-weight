@@ -8,7 +8,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| F1 | [#12](https://github.com/rorybot/paper-weight/issues/12) | X/Twitter snapshot service | **Ready** (lane wave 1) |
+| F1 | [#12](https://github.com/rorybot/paper-weight/issues/12) | X/Twitter snapshot service | **Done** |
 | F2 | [#13](https://github.com/rorybot/paper-weight/issues/13) | Screen 4f UI | Backlog (wave 2) |
 
 ## Ownership (only these paths)
@@ -77,11 +77,11 @@ type FeedPostV1 = {
 ## Acceptance
 
 ### F1
-- [ ] Fixture snapshot ≥3 posts
-- [ ] Accent assignment stable for same handle set
-- [ ] Atomic refresh tested (gen / full replace)
-- [ ] Stale path
-- [ ] No Application / mix.exs edits
+- [x] Fixture snapshot ≥3 posts
+- [x] Accent assignment stable for same handle set
+- [x] Atomic refresh tested (gen / full replace)
+- [x] Stale path
+- [x] No Application / mix.exs edits
 
 ### F2
 - [ ] Matches feed-4f intent; ≥3 posts visible layout
@@ -97,3 +97,7 @@ _(lane agents append here)_
 
 - Parallel lane ready: own only `host/lib/paper_weight/feed/` + tests + protocol feed types.
 - Reuse BERG Card; leave `sample/FeedSample` as P4 acceptance artifact.
+- F1 host lane is implemented with pure strip/accent/snapshot modules, environment config, a read-only provider behaviour, and a three-post fixture.
+- `PaperWeight.Feed.Service` atomically replaces successful snapshots, advances `gen`, and retains the last full list with `stale: true` after failure.
+- `cd host && mix test test/paper_weight/feed/` passes 7 tests in WSL; no dependency request or protocol type change was needed.
+- F1 implementation lives on `lane/feed-f1`; GitHub card #12 is Done and issue #12 is closed.
