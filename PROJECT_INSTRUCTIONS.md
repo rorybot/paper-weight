@@ -7,6 +7,8 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
 - **Design spec (source of truth for UI)**: `docs/design/carthing-context.md`
 - **Design canvas + screen PNGs**: https://claude.ai/design/p/b8c05a93-b6c5-4a77-ad4b-6c106e533c3f?file=CarThing+Explorations.dc.html
 - **Kanban**: https://github.com/users/rorybot/projects/1 (mirror: `kanban/board.md`)
+- **Status updates**: `scripts/set-card-status.ps1` via `gh` (not MCP alone). See `AGENTS.md` / `CLAUDE.md` kanban rules.
+- **GitHub auth check**: `scripts/check-gh-auth.ps1` — Windows `gh` keyring is SoT; do not reauth unless it fails.
 
 ## Immutable principles
 1. **Token optimization first** — high-signal artifacts only (specs, contracts, pseudo-code);
@@ -20,12 +22,12 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
    never re-explain the whole system.
 5. **Maintainability** — heavy modularization, this living doc, automation in `scripts/`.
 
-## Stack
-- Template default: Elixir backend, Remix/React + TypeScript + Tailwind frontend.
-- **PENDING**: card `[platform] Architecture spike` must validate this against Car Thing
-  hardware (ARM, limited RAM, reflashed Linux, evdev input, 800×480 panel) before any src/ code
-  is written. Deviations from the template stack must be justified in
-  `docs/architecture/workflow-v1.md`.
+## Stack (decided — see `docs/architecture/workflow-v1.md`)
+- **Host companion**: Elixir/OTP services (Spotify, weather, feed, photo, etymology, P5 dither).
+- **Device**: Chromium kiosk @ 800×480 + Preact/TypeScript/Tailwind pure `state→view` UI +
+  thin evdev input bridge. **Not** Remix/Node on device; **not** BEAM+Chromium co-located.
+- Host↔device: versioned WebSocket JSON; device keeps last-snapshot cache for host-down.
+- Functional paradigm everywhere; Elixir retained on host (justified placement, not abandoned).
 
 ## Workflow per feature
 1. Architect writes `features/<name>/spec.md` (AC, data flow, function signatures, pseudo).

@@ -7,7 +7,7 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Work **one kanban card per session**. Read only that card + its `features/<name>/spec.md`
   slice — do NOT re-read the whole design spec or other features' folders unless the card says to.
 - Screen mockup PNGs live locally in `spec/` — Read ONLY the one for the card being worked.
-  (`photo-4g.png` is pending manual download from claude.ai/design — DesignSync truncates it.)
+  (`photo-4g.png` is pending manual download from the design tool — DesignSync truncates it.)
 - Never fetch the design canvas (`CarThing Explorations.dc.html`) or design-project files into
   context; the text spec + local `spec/` PNGs are authoritative.
 - Outputs: structured (tables, bullets, Goal/Scope/Constraints/Acceptance cards), not prose.

@@ -1,0 +1,51 @@
+:root,
+.theme-berg {
+  --pw-desk: #1b1d18;
+  --pw-surface: #242620;
+  --pw-paper: #f3ecd9;
+  --pw-ink: #20211d;
+  --pw-muted: #8c8778;
+  --pw-accent: #f2bd1d;
+  --pw-accent-alt: #dc8fa5;
+  --pw-positive: #899b5d;
+  --pw-outline: 3px;
+  --pw-shadow-offset: 6px;
+  --pw-radius: 10px;
+  --pw-text-min: 13px;
+  --pw-font-display: "DM Serif Display", Georgia, serif;
+  --pw-font-mono: "JetBrains Mono", Consolas, monospace;
+  --pw-font-sans: "Space Grotesk", Arial, sans-serif;
+}
+
+.theme-gruvbox {
+  --pw-desk: #282828;
+  --pw-surface: #3c3836;
+  --pw-paper: #ebdbb2;
+  --pw-ink: #282828;
+  --pw-muted: #928374;
+  --pw-accent: #fabd2f;
+  --pw-accent-alt: #d3869b;
+  --pw-positive: #b8bb26;
+  --pw-outline: 3px;
+  --pw-shadow-offset: 6px;
+  --pw-radius: 0;
+  --pw-text-min: 13px;
+  --pw-font-display: "DM Serif Display", Georgia, serif;
+  --pw-font-mono: "JetBrains Mono", Consolas, monospace;
+  --pw-font-sans: "Space Grotesk", Arial, sans-serif;
+}
+
+@theme inline {
+  --color-pw-desk: var(--pw-desk);
+  --color-pw-surface: var(--pw-surface);
+  --color-pw-paper: var(--pw-paper);
+  --color-pw-ink: var(--pw-ink);
+  --color-pw-muted: var(--pw-muted);
+  --color-pw-accent: var(--pw-accent);
+  --color-pw-accent-alt: var(--pw-accent-alt);
+  --color-pw-positive: var(--pw-positive);
+  --font-pw-display: var(--pw-font-display);
+  --font-pw-mono: var(--pw-font-mono);
+  --font-pw-sans: var(--pw-font-sans);
+}
+

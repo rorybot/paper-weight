@@ -1,6 +1,10 @@
-# Push kanban cards from kanban/board.md to GitHub project rorybot/projects/1 as draft items.
+# LEGACY: originally created *draft* project items from kanban/board.md.
+# Board cards are now real repo issues (rorybot/paper-weight#1–#20) on project #1.
+# Prefer: gh issue create --repo rorybot/paper-weight ... then
+#   gh project item-add 1 --owner rorybot --url <issue-url>
 # Requires: gh auth with 'project' scope  ->  gh auth refresh -s project
 # Usage: powershell -File scripts\push-cards.ps1 [-DryRun] [-Only P1,N2,...]
+# WARNING: still creates drafts if run; do not re-run for existing cards.
 param(
     [switch]$DryRun,
     [string[]]$Only

@@ -21,13 +21,12 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Host: Elixir services + dither.
 - Protocol: WS JSON v1.
 
-## Next Session Context Chunk (2026-07-16 board tidy)
+## Next Session Context Chunk (2026-07-16 hygiene)
 
-- GH project + `kanban/board.md` realigned: P2 demoted Ready; P5 → In progress; P0-1 promoted to #22.
-- **P0 / P0-1**: hardware path — bootstrap then on-device smoke; desktop preflight already in `device-smoke/`.
-- **P5**: implementation + golden tests approved; #5 is Done and closed.
-- **P2**: native input bridge complete; versioned event contract and fake-evdev acceptance are validated.
+- GH + `kanban/board.md` + this table: Done P0/P1/P2/P4/P5; **In progress P3 #3**; Ready P0-1 #22; rest Backlog.
+- Done implementations now in-tree: `src/input-bridge/` (P2), `src/device-ui/` design tokens+Card (P4), `host/` dither (P5), shell WIP under `src/device-ui/src/shell/` (P3).
 - Prefer `scripts/set-card-status.ps1`; do not claim status via local edit alone.
+- **P0-1 #22** still Ready: device is flashed and P0 passed, but formal stock-backup/hash acceptance may still be incomplete — confirm before Done.
 
 ## Next Session Context Chunk (P5)
 
