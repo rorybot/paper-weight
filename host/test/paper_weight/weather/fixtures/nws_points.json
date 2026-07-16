@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "forecast": "https://api.weather.gov/gridpoints/BOU/70,50/forecast",
+    "forecastHourly": "https://api.weather.gov/gridpoints/BOU/70,50/forecast/hourly",
+    "relativeLocation": {
+      "properties": {
+        "city": "Castle Rock",
+        "state": "CO"
+      }
+    }
+  }
+}

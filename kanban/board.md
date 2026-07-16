@@ -19,9 +19,9 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9** |
 | **In progress** | — |
-| **Ready** | **N1 #6 · W1 #9 · F1 #12** (parallel wave-1 lanes) |
+| **Ready** | **N1 #6 · F1 #12** (parallel wave-1 lanes) |
 | **Backlog** | N2–N3 · W2 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -123,12 +123,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: weather (screen 4b)
 
-### W1 [weather] Weather data service — NWS + OpenUV · #9 · Ready (lane wave 1)
+### W1 [weather] Weather data service — NWS + OpenUV · #9 ✅ Done
 - **Goal**: current conditions, 5-day + 7-day forecast, hourly UV index.
 - **Scope**: NWS forecast API + OpenUV client; walk-verdict generator (plain-spoken italic quote
   from temp/UV/precip windows); cache + periodic refresh (glanceable snapshot, not live).
   Own only `host/lib/paper_weight/weather/**` — see `features/weather/spec.md`.
 - **Acceptance**: fixture tests incl. verdict phrasing rules; graceful stale-data state.
+- **Done**: mocked NWS/OpenUV + pure grade/verdict/snapshot + stale path; `mix test test/paper_weight/weather/` green.
 
 ### W2 [weather] Screen 4b UI · #10
 - **Goal**: build final pick 4b.

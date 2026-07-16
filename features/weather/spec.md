@@ -8,7 +8,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Ready** (lane wave 1) |
+| W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
 | W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | Backlog (wave 2) |
 
 ## Ownership (only these paths)
@@ -98,11 +98,11 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 ## Acceptance
 
 ### W1
-- [ ] Fixture tests for NWS/OpenUV adapters (mocked HTTP)
-- [ ] UV grade + walk_verdict pure tests
-- [ ] Snapshot matches `WeatherSnapshotV1`
-- [ ] Stale path when upstream fails
-- [ ] No Application / mix.exs edits
+- [x] Fixture tests for NWS/OpenUV adapters (mocked HTTP)
+- [x] UV grade + walk_verdict pure tests
+- [x] Snapshot matches `WeatherSnapshotV1`
+- [x] Stale path when upstream fails
+- [x] No Application / mix.exs edits
 
 ### W2
 - [ ] Renders fixture snapshot @ 800×480 matching mockup intent
@@ -114,7 +114,18 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 
 _(lane agents append here; do not edit mix.exs)_
 
+- app: add `:inets` and `:ssl` to `extra_applications` in `host/mix.exs` (reason: live NWS/OpenUV via `:httpc`; tests inject mocks and do not need them)
+- No new Hex packages required.
+
+## Supervisor child (wave 3)
+
+```elixir
+{PaperWeight.Weather.Service, []}
+```
+
 ## Next Session Context Chunk
 
-- Parallel lane ready: own only `host/lib/paper_weight/weather/` + tests + protocol weather types.
-- Envelope frozen; wave 3 wires supervisor + WS.
+- W1 **Done**: host under `PaperWeight.Weather.*` — pure grade/verdict/snapshot/nws/open_uv; impure `Fetch` + `Service` GenServer; facade `PaperWeight.Weather`.
+- Snapshot string-key map matches `src/device-ui/src/protocol/weather.ts`; fixtures in `host/test/paper_weight/weather/fixtures/`.
+- Stale path: last good + `"stale" => true`; gen bumps only on success. Wave 3: register `{PaperWeight.Weather.Service, []}` + enable `:inets`/`:ssl`.
+- W2 next: screen from fixture snapshot only; shell already emits `toggle-weather-range`.
