@@ -1,11 +1,11 @@
 {
   "properties": {
-    "forecast": "https://api.weather.gov/gridpoints/BOU/70,50/forecast",
-    "forecastHourly": "https://api.weather.gov/gridpoints/BOU/70,50/forecast/hourly",
+    "forecast": "https://api.weather.gov/gridpoints/XXX/1,1/forecast",
+    "forecastHourly": "https://api.weather.gov/gridpoints/XXX/1,1/forecast/hourly",
     "relativeLocation": {
       "properties": {
-        "city": "Castle Rock",
-        "state": "CO"
+        "city": "Exampleville",
+        "state": "EX"
       }
     }
   }

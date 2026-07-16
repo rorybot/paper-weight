@@ -32,7 +32,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 ```ts
 /** Host → device payload for channel "weather" */
 type WeatherSnapshotV1 = {
-  location_label: string;       // e.g. "Castle Rock, CO"
+  location_label: string;       // display only; from NWS or WEATHER_LOCATION_LABEL
   as_of: string;                // ISO-8601
   stale: boolean;
   current: {

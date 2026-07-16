@@ -38,7 +38,7 @@ Fill this table during the first hardware run; do not infer values from a deskto
 
 | Field | Observed value |
 |-------|----------------|
-| Date / operator | 2026-07-16, rory |
+| Date / operator | 2026-07-16, local |
 | Device / reflash image | [nixos-superbird](https://github.com/JoeyEamigh/nixos-superbird); flash completed via manual pyamlboot fallback (Terbium browser flash crashed on WASM libarchive error); `kiosk_url=http://172.16.42.1:8080/device-smoke/` served from host over USB CDC-NCM gadget network (via WSL, since Windows lacks a driver for the Linux gadget's NCM interface — no MS OS descriptor) |
 | OS / kernel | NixOS 25.05 "Warbler" (`nixos-25.05.20241207.22c3f2c`); `Linux superbird 4.9.113 #1-NixOS SMP PREEMPT aarch64` |
 | Browser binary / version | `chromium-unwrapped-131.0.6778.108` (Nix store path `/nix/store/q5cf83f5b1xhls3zrg82lvc952x3j0rd-chromium-unwrapped-131.0.6778.108`) |

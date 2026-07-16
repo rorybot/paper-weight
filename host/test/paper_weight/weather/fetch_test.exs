@@ -50,9 +50,9 @@ defmodule PaperWeight.Weather.FetchTest do
     config =
       Config.new(
         openuv_api_key: "test-key",
-        nws_points_url: "https://api.weather.gov/points/39.37,-104.85",
-        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=39.37&lng=-104.85",
-        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=39.37&lng=-104.85"
+        nws_points_url: "https://api.weather.gov/points/0,0",
+        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
+        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
       )
 
     assert {:ok, snap} = Fetch.fetch_snapshot(config, mock_http())
@@ -61,7 +61,7 @@ defmodule PaperWeight.Weather.FetchTest do
       assert Map.has_key?(snap, key)
     end
 
-    assert snap["location_label"] == "Castle Rock, CO"
+    assert snap["location_label"] == "Exampleville, EX"
     assert snap["stale"] == false
     assert snap["current"]["temp_f"] == 88
     assert snap["current"]["summary"] == "Sunny"
