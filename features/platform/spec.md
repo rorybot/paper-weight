@@ -11,6 +11,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P1 | [#2](https://github.com/rorybot/paper-weight/issues/2) | Architecture spike — runtime & stack | **Done** (closed) |
 | P2 | [#1](https://github.com/rorybot/paper-weight/issues/1) | Input daemon — evdev → event bus | **Done** (closed) |
 | P3 | [#3](https://github.com/rorybot/paper-weight/issues/3) | Screen shell — router, overlays, back stack | **Done** (closed) |
+| P3-1 | [#23](https://github.com/rorybot/paper-weight/issues/23) | Fix swapped preset 2/3 preview routing | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 
@@ -23,7 +24,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 ## Next Session Context Chunk (2026-07-16 hygiene)
 
-- GH + `kanban/board.md` + this table: Done P0-1/P0/P1/P2/P3/P4/P5; rest Backlog/Ready by lane.
+- GH + `kanban/board.md` + this table: Done P0-1/P0/P1/P2/P3/P3-1/P4/P5; rest Backlog/Ready by lane.
 - Prefer `scripts/set-card-status.ps1`; do not claim status via local edit alone.
 - **P0-1 #22** is Done: owner accepted the completed device bootstrap and successful P0 run.
 
@@ -79,3 +80,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Owner accepted flash, shell, transfer, Chromium, and the successful P0 hardware run as sufficient.
 - No further platform P-cards remain; P0-1 and P0–P5 are all Done.
 - Next implementation work is one Ready lane card: N1 #6, W1 #9, or F1 #12.
+
+## Next Session Context Chunk (P3-1 - 2026-07-16)
+- Presets now route 2 to Playlist and 3 to Weather in both the Preact shell and standalone device-smoke preview; presets 1 and 4 are unchanged.
+- Router regression cases carry explicit product expectations, and keyboard tests cover both Digit2 and Digit3; the evdev bridge remains untouched.
+- `cd src/device-ui && npm run check` passes typecheck, 53 tests, and production build; a static smoke assertion also verifies both frame paths.
+- GitHub Project card #23 is Done, issue #23 is closed, and the isolated implementation branch is `fix/23-preset-2-3-routing`.
