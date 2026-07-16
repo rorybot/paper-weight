@@ -8,7 +8,7 @@ Mockup: `spec/playlist-4c.png`.
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| L1 | [#11](https://github.com/rorybot/paper-weight/issues/11) | Playlist grid screen 4c | **In review** (PR #34) |
+| L1 | [#11](https://github.com/rorybot/paper-weight/issues/11) | Playlist grid screen 4c | **Done** (PR #34) |
 
 ## Ownership (only these paths)
 
@@ -71,7 +71,7 @@ Wave-3 `ShellApp` wires command → screen + navigates to Now Playing after play
 
 ## Next Session Context Chunk
 
-- L1 builds `screens/playlist/**` + `protocol/playlist.ts` on `lane/playlist-l1`.
+- L1 **Done** (merged PR #34): `screens/playlist/**` + `protocol/playlist.ts`.
 - Shell already emits `move-playlist-selection` / `play-selected-playlist` — do not edit shell.
-- Play = callback + `play_playlist` args only; NP switch is wave-3 navigation.
+- Play = callback + `play_playlist` args only; NP switch + host play is wave-3 / N1 follow-up.
 - CSS hatch covers when `cover_pbm_base64` is null; optional PBM path reuses photo `pbm` decode if needed later.
