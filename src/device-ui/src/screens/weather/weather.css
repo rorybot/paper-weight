@@ -1,0 +1,302 @@
+/* W2 weather screen 4b — scoped under .wx-screen; 800×480 */
+
+.wx-screen {
+  display: grid;
+  grid-template-rows: 32px minmax(108px, 26%) 1fr 30px;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  background: var(--pw-desk);
+  color: var(--pw-paper);
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  letter-spacing: -0.03em;
+}
+
+.wx-screen[data-stale="true"] {
+  outline: 2px dashed color-mix(in srgb, var(--pw-accent) 50%, transparent);
+  outline-offset: -2px;
+}
+
+/* —— topbar —— */
+.wx-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  font-weight: 700;
+}
+
+.wx-topbar__presets {
+  display: flex;
+  gap: 10px;
+  color: color-mix(in srgb, var(--pw-paper) 70%, transparent);
+}
+
+.wx-topbar__presets [data-active="true"] {
+  padding: 1px 7px;
+  background: var(--pw-accent);
+  color: var(--pw-ink);
+}
+
+.wx-topbar__loc {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+/* —— UV / WALK band —— */
+.wx-uv {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.1fr) minmax(280px, 1.4fr) auto;
+  gap: 12px 18px;
+  align-items: center;
+  min-height: 0;
+  padding: 10px 14px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  background: color-mix(in srgb, var(--pw-desk) 88%, #000);
+}
+
+.wx-uv__label {
+  margin: 0 0 4px;
+  color: #e07070;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.wx-uv__label span {
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  font-weight: 500;
+  text-transform: none;
+}
+
+.wx-uv__quote {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--pw-accent);
+  font-family: var(--pw-font-display);
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.wx-uv__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 72px;
+  padding-top: 4px;
+}
+
+.wx-uv__bar-wrap {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.wx-uv__bar {
+  width: 100%;
+  max-width: 28px;
+  min-height: 6px;
+  border: 1px solid color-mix(in srgb, var(--pw-paper) 20%, transparent);
+}
+
+.wx-uv__bar[data-grade="extreme"] {
+  background: #e85d4c;
+  border-color: #e85d4c;
+}
+
+.wx-uv__bar[data-grade="high"] {
+  background: repeating-linear-gradient(
+    0deg,
+    var(--pw-accent) 0 3px,
+    color-mix(in srgb, var(--pw-desk) 40%, #000) 3px 6px
+  );
+  border-color: var(--pw-accent);
+}
+
+.wx-uv__bar[data-grade="low"] {
+  background: color-mix(in srgb, var(--pw-paper) 28%, transparent);
+  border-color: color-mix(in srgb, var(--pw-paper) 22%, transparent);
+}
+
+.wx-uv__hour {
+  color: color-mix(in srgb, var(--pw-paper) 50%, transparent);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wx-uv__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wx-uv__legend-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wx-uv__swatch {
+  width: 12px;
+  height: 10px;
+  border: 1px solid color-mix(in srgb, var(--pw-paper) 25%, transparent);
+}
+
+.wx-uv__swatch[data-grade="extreme"] {
+  background: #e85d4c;
+  border-color: #e85d4c;
+}
+
+.wx-uv__swatch[data-grade="high"] {
+  background: repeating-linear-gradient(
+    0deg,
+    var(--pw-accent) 0 2px,
+    transparent 2px 4px
+  );
+  border-color: var(--pw-accent);
+}
+
+.wx-uv__swatch[data-grade="low"] {
+  background: color-mix(in srgb, var(--pw-paper) 28%, transparent);
+}
+
+/* —— main pane —— */
+.wx-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+
+.wx-current {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 28px 12px 32px;
+  border-right: 1px solid color-mix(in srgb, var(--pw-paper) 14%, transparent);
+}
+
+.wx-current__icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  color: color-mix(in srgb, var(--pw-paper) 75%, transparent);
+}
+
+.wx-current__temp {
+  margin: 0;
+  font-family: var(--pw-font-display);
+  font-size: 92px;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: color-mix(in srgb, var(--pw-paper) 92%, #c4b896);
+}
+
+.wx-current__summary {
+  margin: 8px 0 0;
+  color: color-mix(in srgb, var(--pw-paper) 78%, transparent);
+  font-family: var(--pw-font-display);
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+.wx-current__meta {
+  margin: 2px 0 0;
+  color: color-mix(in srgb, var(--pw-paper) 42%, transparent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wx-days {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-height: 0;
+  padding: 16px 28px 12px 24px;
+  overflow: hidden;
+}
+
+.wx-day {
+  display: grid;
+  grid-template-columns: 40px 22px 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  color: color-mix(in srgb, var(--pw-paper) 72%, transparent);
+  font-family: var(--pw-font-display);
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.wx-day__dow {
+  color: color-mix(in srgb, var(--pw-paper) 48%, transparent);
+  font-family: var(--pw-font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.wx-day__glyph {
+  color: color-mix(in srgb, var(--pw-positive) 85%, var(--pw-paper));
+  font-size: 16px;
+  text-align: center;
+}
+
+.wx-day__summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wx-day__temps {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.wx-day__temps strong {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--pw-paper) 88%, transparent);
+}
+
+.wx-day__temps span {
+  margin-left: 8px;
+  color: color-mix(in srgb, var(--pw-paper) 40%, transparent);
+  font-weight: 400;
+}
+
+/* —— footer —— */
+.wx-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  border-top: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  background: color-mix(in srgb, var(--pw-desk) 70%, #000);
+  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
+  font-weight: 700;
+}
+
+.wx-footer__range [data-active="true"] {
+  color: var(--pw-paper);
+}
+
+.wx-footer__src {
+  margin-left: auto;
+  text-transform: lowercase;
+}

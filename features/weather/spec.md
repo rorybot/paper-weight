@@ -9,7 +9,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
-| W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | Backlog (wave 2) |
+| W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
 
 ## Ownership (only these paths)
 
@@ -105,10 +105,10 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 - [x] No Application / mix.exs edits
 
 ### W2
-- [ ] Renders fixture snapshot @ 800×480 matching mockup intent
-- [ ] Wheel toggles 5-day ↔ 7-day
-- [ ] UV band shows extreme / high / low correctly
-- [ ] No shell edits
+- [x] Renders fixture snapshot @ 800×480 matching mockup intent
+- [x] Wheel toggles 5-day ↔ 7-day
+- [x] UV band shows extreme / high / low correctly
+- [x] No shell edits
 
 ## Deps request
 
@@ -125,7 +125,7 @@ _(lane agents append here; do not edit mix.exs)_
 
 ## Next Session Context Chunk
 
-- W1 **Done**: host under `PaperWeight.Weather.*` — pure grade/verdict/snapshot/nws/open_uv; impure `Fetch` + `Service` GenServer; facade `PaperWeight.Weather`.
-- Snapshot string-key map matches `src/device-ui/src/protocol/weather.ts`; fixtures in `host/test/paper_weight/weather/fixtures/`.
-- Stale path: last good + `"stale" => true`; gen bumps only on success. Wave 3: register `{PaperWeight.Weather.Service, []}` + enable `:inets`/`:ssl`.
-- W2 next: screen from fixture snapshot only; shell already emits `toggle-weather-range`.
+- **Weather lane complete (W1+W2)**. Host: `PaperWeight.Weather.*`. UI: `src/device-ui/src/screens/weather/` (`WeatherScreen`, fixture, pure `reduceWeatherUi`).
+- Shell already emits `toggle-weather-range`; screen accepts `range` / `command` props — **wave 3** maps weather in `ShellApp.renderScreen` and forwards commands.
+- Wave 3 also: `{PaperWeight.Weather.Service, []}` + `:inets`/`:ssl` in host app extras.
+- No further weather cards; next project work is F1/N1 or orchestrator wire-up.

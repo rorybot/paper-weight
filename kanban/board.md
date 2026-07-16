@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10** |
 | **In progress** | — |
 | **Ready** | **N1 #6 · F1 #12** (parallel wave-1 lanes) |
-| **Backlog** | N2–N3 · W2 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
+| **Backlog** | N2–N3 · L1 · F2 · H1–H2 · E1–E2 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -131,12 +131,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: fixture tests incl. verdict phrasing rules; graceful stale-data state.
 - **Done**: mocked NWS/OpenUV + pure grade/verdict/snapshot + stale path; `mix test test/paper_weight/weather/` green.
 
-### W2 [weather] Screen 4b UI · #10
+### W2 [weather] Screen 4b UI · #10 ✅ Done
 - **Goal**: build final pick 4b.
 - **Scope**: thin status topbar → compact UV "WALK?" band (~¼ height; solid=extreme,
   dithered-lines=high, faint=low, legend ▮▤▮) → big current temp left + 5-day right → footer.
   Wheel toggles today ↔ 7-day.
 - **Acceptance**: matches `weather-4b.png`; UV grading renders all three strengths correctly.
+- **Done**: fixture-driven `WeatherScreen` @ 800×480; pure `toggle-weather-range` 5d↔7d;
+  UV bars/legend for extreme/high/low; no shell edits (wave 3 wires screen map).
 
 ## Epic: playlist (screen 4c)
 
