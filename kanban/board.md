@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-16, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14** |
+| **Done** | P0-1 #22 · P0 #21 · P1 #2 · P2 #1 · P3 #3 · P4 #4 · P5 #5 · **W1 #9 · W2 #10 · F1 #12 · F2 #13 · N1 #6 · E1 #16 · E2 #17 · H1 #14 · H2 #15** |
 | **In progress** | — |
 | **Ready** | — |
-| **Backlog** | N2–N3 · L1 · H2 · D1–D3 |
+| **Backlog** | N2–N3 · L1 · D1–D3 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -180,11 +180,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: `host/lib/paper_weight/photo/**` pure Rotate + Library scan + Service; 20 tests;
   payload frozen in `features/photo/spec.md` + `protocol/photo.ts`. No Application registration.
 
-### H2 [photo] Screen 4g UI · #15
+### H2 [photo] Screen 4g UI · #15 ✅ Done
 - **Goal**: build final pick 4g.
 - **Scope**: cream frame, true 1-bit Atkinson dither over the real photo (P5), printed serif
   caption, "photo N/M · reprints in X min" line.
 - **Acceptance**: matches `photo-4g.png` with a real user photo.
+- **Done**: `src/device-ui/src/screens/photo/**` BERG cream frame + P4→BMP art + status line;
+  pure skip/keep local reducer; fixture Atkinson PBM; 10 photo tests. Mock PNG still pending
+  for pixel QA. No shell / Application edits.
 
 ## Epic: etymology (screens 2a→2b→2c)
 
