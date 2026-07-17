@@ -171,6 +171,23 @@ Each agent: **one GitHub issue** status → In progress while working; Done only
 - [ ] Device store: `channel` → screen props
 - [ ] End-to-end smoke: fixture host → UI on desktop 800×480
 
+### Wave-3 card plan (2026-07-16)
+
+| Card | Status | Dependencies | Ownership / outcome |
+|------|--------|--------------|---------------------|
+| W3-P1 #43 | Ready | - | Protocol v1.1: add `playlist` to both envelope unions and document `PlaylistSnapshotV1`. |
+| W3-A #44 | Ready | - | Device shell map plus pure fixture-backed channel store. |
+| W3-B #45 | Ready | - | Host dependencies, configurable Application children, and runtime config. |
+| W3-C #46 | Backlog | W3-B, W3-P1 | Host gateway snapshot push on port 9138. |
+| W3-D #47 | Backlog | W3-A, W3-P1 | Device gateway client and intent encoding. |
+| W3-E #48 | Backlog | W3-C | Host intent decoding and dispatch. |
+| W3-G #49 | Backlog | W3-E, W3-P1 | Spotify playlist snapshot source. |
+| W3-F #50 | Backlog | W3-D, W3-E, W3-G | Fixture-host to desktop smoke record. |
+
+- **WebSocket dependency decision**: W3-B adds `bandit`, `websock_adapter`, and `plug`; only W3-C starts Bandit.
+- **Parallel-safe Day 1**: W3-P1, W3-A, W3-B. Later cards follow the listed dependencies; do not overlap shared files.
+- **Etymology correction**: E1 #16 and E2 #17 were reopened after audit found no committed implementation; `etymology` stays outside Wave 3 and is ignored gracefully.
+
 ---
 
 ## Copy-paste agent prompts
