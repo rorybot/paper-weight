@@ -143,3 +143,15 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Shell: wheel → `adjust-volume`; press → `lyrics` overlay — **do not edit shell**.
 - Wave-3: wire `now-playing` → `NowPlayingScreen` and `renderOverlay("lyrics")` → `LyricsOverlay`.
 - Host: `cd host && mix test test/paper_weight/spotify/` (N1, 31 tests); lyrics still null from host.
+
+## Wave-3 card table
+
+| Card | Status | Dependencies | Scope |
+|------|--------|--------------|-------|
+| W3-G #49 | Backlog | W3-E #48, W3-P1 #43 | Fetch Spotify playlists into the frozen `PlaylistSnapshotV1` shape, expose generation, and replace the gateway playlist stub. |
+
+## Next Session Context Chunk
+
+- Wave-3 cards are on GitHub: protocol #43, shell #44, host children #45, gateway #46, device client #47, intents #48, playlist #49, smoke #50.
+- Do not start W3-G until W3-E and W3-P1 merge; it intentionally shares Spotify/gateway boundaries with sequenced work.
+- Playlist payload must match `src/device-ui/src/protocol/playlist.ts` exactly; never introduce play/pause.
