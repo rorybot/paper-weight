@@ -92,15 +92,15 @@ Intent name frozen: set_volume.
 
 ## How to launch (human / orchestrator)
 
-```powershell
+```bash
 # from repo root, after parallel-lanes doc is on master
 git worktree add .worktrees/weather -b lane/weather-w1 master
 git worktree add .worktrees/feed    -b lane/feed-f1    master
 git worktree add .worktrees/spotify -b lane/spotify-n1 master
 
-powershell -File scripts/set-card-status.ps1 -Issue 9  -Status "In progress"
-powershell -File scripts/set-card-status.ps1 -Issue 12 -Status "In progress"
-powershell -File scripts/set-card-status.ps1 -Issue 6  -Status "In progress"
+scripts/set-card-status.sh --issue 9  --status "In progress"
+scripts/set-card-status.sh --issue 12 --status "In progress"
+scripts/set-card-status.sh --issue 6  --status "In progress"
 ```
 
 Open three agent sessions with cwd = each worktree; paste the matching prompt.

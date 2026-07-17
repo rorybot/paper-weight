@@ -38,19 +38,25 @@ Board: https://github.com/users/rorybot/projects/1
 Issues: https://github.com/rorybot/paper-weight/issues  
 Mirror: `kanban/board.md` (update **after** GitHub succeeds, never instead of).
 
-### GitHub auth (do not thrash this)
-- **Source of truth is Windows `gh` keyring**, not a GitHub plugin and not WSL.
-- Smoke test: `powershell -File scripts/check-gh-auth.ps1` (exit 0 = good).
+### GitHub CLI + auth (do not thrash this)
+- Use the native toolchain for the current shell:
+  - Linux/macOS/WSL/container: `gh` + `scripts/*.sh`.
+  - Windows PowerShell: `gh` + `scripts/*.ps1`.
+- **Never invoke PowerShell or `gh.exe` from a Linux shell merely because a Windows helper
+  exists.** Do not assume another OS's keyring is the source of truth.
+- Smoke test: `scripts/check-gh-auth.sh` on POSIX, or
+  `powershell -File scripts/check-gh-auth.ps1` on Windows (exit 0 = good).
 - Expected scopes already include `repo` + `project` + `read:org`. Do **not** run
-  `gh auth login` / `gh auth refresh` unless that script exits 1.
+  `gh auth login` / `gh auth refresh` unless the native smoke test exits 1.
 - Prefer **`gh` CLI** for issues/projects. GitHub MCP often returns
   `Resource not accessible by integration` for Projects — that is **not** a reauth signal;
   fall back to `gh`, do not nag the human to re-login.
 - Never print tokens (`gh auth token`, `gh auth status -t`).
-- WSL has no `gh` auth on this machine — always use Windows `gh.exe`.
 
 ### Do
-- Use `scripts/set-card-status.ps1 -Issue <N> -Status "<Status>"` (or equivalent `gh project item-edit`).
+- Use `scripts/set-card-status.sh --issue <N> --status "<Status>"` on POSIX,
+  `scripts/set-card-status.ps1 -Issue <N> -Status "<Status>"` on Windows, or equivalent
+  `gh project item-edit`.
 - Status vocabulary: `Backlog` | `Ready` | `In progress` | `In review` | `Done`.
 - **In progress** only when real work for that card exists or is actively started this session.
 - **Done** only when acceptance is met: set Status → Done, **and** `gh issue close <N>`, **and**
@@ -65,7 +71,7 @@ Mirror: `kanban/board.md` (update **after** GitHub succeeds, never instead of).
 - Leave substantial WIP while the card stays **Ready** / **Backlog**.
 - Use `scripts/push-cards.ps1` for existing cards (legacy draft creator).
 - Invent Status values or skip remote update because MCP failed — fall back to `gh`.
-- Ask the human to reauthenticate GitHub when `check-gh-auth.ps1` would pass.
+- Ask the human to reauthenticate GitHub when the native `check-gh-auth` script would pass.
 
 ### Session end checklist (every card session)
 1. GitHub project Status matches reality.

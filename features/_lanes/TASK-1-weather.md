@@ -208,12 +208,12 @@ Shell already routes weather wheel → `toggle-weather-range` (screen-local late
 
 ## 9. GitHub / board hygiene
 
-```powershell
+```bash
 # when you start real work:
-powershell -File scripts/set-card-status.ps1 -Issue 9 -Status "In progress"
+scripts/set-card-status.sh --issue 9 --status "In progress"
 
 # when acceptance met:
-powershell -File scripts/set-card-status.ps1 -Issue 9 -Status "Done"
+scripts/set-card-status.sh --issue 9 --status "Done"
 # (script may close issue; if not: gh issue close 9 --repo rorybot/paper-weight)
 ```
 
@@ -223,7 +223,8 @@ Then update **only** weather rows in:
 
 Do **not** change other cards’ statuses.
 
-Auth: Windows `gh` keyring. Run `scripts/check-gh-auth.ps1` if needed. Do not re-login unless that fails.
+Auth: use the current shell's native `gh`. Run `scripts/check-gh-auth.sh` on POSIX or
+`scripts/check-gh-auth.ps1` in Windows PowerShell. Do not re-login unless the native check fails.
 
 ---
 
