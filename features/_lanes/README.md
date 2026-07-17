@@ -18,7 +18,7 @@ Agent C: You are Task 3. Read features/_lanes/TASK-3-spotify.md and only that la
 
 ### Worktrees (optional)
 
-```powershell
+```bash
 git worktree add .worktrees/weather -b lane/weather-w1 master
 git worktree add .worktrees/feed    -b lane/feed-f1    master
 git worktree add .worktrees/spotify -b lane/spotify-n1 master

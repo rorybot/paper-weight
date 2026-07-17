@@ -7,8 +7,12 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
 - **Design spec (source of truth for UI)**: `docs/design/carthing-context.md`
 - **Design canvas + screen PNGs**: https://claude.ai/design/p/b8c05a93-b6c5-4a77-ad4b-6c106e533c3f?file=CarThing+Explorations.dc.html
 - **Kanban**: https://github.com/users/rorybot/projects/1 (mirror: `kanban/board.md`)
-- **Status updates**: `scripts/set-card-status.ps1` via `gh` (not MCP alone). See `AGENTS.md` / `CLAUDE.md` kanban rules.
-- **GitHub auth check**: `scripts/check-gh-auth.ps1` — Windows `gh` keyring is SoT; do not reauth unless it fails.
+- **Status updates**: native `gh` helper for the active shell:
+  `scripts/set-card-status.sh` on POSIX or `scripts/set-card-status.ps1` on Windows
+  (not MCP alone). See `AGENTS.md` / `CLAUDE.md` kanban rules.
+- **GitHub auth check**: `scripts/check-gh-auth.sh` on POSIX or
+  `scripts/check-gh-auth.ps1` on Windows. Never cross-call another OS's executable just to run
+  a helper; do not reauth unless the native check fails.
 - **CI / PR process**: `docs/architecture/ci-and-pr.md` — **no direct commits to `master`**; open a PR; required check is **`ci`**.
 
 ## Immutable principles

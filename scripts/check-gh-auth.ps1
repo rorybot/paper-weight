@@ -1,6 +1,7 @@
-# Non-interactive GitHub CLI health check for agents.
+# Non-interactive GitHub CLI health check for agents running in Windows PowerShell.
 # Exit 0 = ready for paper-weight kanban work. Exit 1 = real problem (do NOT invent reauth).
 # Usage: powershell -File scripts\check-gh-auth.ps1
+# POSIX shells must use scripts/check-gh-auth.sh instead of invoking PowerShell.
 
 $ErrorActionPreference = "Continue"
 $requiredScopes = @("repo", "project", "read:org")
@@ -8,7 +9,7 @@ $requiredScopes = @("repo", "project", "read:org")
 Write-Host "=== gh path ==="
 $gh = Get-Command gh -ErrorAction SilentlyContinue
 if (-not $gh) {
-    Write-Host "FAIL: gh not on PATH (Windows). Do not use WSL gh for this repo."
+    Write-Host "FAIL: gh not on PATH in this Windows environment."
     exit 1
 }
 Write-Host $gh.Source
@@ -46,7 +47,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "OK: project #1 readable"
 
 Write-Host "`n=== notes for agents ==="
-Write-Host "- Use Windows gh (keyring). WSL has no gh auth on this machine."
+Write-Host "- This helper is Windows-only; POSIX shells use scripts/check-gh-auth.sh."
 Write-Host "- Prefer gh CLI over GitHub MCP for Projects (MCP often lacks project permission)."
 Write-Host "- Do NOT run gh auth login/refresh unless this script exits 1."
 Write-Host "- Do NOT print tokens (avoid: gh auth status -t / gh auth token in logs)."

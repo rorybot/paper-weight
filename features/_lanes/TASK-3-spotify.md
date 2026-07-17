@@ -218,10 +218,10 @@ If wiring art is large, ship `art_pbm_base64: null` in happy-path fixtures and u
 
 ## 9. GitHub / board hygiene
 
-```powershell
-powershell -File scripts/set-card-status.ps1 -Issue 6 -Status "In progress"
+```bash
+scripts/set-card-status.sh --issue 6 --status "In progress"
 # when done:
-powershell -File scripts/set-card-status.ps1 -Issue 6 -Status "Done"
+scripts/set-card-status.sh --issue 6 --status "Done"
 ```
 
 Update only now-playing / N1 status in specs/board. Do not touch W1/F1 cards.

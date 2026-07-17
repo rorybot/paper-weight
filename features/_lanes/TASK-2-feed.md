@@ -193,10 +193,10 @@ F2 will use P4 `Card` component; your posts just need handle/body/time/accent/id
 
 ## 9. GitHub / board hygiene
 
-```powershell
-powershell -File scripts/set-card-status.ps1 -Issue 12 -Status "In progress"
+```bash
+scripts/set-card-status.sh --issue 12 --status "In progress"
 # when done:
-powershell -File scripts/set-card-status.ps1 -Issue 12 -Status "Done"
+scripts/set-card-status.sh --issue 12 --status "Done"
 ```
 
 Update only feed rows in `features/feed/spec.md` / board if you touch status text.  
