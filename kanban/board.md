@@ -19,9 +19,9 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45 |
 | **In progress** | - |
-| **In review** | D1 #18 (PR #42); W3-B #45 (PR #58) |
+| **In review** | D1 #18 (PR #42) |
 | **Ready** | E1 #16; E2 #17; W3-A #44 |
 | **Backlog** | D3 #20; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
 
@@ -116,7 +116,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: PR #53 merged; `mix test` (100 passed) and `npm run check` (typecheck + 130 tests +
   build) green; unblocks W3-C/D/G. Wave-3 Day-1 parallel-agent prompts for W3-A/W3-B added in PR #54.
 
-### W3-B [platform] Host deps, Application children, and runtime config · #45 · In review
+### W3-B [platform] Host deps, Application children, and runtime config · #45 ✅ Done
 - **Goal**: supervise all four service GenServers with per-service enablement; add the locked
   WebSocket deps/config plumbing (nothing starts Bandit yet — that's W3-C).
 - **Scope**: `mix.exs`/`mix.lock` add `bandit`, `websock_adapter`, `plug`; `application.ex`
@@ -127,8 +127,9 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   rule for this card only; no service internals, envelope, or device UI touched.
 - **Acceptance**: `mix test` passes zero-env; all-enabled config yields four service child
   specs; weather default behavior unchanged; new deps compile in CI.
-- **In review**: PR #58 (`feat/w3b-host-app-children`); `mix test` 107 passed zero-env,
-  `mix test --warnings-as-errors` clean, new deps compile locally; awaiting `ci` check.
+- **Done**: PR #58 (`feat/w3b-host-app-children`) merged (squash, fast-forward to master); `ci`
+  required check green (`host`/`lane-guard` pass, product-lane jobs correctly skipped); issue #45
+  closed and Status set to Done.
 
 ## Epic: now-playing (screen 4a)
 
