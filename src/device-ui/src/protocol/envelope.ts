@@ -10,6 +10,7 @@ export type ChannelV1 =
   | "feed"
   | "photo"
   | "etymology"
+  | "playlist"
   | "system";
 
 export type EnvelopeV1<TPayload = unknown> = {

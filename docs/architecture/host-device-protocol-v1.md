@@ -1,4 +1,4 @@
-# Host ↔ device protocol v1 (frozen envelope)
+# Host ↔ device protocol v1.1 (frozen envelope)
 
 **Status:** frozen for parallel lanes  
 **Transport:** WebSocket JSON (host gateway; not implemented yet — envelope only)  
@@ -25,6 +25,7 @@ type ChannelV1 =
   | "feed"
   | "photo"
   | "etymology"
+  | "playlist"
   | "system";
 ```
 
@@ -71,8 +72,39 @@ Only **now-playing** lane handles `set_volume` in wave 1. Other lanes ignore unk
 | `now_playing` | N1 | `features/now-playing/spec.md` |
 | `weather` | W1 | `features/weather/spec.md` |
 | `feed` | F1 | `features/feed/spec.md` |
+| `playlist` | L1 | `features/playlist/spec.md`; payload type `PlaylistSnapshotV1` in `src/device-ui/src/protocol/playlist.ts` |
 
 Payload schema changes require a **spec.md edit first**, same lane only — no cross-lane “drive-by” types.
+
+### `playlist` payload (v1.1)
+
+Snapshot shape is `PlaylistSnapshotV1` (TS-owned, see `src/device-ui/src/protocol/playlist.ts`):
+
+```ts
+type PlaylistItemV1 = {
+  id: string;
+  name: string;
+  cover_pbm_base64: string | null; // P4-dithered cover; null → CSS hatch fallback
+};
+
+type PlaylistSnapshotV1 = {
+  as_of: string;
+  stale: boolean;
+  playlists: readonly PlaylistItemV1[];
+};
+```
+
+Elixir-side shape (host builds this as the envelope `payload` for `channel: :playlist`):
+
+```elixir
+%{
+  as_of: String.t(),
+  stale: boolean(),
+  playlists: [
+    %{id: String.t(), name: String.t(), cover_pbm_base64: String.t() | nil}
+  ]
+}
+```
 
 ---
 
