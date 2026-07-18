@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "preact/hooks";
 
 import type { IntentV1 } from "../protocol/envelope";
 import type { NowPlayingSnapshotV1 } from "../protocol/now_playing";
+import {
+  EtymologyScreen,
+  etymologyFixtureSnapshot,
+} from "../screens/etymology";
 import { FeedScreen } from "../screens/feed";
 import { HomeScreen, homeFixtureGlance } from "../screens/home";
 import { LyricsOverlay, NowPlayingScreen } from "../screens/now-playing";
@@ -109,19 +113,6 @@ export const renderShellOverlay = (
   overlay === "lyrics" ? (
     <LyricsOverlay snapshot={nowPlayingSnapshot} />
   ) : null;
-
-const Placeholder = ({
-  label,
-  detail,
-}: {
-  readonly label: string;
-  readonly detail: string;
-}) => (
-  <div class="shell-placeholder" data-placeholder={label}>
-    <p class="shell-placeholder__label">{label}</p>
-    <p class="shell-placeholder__detail">{detail}</p>
-  </div>
-);
 
 export interface ShellAppProps {
   readonly bridgeUrl?: string | null;
@@ -282,18 +273,18 @@ export const ShellApp = ({
       );
     }
 
+    if (screen === "etymology") {
+      return <EtymologyScreen snapshot={etymologyFixtureSnapshot} />;
+    }
+
     if (screen === "settings") {
       return (
         <SettingsScreen command={lastCommands.find(isSettingsCommand) ?? null} />
       );
     }
 
-    return (
-      <Placeholder
-        label={screen}
-        detail="Screen UI ships on its feature card; shell owns navigation only."
-      />
-    );
+    const unhandledScreen: never = screen;
+    return unhandledScreen;
   };
 
   return (

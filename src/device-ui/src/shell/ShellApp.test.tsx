@@ -5,13 +5,14 @@ import { nowPlayingFixtureSnapshot } from "../screens/now-playing";
 import { commandsToIntentRequests, renderShellOverlay, ShellApp } from "./ShellApp";
 import type { ScreenId } from "./model";
 
-const REAL_SCREEN_MARKERS: Readonly<Record<Exclude<ScreenId, "etymology">, string>> = {
+const REAL_SCREEN_MARKERS: Readonly<Record<ScreenId, string>> = {
   home: 'data-screen="home"',
   "now-playing": 'data-screen="now-playing"',
   weather: 'data-screen="weather"',
   playlist: 'data-screen="playlist"',
   feed: 'data-screen="feed"',
   photo: 'data-screen="photo"',
+  etymology: 'data-screen="etymology"',
   settings: 'data-screen="settings"',
 };
 
@@ -24,11 +25,6 @@ describe("ShellApp screens", () => {
       expect(html).toContain(marker);
     });
   }
-
-  it("still placeholders etymology (no E2 screen yet)", () => {
-    const html = render(<ShellApp bridgeUrl={null} initialScreen="etymology" />);
-    expect(html).toContain('data-placeholder="etymology"');
-  });
 });
 
 describe("renderShellOverlay", () => {
