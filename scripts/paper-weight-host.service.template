@@ -1,0 +1,14 @@
+[Unit]
+Description=Paper Weight production UI + fixture gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PAPER_WEIGHT_ROOT__
+ExecStart=__PAPER_WEIGHT_ROOT__/scripts/run-device-fixture.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

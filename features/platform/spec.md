@@ -14,7 +14,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P3-1 | [#23](https://github.com/rorybot/paper-weight/issues/23) | Fix swapped preset 2/3 preview routing | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
-| P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Ready** |
+| P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **In review** |
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Ready** |
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (blocked by P6-H, P6-N) |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Backlog** (blocked by P6-I) |
@@ -181,3 +181,24 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Start P6-H #83 and P6-N #84 concurrently; both are Ready and jointly unblock P6-I.
 - P6-I unlocks P7 #85 and P8 #86; P7 unlocks parallel W4 #87, F3 #88, and N4 #89.
 - P9 #90 is the final gate. Nix builds use host Podman and preserve the previous generation.
+
+## Next Session Context Chunk (P6-H — 2026-07-18)
+
+- `scripts/run-device-fixture.sh` now binds the UI and gateway to `0.0.0.0` instead of
+  `172.16.42.1` directly; readiness polls loopback. This makes USB unplug/replug a non-event
+  (nothing is bound to the gadget IP specifically) instead of something to detect-and-retry.
+- New `scripts/host-service.sh` wraps a `systemd --user` unit
+  (`scripts/paper-weight-host.service.template`) with install/start/stop/restart/status/
+  uninstall; `install` also attempts `loginctl enable-linger` for reboot survival.
+- New `scripts/host-health-check.sh` checks UI `:8080` (plain GET) and gateway `:9138` (WS
+  upgrade handshake expecting `HTTP/1.1 101` — a plain GET against the gateway 500s, so the
+  same handshake is reused inside the launcher's own startup readiness wait).
+- **Sandbox caveat**: `systemctl --user start` could not be exercised end-to-end here — no
+  `systemctl --user` unit reaches `active` in this dev container (verified with a throwaway
+  unit too), so this is an environment limitation, not a script defect. Verify `start`/
+  `status`/reboot survival on the real USB-host machine. Everything else (build/check,
+  `mix test`, stop/start restart cycle, health-check pass/fail detection) verified locally.
+  See `docs/architecture/host-production-service.md` for full details.
+- Branch `feat/p6h-host-production-service`, built in worktree `.worktrees/p6h-host-production-service`
+  off `master` (not off #82's in-progress checkout). Issue #83 set to In review pending PR + CI.
+  Unblocks P6-I #82 alongside P6-N #84 (still Ready).
