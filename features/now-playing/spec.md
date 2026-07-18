@@ -11,6 +11,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
+| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Backlog** (blocked by P7) |
 
 ## Ownership (only these paths)
 
@@ -158,3 +159,9 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Gateway: `Publisher` takes `:playlist` input; `Socket` collects from the Spotify adapter; `PlaylistStub` removed.
 - Covers always `cover_pbm_base64: nil` (no JPEG/PNG→grayscale path yet); device CSS hatch. No play/pause.
 - W3-F #50 Done (PR #77): stubs host + `dev:live` + wave-3-smoke.md.
+
+## Next Session Context Chunk — N4 (2026-07-18)
+
+- N4 #89 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
+- Own only Spotify paths; keep frozen `now_playing`/`playlist` envelopes and the no-play/pause rule.
+- Accept mocked token/failure recovery plus live metadata, playlists, and volume on the device.

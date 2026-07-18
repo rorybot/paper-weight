@@ -10,6 +10,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
 | W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
+| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **Backlog** (blocked by P7) |
 
 ## Ownership (only these paths)
 
@@ -129,3 +130,9 @@ _(lane agents append here; do not edit mix.exs)_
 - Device: `ShellApp` renders `WeatherScreen` with fixture snapshot; wheel → `toggle-weather-range` flips local `weatherRange` 5d↔7d (`data-weather-range` on root).
 - Still later: host WebSocket push of live snapshots (replace fixture); no more weather kanban cards.
 - Other lanes: F1 feed host, N2 now-playing UI, etc.
+
+## Next Session Context Chunk — W4 (2026-07-18)
+
+- W4 #87 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
+- Own only Weather paths; keep the frozen envelope and shared shell/Application files unchanged.
+- Accept mocked failure/recovery plus live NWS/OpenUV rendering on the physical Car Thing.

@@ -14,6 +14,12 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P3-1 | [#23](https://github.com/rorybot/paper-weight/issues/23) | Fix swapped preset 2/3 preview routing | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
+| P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Ready** |
+| P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Ready** |
+| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (blocked by P6-H, P6-N) |
+| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Backlog** (blocked by P6-I) |
+| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **Backlog** (blocked by P6-I) |
+| P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
 | W3-A | [#44](https://github.com/rorybot/paper-weight/issues/44) | Device shell screen map + channel store | **Done** (closed, PR #59) |
 | W3-B | [#45](https://github.com/rorybot/paper-weight/issues/45) | Host deps, Application children, and runtime config | **Done** (closed, PR #58) |
@@ -167,3 +173,11 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   adapters (no secrets); device `npm run dev:live` → `ws://127.0.0.1:9138/`.
 - Stubs log `set_volume` / `play_playlist`; five envelopes on connect. PR #77 merged; #50 Done.
 - Wave-3 platform cards complete. Next: product work or parked **D3 #20** (owner call).
+
+## Next Session Context Chunk — launch/demo cards (2026-07-18)
+
+- Physical production-fixture smoke passed presets 1–4; DevTools navigation showed a Chrome frame,
+  so fullscreen/cold-boot acceptance remains in P6-I #82.
+- Start P6-H #83 and P6-N #84 concurrently; both are Ready and jointly unblock P6-I.
+- P6-I unlocks P7 #85 and P8 #86; P7 unlocks parallel W4 #87, F3 #88, and N4 #89.
+- P9 #90 is the final gate. Nix builds use host Podman and preserve the previous generation.
