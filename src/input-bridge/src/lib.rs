@@ -1,5 +1,7 @@
 pub mod bus;
 pub mod config;
+#[cfg(target_os = "linux")]
+pub mod device;
 pub mod event;
 #[cfg(target_os = "linux")]
 pub mod linux;

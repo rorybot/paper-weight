@@ -2,6 +2,7 @@ use std::{
     env,
     fs::File,
     net::TcpListener,
+    ops::ControlFlow,
     process::ExitCode,
     sync::mpsc::{self, RecvTimeoutError},
     thread,
@@ -11,7 +12,7 @@ use std::{
 use paper_weight_input_bridge::{
     bus::EventBus,
     config::BridgeConfig,
-    linux::read_raw_input,
+    device::{DeviceUpdate, ReconnectPolicy, reconnecting_read_loop},
     reducer::{RawInput, State, reduce},
     sse,
 };
@@ -39,34 +40,41 @@ fn run() -> Result<(), String> {
         }
     });
 
-    let mut device = File::open(&config.device)
-        .map_err(|error| format!("could not open {}: {error}", config.device.display()))?;
     let started = Instant::now();
-    let (raw_sender, raw_receiver) = mpsc::channel::<Result<RawInput, String>>();
+    let device_path = config.device.clone();
+    let (device_sender, device_receiver) = mpsc::channel::<DeviceUpdate>();
 
     thread::spawn(move || {
-        loop {
-            let at_ms = started.elapsed().as_millis() as u64;
-            match read_raw_input(&mut device, at_ms) {
-                Ok(Some(raw)) => {
-                    if raw_sender.send(Ok(raw)).is_err() {
-                        return;
-                    }
-                }
-                Ok(None) => {}
-                Err(error) => {
-                    let _ = raw_sender.send(Err(format!("evdev read failed: {error}")));
-                    return;
-                }
-            }
-        }
+        reconnecting_read_loop(
+            || File::open(&device_path),
+            || started.elapsed().as_millis() as u64,
+            |delay| {
+                thread::sleep(delay);
+                ControlFlow::Continue(())
+            },
+            |update| match device_sender.send(update) {
+                Ok(()) => ControlFlow::Continue(()),
+                Err(_) => ControlFlow::Break(()),
+            },
+            |error, delay| {
+                eprintln!(
+                    "evdev {} unavailable: {error}; retrying in {}ms",
+                    device_path.display(),
+                    delay.as_millis()
+                );
+            },
+            ReconnectPolicy::default(),
+        );
     });
 
     let mut state = State::default();
     loop {
-        let raw = match raw_receiver.recv_timeout(Duration::from_millis(10)) {
-            Ok(Ok(raw)) => raw,
-            Ok(Err(error)) => return Err(error),
+        let raw = match device_receiver.recv_timeout(Duration::from_millis(10)) {
+            Ok(DeviceUpdate::Input(raw)) => raw,
+            Ok(DeviceUpdate::Reset) => {
+                state = State::default();
+                continue;
+            }
             Err(RecvTimeoutError::Timeout) => RawInput::Tick {
                 at_ms: started.elapsed().as_millis() as u64,
             },

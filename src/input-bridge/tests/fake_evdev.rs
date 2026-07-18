@@ -89,6 +89,32 @@ fn configurable_hold_threshold_changes_short_press_vs_home() {
 }
 
 #[test]
+fn every_preset_short_press_keeps_its_configured_number() {
+    let feed = [
+        key(PRESET_1, KeyState::Pressed, 0),
+        key(PRESET_1, KeyState::Released, 40),
+        key(PRESET_2, KeyState::Pressed, 100),
+        key(PRESET_2, KeyState::Released, 140),
+        key(PRESET_3, KeyState::Pressed, 200),
+        key(PRESET_3, KeyState::Released, 240),
+        key(PRESET_4, KeyState::Pressed, 300),
+        key(PRESET_4, KeyState::Released, 340),
+    ];
+
+    let output = reduce_all(State::default(), feed, &bindings(650));
+
+    assert_eq!(
+        output.events,
+        [
+            InputEvent::Preset { number: 1 },
+            InputEvent::Preset { number: 2 },
+            InputEvent::Preset { number: 3 },
+            InputEvent::Preset { number: 4 },
+        ]
+    );
+}
+
+#[test]
 fn duplicate_press_repeat_and_electrical_bounce_do_not_duplicate_actions() {
     let feed = [
         key(PRESET_4, KeyState::Pressed, 0),

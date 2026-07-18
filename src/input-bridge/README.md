@@ -13,6 +13,7 @@
 - Browser/P3 subscription endpoint: `http://127.0.0.1:9137/v1/events` via `EventSource`.
 - SSE accepts only `file://` (`Origin: null`) and loopback-hosted UI origins.
 - The listener rejects non-loopback addresses.
+- Evdev disconnects reset held-key state and retry with bounded backoff from 250ms to 5s.
 - `home_hold`, `hold_ms`, and `debounce_ms` are configuration values; any bound key can be hold-capable.
 - Preset actions emit on release; reaching `hold_ms` emits Home once and consumes the short press.
 - Linux key repeats and duplicate presses do not duplicate events.
@@ -32,5 +33,4 @@ The example codes are test-fixture values, not claimed Car Thing hardware mappin
 |---|---|
 | `rustup component add rustfmt clippy` | Install formatting and lint components once. |
 | `rustup target add x86_64-unknown-linux-musl aarch64-unknown-linux-gnu` | Install self-contained test and device-check targets once. |
-| `bash scripts/check.sh` | Format check, 14 tests, strict Clippy, and aarch64 compile check. |
-
+| `bash scripts/check.sh` | Format check, full test suite, strict Clippy, and aarch64 compile check. |
