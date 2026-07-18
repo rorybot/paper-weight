@@ -27,6 +27,9 @@ defmodule PaperWeight.Spotify.ServiceTest do
           String.contains?(url, "/me/player/queue") ->
             {:ok, 200, fixture("queue.json")}
 
+          String.contains?(url, "/me/playlists") ->
+            {:ok, 200, fixture("playlists.json")}
+
           String.contains?(url, "/me/player") ->
             {:ok, 200, fixture("player.json")}
         end
@@ -127,6 +130,36 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert :ok = Service.play_playlist(server, "abc123")
     assert {url, ~s({"context_uri":"spotify:playlist:abc123"})} = Agent.get(ref, & &1)
     assert String.ends_with?(url, "/me/player/play")
+  end
+
+  test "playlists returns a PlaylistSnapshotV1 and advances playlist gen on refresh" do
+    server = start_service()
+
+    assert {:ok, snap} = Service.playlists(server)
+    assert snap.stale == false
+
+    assert [%{id: "37i9dQZF1DXcBWIGoYBM5M", name: "Today's Top Hits", cover_pbm_base64: nil} | _] =
+             snap.playlists
+
+    assert Service.get_playlist_gen(server) == 1
+
+    assert {:ok, snap2} = Service.refresh_playlists(server)
+    assert snap2.stale == false
+    assert Service.get_playlist_gen(server) == 2
+  end
+
+  test "keeps last-good playlists and marks stale when playlist poll fails" do
+    server = start_service()
+    assert {:ok, snap} = Service.playlists(server)
+    assert snap.stale == false
+
+    :sys.replace_state(server, fn state -> %{state | http: ok_http(fail_all: true)} end)
+    assert {:ok, stale_snap} = Service.refresh_playlists(server)
+
+    assert stale_snap.stale == true
+    assert stale_snap.playlists == snap.playlists
+    # gen does not advance on failure
+    assert Service.get_playlist_gen(server) == 1
   end
 
   test "no generic play/pause/skip/previous public API exists on the service" do

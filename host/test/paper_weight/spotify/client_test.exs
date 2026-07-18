@@ -25,6 +25,10 @@ defmodule PaperWeight.Spotify.ClientTest do
         method == :get and String.contains?(url, "/me/player/queue") ->
           {:ok, 200, fixture("queue.json")}
 
+        method == :get and String.contains?(url, "/me/playlists") ->
+          assert String.contains?(url, "limit=")
+          {:ok, 200, fixture("playlists.json")}
+
         method == :get and String.contains?(url, "/me/player") ->
           {:ok, 200, fixture("player.json")}
 
@@ -88,6 +92,23 @@ defmodule PaperWeight.Spotify.ClientTest do
 
     assert {:error, :invalid_playlist_id} =
              Client.play_playlist(config(), "tok", "bad/id", mock_http())
+  end
+
+  test "playlists returns id/name with null covers and skips invalid items" do
+    assert {:ok, items} = Client.playlists(config(), "tok", mock_http())
+
+    assert items == [
+             %{
+               id: "37i9dQZF1DXcBWIGoYBM5M",
+               name: "Today's Top Hits",
+               cover_pbm_base64: nil
+             },
+             %{
+               id: "3cEYpjA9oz9GiPac4AsH4n",
+               name: "Spotify Web API Testing playlist",
+               cover_pbm_base64: nil
+             }
+           ]
   end
 
   test "now_playing surfaces transport errors without retry" do

@@ -148,10 +148,13 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 
 | Card | Status | Dependencies | Scope |
 |------|--------|--------------|-------|
-| W3-G #49 | Backlog | W3-E #48, W3-P1 #43 | Fetch Spotify playlists into the frozen `PlaylistSnapshotV1` shape, expose generation, and replace the gateway playlist stub. |
+| W3-G #49 | In progress | W3-E #48, W3-P1 #43 | Fetch Spotify playlists into the frozen `PlaylistSnapshotV1` shape, expose generation, and replace the gateway playlist stub. |
+| W3-F #50 | Ready | W3-D, W3-E, W3-G | End-to-end smoke after live playlist channel lands. |
 
 ## Next Session Context Chunk
 
-- Wave-3 cards are on GitHub: protocol #43, shell #44, host children #45, gateway #46, device client #47, intents #48, playlist #49, smoke #50.
-- Do not start W3-G until W3-E and W3-P1 merge; it intentionally shares Spotify/gateway boundaries with sequenced work.
-- Playlist payload must match `src/device-ui/src/protocol/playlist.ts` exactly; never introduce play/pause.
+- W3-G: `Spotify.Client.playlists/3` → `Fetch.fetch_playlists/4` → pure `PlaylistSnapshot` (atom keys).
+- `Service.playlists/1` + `get_playlist_gen/1` (+ `refresh_playlists/1`); gen advances only on successful poll.
+- Gateway: `Publisher` takes `:playlist` input; `Socket` collects from the Spotify adapter; `PlaylistStub` removed.
+- Covers always `cover_pbm_base64: nil` (no JPEG/PNG→grayscale path yet); device CSS hatch. No play/pause.
+- Next: W3-F #50 smoke once D/E/G are Done.

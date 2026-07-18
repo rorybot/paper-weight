@@ -4,9 +4,11 @@ defmodule PaperWeight.Gateway.Publisher do
   generation advance. Takes already-fetched channel inputs (see
   `PaperWeight.Gateway.Socket` for the impure edge that collects them) so this
   module can be tested against plain data with no GenServers involved.
+
+  Playlist is a normal channel input (W3-G) sourced from `Spotify.Service`
+  playlists/generation — not a hardcoded stub.
   """
 
-  alias PaperWeight.Gateway.PlaylistStub
   alias PaperWeight.Protocol.Envelope
 
   @type channel_input :: {:ok, term(), non_neg_integer()} | :disabled | {:error, term()}
@@ -15,7 +17,8 @@ defmodule PaperWeight.Gateway.Publisher do
           optional(:weather) => channel_input(),
           optional(:spotify) => channel_input(),
           optional(:feed) => channel_input(),
-          optional(:photo) => channel_input()
+          optional(:photo) => channel_input(),
+          optional(:playlist) => channel_input()
         }
 
   @spec envelopes(inputs(), integer()) :: [Envelope.t()]
@@ -25,7 +28,7 @@ defmodule PaperWeight.Gateway.Publisher do
       channel_envelope(:now_playing, Map.get(inputs, :spotify, :disabled), ts),
       channel_envelope(:feed, Map.get(inputs, :feed, :disabled), ts),
       channel_envelope(:photo, Map.get(inputs, :photo, :disabled), ts),
-      PlaylistStub.envelope(ts)
+      channel_envelope(:playlist, Map.get(inputs, :playlist, :disabled), ts)
     ]
     |> Enum.reject(&is_nil/1)
   end

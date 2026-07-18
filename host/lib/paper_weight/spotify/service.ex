@@ -1,11 +1,14 @@
 defmodule PaperWeight.Spotify.Service do
   @moduledoc """
-  GenServer: periodic now-playing/queue/volume poll with last-good cache.
+  GenServer: periodic now-playing/queue/volume + playlist-list poll with last-good cache.
 
   On fetch failure keeps the previous snapshot and sets `stale: true`. Caches
   the volume level so `set_volume/1` (called from this GenServer, not a bare
   public function — see `set_volume/2`) can apply + clamp a delta without a
   round trip when the API call itself fails.
+
+  Playlist list is a separate cache + generation from now-playing so the gateway
+  can re-push only the `playlist` channel when the library list advances (W3-G).
 
   Wave 3 registers `{PaperWeight.Spotify.Service, []}` — do not add to
   Application here. **No generic** `play`, `pause`, `skip`, or `previous`; W3-E permits only
@@ -14,12 +17,22 @@ defmodule PaperWeight.Spotify.Service do
 
   use GenServer
 
-  alias PaperWeight.Spotify.{Auth, Client, Config, Fetch, Snapshot, Volume}
+  alias PaperWeight.Spotify.{
+    Auth,
+    Client,
+    Config,
+    Fetch,
+    PlaylistSnapshot,
+    Snapshot,
+    Volume
+  }
 
   @type state :: %{
           config: Config.t(),
           snapshot: Snapshot.t() | nil,
+          playlist_snapshot: PlaylistSnapshot.t() | nil,
           gen: non_neg_integer(),
+          playlist_gen: non_neg_integer(),
           token: Auth.token() | nil,
           http_post: Auth.http_post(),
           http: Client.http(),
@@ -47,8 +60,19 @@ defmodule PaperWeight.Spotify.Service do
   @spec get_gen(GenServer.server()) :: non_neg_integer()
   def get_gen(server), do: GenServer.call(server, :get_gen)
 
+  @spec playlists(GenServer.server()) ::
+          {:ok, PlaylistSnapshot.t()} | {:error, :no_snapshot}
+  def playlists(server), do: GenServer.call(server, :playlists)
+
+  @spec get_playlist_gen(GenServer.server()) :: non_neg_integer()
+  def get_playlist_gen(server), do: GenServer.call(server, :get_playlist_gen)
+
   @spec refresh_now(GenServer.server()) :: {:ok, Snapshot.t()} | {:error, term()}
   def refresh_now(server), do: GenServer.call(server, :refresh_now, 30_000)
+
+  @spec refresh_playlists(GenServer.server()) ::
+          {:ok, PlaylistSnapshot.t()} | {:error, term()}
+  def refresh_playlists(server), do: GenServer.call(server, :refresh_playlists, 30_000)
 
   @doc """
   Apply a volume delta, clamp to 0..100, best-effort persist to the Spotify
@@ -74,7 +98,9 @@ defmodule PaperWeight.Spotify.Service do
     state = %{
       config: config,
       snapshot: nil,
+      playlist_snapshot: nil,
       gen: 0,
+      playlist_gen: 0,
       token: nil,
       http_post: http_post,
       http: http,
@@ -94,10 +120,17 @@ defmodule PaperWeight.Spotify.Service do
   def handle_call(:now_playing, _from, state), do: {:reply, snapshot_reply(state), state}
   def handle_call(:queue, _from, state), do: {:reply, queue_reply(state), state}
   def handle_call(:get_gen, _from, state), do: {:reply, state.gen, state}
+  def handle_call(:playlists, _from, state), do: {:reply, playlist_reply(state), state}
+  def handle_call(:get_playlist_gen, _from, state), do: {:reply, state.playlist_gen, state}
 
   def handle_call(:refresh_now, _from, state) do
-    state = do_poll(state)
+    state = poll_now_playing(state)
     {:reply, snapshot_reply(state), state}
+  end
+
+  def handle_call(:refresh_playlists, _from, state) do
+    state = poll_playlists(state)
+    {:reply, playlist_reply(state), state}
   end
 
   def handle_call({:set_volume, delta}, _from, state) do
@@ -150,6 +183,12 @@ defmodule PaperWeight.Spotify.Service do
   end
 
   defp do_poll(state) do
+    state
+    |> poll_now_playing()
+    |> poll_playlists()
+  end
+
+  defp poll_now_playing(state) do
     case Fetch.fetch_snapshot(state.config, state.token, state.http_post, state.http) do
       {:ok, snapshot, token} ->
         %{state | snapshot: snapshot, token: token, gen: state.gen + 1}
@@ -162,8 +201,29 @@ defmodule PaperWeight.Spotify.Service do
     end
   end
 
+  defp poll_playlists(state) do
+    case Fetch.fetch_playlists(state.config, state.token, state.http_post, state.http) do
+      {:ok, playlist_snapshot, token} ->
+        %{
+          state
+          | playlist_snapshot: playlist_snapshot,
+            token: token,
+            playlist_gen: state.playlist_gen + 1
+        }
+
+      {:error, _reason} ->
+        case state.playlist_snapshot do
+          nil -> state
+          snap -> %{state | playlist_snapshot: PlaylistSnapshot.mark_stale(snap)}
+        end
+    end
+  end
+
   defp snapshot_reply(%{snapshot: nil}), do: {:error, :no_snapshot}
   defp snapshot_reply(%{snapshot: snap}), do: {:ok, snap}
+
+  defp playlist_reply(%{playlist_snapshot: nil}), do: {:error, :no_snapshot}
+  defp playlist_reply(%{playlist_snapshot: snap}), do: {:ok, snap}
 
   defp queue_reply(%{snapshot: nil}), do: {:error, :no_snapshot}
   defp queue_reply(%{snapshot: snap}), do: {:ok, Map.get(snap, "queue", [])}

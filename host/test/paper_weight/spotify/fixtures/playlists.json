@@ -1,0 +1,22 @@
+{
+  "href": "https://api.spotify.test/v1/me/playlists?offset=0&limit=50",
+  "items": [
+    {
+      "id": "37i9dQZF1DXcBWIGoYBM5M",
+      "name": "Today's Top Hits",
+      "images": [{"url": "https://i.scdn.co/image/ab67616d0000b273aaa", "height": 640, "width": 640}]
+    },
+    {
+      "id": "3cEYpjA9oz9GiPac4AsH4n",
+      "name": "Spotify Web API Testing playlist",
+      "images": []
+    },
+    {
+      "id": "",
+      "name": "should be skipped"
+    }
+  ],
+  "limit": 50,
+  "offset": 0,
+  "total": 2
+}

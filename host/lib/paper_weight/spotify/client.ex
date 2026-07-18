@@ -1,6 +1,6 @@
 defmodule PaperWeight.Spotify.Client do
   @moduledoc """
-  Impure edge: Spotify Web API player reads + volume write.
+  Impure edge: Spotify Web API player reads, volume write, and playlist list.
 
   HTTP is injected as `http.(method, url, headers, body) -> {:ok, status, body} | {:error, reason}`
   so tests never hit the network.
@@ -22,6 +22,15 @@ defmodule PaperWeight.Spotify.Client do
           duration_ms: non_neg_integer(),
           progress_ms: non_neg_integer()
         }
+
+  @type playlist_item :: %{
+          id: String.t(),
+          name: String.t(),
+          cover_pbm_base64: nil
+        }
+
+  # First page only — enough for the 2×3 playlist grid; pagination is out of scope.
+  @playlists_limit 50
 
   @spec now_playing(Config.t(), String.t(), http()) ::
           {:ok, track() | :none} | {:error, term()}
@@ -91,6 +100,26 @@ defmodule PaperWeight.Spotify.Client do
       end
     else
       false -> {:error, :invalid_playlist_id}
+    end
+  end
+
+  @doc """
+  List the current user's playlists (first page).
+
+  Covers ship as `cover_pbm_base64: nil` — JPEG/PNG download + grayscale decode is not
+  available on the host yet (same as N1 album art). Device falls back to CSS hatch.
+  """
+  @spec playlists(Config.t(), String.t(), http()) ::
+          {:ok, [playlist_item()]} | {:error, term()}
+  def playlists(config, access_token, http) when is_function(http, 4) do
+    url =
+      config.api_base <>
+        "/me/playlists?" <> URI.encode_query(%{"limit" => Integer.to_string(@playlists_limit)})
+
+    case http.(:get, url, auth_headers(access_token), nil) do
+      {:ok, 200, body} -> parse_playlists(body)
+      {:ok, status, body} -> {:error, {:http_status, status, body}}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -190,6 +219,26 @@ defmodule PaperWeight.Spotify.Client do
         err
     end
   end
+
+  defp parse_playlists(body) do
+    with {:ok, %{"items" => items}} when is_list(items) <- json_decode(body) do
+      playlists =
+        items
+        |> Enum.map(&playlist_item/1)
+        |> Enum.reject(&is_nil/1)
+
+      {:ok, playlists}
+    else
+      _ -> {:error, {:bad_playlists_response, body}}
+    end
+  end
+
+  defp playlist_item(%{"id" => id, "name" => name})
+       when is_binary(id) and id != "" and is_binary(name) do
+    %{id: id, name: name, cover_pbm_base64: nil}
+  end
+
+  defp playlist_item(_), do: nil
 
   defp artist_names(%{"artists" => artists}) when is_list(artists) do
     artists

@@ -1,13 +1,14 @@
 defmodule PaperWeight.Spotify.Fetch do
   @moduledoc """
   Impure orchestration edge: ensures a valid access token, pulls now-playing +
-  queue + volume from the Spotify Web API, and assembles a snapshot.
+  queue + volume and the user playlist list from the Spotify Web API, and
+  assembles snapshots.
 
   HTTP is injected (see `PaperWeight.Spotify.Auth` / `PaperWeight.Spotify.Client`)
   so tests never hit the network or need real tokens.
   """
 
-  alias PaperWeight.Spotify.{Auth, Client, Config, Snapshot}
+  alias PaperWeight.Spotify.{Auth, Client, Config, PlaylistSnapshot, Snapshot}
 
   @token_refresh_buffer_s 30
 
@@ -25,6 +26,21 @@ defmodule PaperWeight.Spotify.Fetch do
           volume_level: volume_level,
           stale: false,
           art_pbm_base64: nil
+        })
+
+      {:ok, snapshot, token}
+    end
+  end
+
+  @spec fetch_playlists(Config.t(), Auth.token() | nil, Auth.http_post(), Client.http()) ::
+          {:ok, PlaylistSnapshot.t(), Auth.token()} | {:error, term()}
+  def fetch_playlists(config, token_state, http_post, http) do
+    with {:ok, token} <- refresh_if_needed(config, token_state, http_post),
+         {:ok, playlists} <- Client.playlists(config, token.access_token, http) do
+      snapshot =
+        PlaylistSnapshot.assemble(%{
+          playlists: playlists,
+          stale: false
         })
 
       {:ok, snapshot, token}
