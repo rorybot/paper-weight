@@ -13,7 +13,7 @@ E1 is a **standalone, unwired** host service: no `application.ex` edit, no proto
 |----|-------|-------|--------|
 | E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **Done** (PR #60 merged; CI green) |
 | E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **Done** (PR #66 merged; CI green) |
-| E2-1 | [#79](https://github.com/rorybot/paper-weight/issues/79) | Wire preset 4 to Etymology screen | **In review** (PR #80) |
+| E2-1 | [#79](https://github.com/rorybot/paper-weight/issues/79) | Wire preset 4 to Etymology screen | **Done** (PR #80 merged; CI green) |
 
 ## Ownership (only these paths)
 
@@ -172,7 +172,7 @@ _(none — pure in-memory corpus; no `mix.exs` edit)_
 
 ## Next Session Context Chunk (E2-1)
 
-- **PR #80 / issue #79**: preset 4 now renders `EtymologyScreen`; Project status is In review.
+- **PR #80 merged / issue #79 closed**: preset 4 renders `EtymologyScreen`; Project status is Done.
 - **Root cause**: `ShellApp` omitted the implemented E2 component and fell through to a placeholder.
 - **Validation**: `npm run check` green — 32 files / 201 tests plus production build.
 - **Device evidence**: 800×480 physical capture shows `data-screen="etymology"`, no placeholder.
