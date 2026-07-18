@@ -16,12 +16,12 @@ epics parallel now; design epic anytime.
 **Status = GitHub project Status field.** This file is a mirror only. Never mark a card
 In progress / Done here unless the same change succeeded on the remote project.
 
-Status snapshot (2026-07-17, verified against remote project):
+Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43 |
 | **In progress** | - |
-| **In review** | D1 #18 (PR #42); W3-P1 #43 (PR #53) |
+| **In review** | D1 #18 (PR #42) |
 | **Ready** | E1 #16; E2 #17; W3-A #44; W3-B #45 |
 | **Backlog** | D3 #20; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
 
@@ -105,6 +105,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: golden-image tests; visually matches mockups' dither character.
 - **Done**: `host/lib/paper_weight/` provides Image/Resize/Atkinson/Bitmap/Cache; 11 tests pass,
   including the 8×8 gradient golden PBM; user approved and #5 closed.
+
+### W3-P1 [platform] Protocol v1.1 — freeze playlist channel · #43 ✅ Done
+- **Goal**: make `playlist` a first-class host-to-device channel rather than a now-playing fixture.
+- **Scope**: add `playlist` to the channel union in the protocol doc, `envelope.ex`, and
+  `envelope.ts`; document the existing `PlaylistSnapshotV1` payload (TS + Elixir mirror).
+- **Constraints**: cross-lane change, `chore/*` branch; no other envelope changes; no service/screen code.
+- **Acceptance**: both envelope files list `playlist`; protocol doc is v1.1 and documents the
+  payload; `mix test` and `npm run check` pass.
+- **Done**: PR #53 merged; `mix test` (100 passed) and `npm run check` (typecheck + 130 tests +
+  build) green; unblocks W3-C/D/G. Wave-3 Day-1 parallel-agent prompts for W3-A/W3-B added in PR #54.
 
 ## Epic: now-playing (screen 4a)
 

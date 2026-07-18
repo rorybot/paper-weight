@@ -14,7 +14,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P3-1 | [#23](https://github.com/rorybot/paper-weight/issues/23) | Fix swapped preset 2/3 preview routing | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
-| W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **In review** (PR #53) |
+| W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
 
 ## Stack slice (do not re-litigate)
 
