@@ -19,11 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18 |
 | **In progress** | - |
-| **In review** | D1 #18 (PR #42) |
-| **Ready** | E2 #17 |
-| **Backlog** | D3 #20; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
+| **In review** | - |
+| **Ready** | E2 #17; W3-C #46; W3-D #47 |
+| **Backlog** | D3 #20; W3-E #48; W3-G #49; W3-F #50 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -116,7 +116,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: PR #53 merged; `mix test` (100 passed) and `npm run check` (typecheck + 130 tests +
   build) green; unblocks W3-C/D/G. Wave-3 Day-1 parallel-agent prompts for W3-A/W3-B added in PR #54.
 
-### W3-A [platform] Device shell screen map + channel store · #44 · In review (PR #59)
+### W3-A [platform] Device shell screen map + channel store · #44 ✅ Done
 - **Goal**: render every built screen and overlay from a single channel-to-snapshot store, seeded
   by fixtures; route shell commands to screen props without networking.
 - **Scope**: `src/device-ui/src/shell/channelStore.ts` (new, pure `applyEnvelope`); wire real Now
@@ -125,9 +125,8 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   `model.ts`, `screens/**`, `protocol/**`, `host/**`; no WebSocket/network code, no play/pause.
 - **Acceptance**: every ScreenId/overlay renders its real component from fixture data;
   stale-generation + unknown-channel behavior unit tested; `npm run check` passes.
-- **In review**: PR #59 open; `npm run check` (typecheck + 146 tests + build) green; dev server
-  boots clean and every changed module transforms via Vite with no errors. Interactive
-  click-through not exercised — no headless browser in this environment.
+- **Done**: PR #59 merged; issue #44 closed and Project Status Done; `npm run check` was green:
+  typecheck + 146 tests + build. Interactive click-through belongs to W3-F.
 
 ### W3-B [platform] Host deps, Application children, and runtime config · #45 ✅ Done
 - **Goal**: supervise all four service GenServers with per-service enablement; add the locked
@@ -263,12 +262,12 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: design (remaining design work — can run anytime)
 
-### D1 [design] Home screen — design + build · #18 · In review (PR #42)
+### D1 [design] Home screen — design + build · #18 ✅ Done
 - **Goal**: the button-hold target. Not yet mocked.
 - **Scope**: design in BERG language on the claude.ai/design canvas, get approval, then build;
   likely a glanceable launcher/status card for the 6 screens.
 - **Acceptance**: mock approved; hold from any screen lands here; presets 1–4 still work from it.
-- **Note**: mock went TUI (gruvbox) instead of BERG, approved in-thread. Presets changed to
+- **Done**: PR #42 merged; TUI (gruvbox) mock approved in-thread. Presets changed to
   1:now-playing 2:weather 3:feed 4:etymology — playlist folds into Now Playing (no button of
   its own); photo has no preset either. See PR #42 for the full topbar-rail rewiring.
 

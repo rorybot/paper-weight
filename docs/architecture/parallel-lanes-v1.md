@@ -176,21 +176,23 @@ Each agent: **one GitHub issue** status → In progress while working; Done only
 | Card | Status | Dependencies | Ownership / outcome |
 |------|--------|--------------|---------------------|
 | W3-P1 #43 | **Done** (PR #53) | - | Protocol v1.1: add `playlist` to both envelope unions and document `PlaylistSnapshotV1`. |
-| W3-A #44 | Ready | - | Device shell map plus pure fixture-backed channel store. |
-| W3-B #45 | Ready | - | Host dependencies, configurable Application children, and runtime config. |
-| E1 #16 | Ready | - | Word-origin data service; new isolated tree, no protocol channel yet. |
-| W3-C #46 | Backlog | W3-B | Host gateway snapshot push on port 9138. |
-| W3-D #47 | Backlog | W3-A | Device gateway client and intent encoding. |
-| E2 #17 | Ready (gated on E1) | E1 | Etymology drill-down screen; needs E1's payload types first. |
+| W3-A #44 | **Done** (PR #59) | - | Device shell map plus pure fixture-backed channel store. |
+| W3-B #45 | **Done** (PR #58) | - | Host dependencies, configurable Application children, and runtime config. |
+| E1 #16 | **Done** (PR #60) | - | Word-origin data service; new isolated tree, no protocol channel yet. |
+| W3-C #46 | Ready | W3-B satisfied | Host gateway snapshot push on port 9138. |
+| W3-D #47 | Ready | W3-A satisfied | Device gateway client and intent encoding. |
+| E2 #17 | Ready | E1 satisfied | Etymology drill-down screen; needs E1's payload types first. |
 | W3-E #48 | Backlog | W3-C | Host intent decoding and dispatch. |
 | W3-G #49 | Backlog | W3-E | Spotify playlist snapshot source. |
 | W3-F #50 | Backlog | W3-D, W3-E, W3-G | Fixture-host to desktop smoke record. |
 
 - **WebSocket dependency decision**: W3-B adds `bandit`, `websock_adapter`, and `plug`; only W3-C starts Bandit.
-- **Parallel-safe Day 1**: W3-A, W3-B, E1 (W3-P1 already merged). Later cards follow the
-  listed dependencies; do not overlap shared files. Full copy-paste prompts:
-  `features/_lanes/agent-prompts.md` §Wave 3 Day-1.
-- **Etymology correction**: E1 #16 and E2 #17 were reopened after audit found no committed implementation; `etymology` stays outside Wave 3 and is ignored gracefully. E1 now runs as a third Day-1 parallel track (zero file overlap with W3-A/W3-B); E2 unlocks once E1 lands.
+- **Orchestrator wave-3 Day-2 status**: service branches/dependencies merged (W3-B via #58); Weather/Spotify/Feed/Photo registered in `Application`; `ShellApp` screen registry wired (W3-A via #59); fixture-backed channel store wired, with W3-D supplying live envelopes next.
+- **Parallel-safe Day 2**: W3-C, W3-D, E2 run concurrently — no shared files across the three.
+  W3-D may make only the minimum `ShellApp` seam needed for live envelopes. E2 must not touch
+  shell files while W3-D is in flight; E2 owns `screens/etymology/**` only, and its shell/live-channel
+  integration is a small follow-up after W3-D merges. Full copy-paste prompts:
+  `features/_lanes/agent-prompts.md` §Wave 3 Day-2.
 - **D3 #20 (BERG/TUI reskin decision) is parked** — labeled `Blocked` / `Someday/Maybe` on GitHub, intentionally excluded from this roadmap. Do not action without explicit approval.
 
 ---
