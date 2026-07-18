@@ -18,6 +18,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | W3-A | [#44](https://github.com/rorybot/paper-weight/issues/44) | Device shell screen map + channel store | **Done** (closed, PR #59) |
 | W3-B | [#45](https://github.com/rorybot/paper-weight/issues/45) | Host deps, Application children, and runtime config | **Done** (closed, PR #58) |
 | W3-C | [#46](https://github.com/rorybot/paper-weight/issues/46) | Host WebSocket gateway snapshot push | **Done** (closed, PR #68) |
+| W3-D | [#47](https://github.com/rorybot/paper-weight/issues/47) | Device WebSocket client feeding channel store | **Done** (closed, PR #71) |
 
 ## Stack slice (do not re-litigate)
 
