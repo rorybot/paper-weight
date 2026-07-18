@@ -285,7 +285,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   `src/device-ui/src/screens/etymology/`; 25 tests. Shell wire-up seam recorded in PR #66
   for the W3-D follow-up; `etymology` channel still not in `ChannelV1` (fixture-only).
 
-### E2-1 [platform] Wire preset 4 to Etymology screen · #79 · In progress
+### E2-1 [platform] Wire preset 4 to Etymology screen · #79 · In review
 - **Goal**: make physical preset 4 render the existing E2 screen instead of the shell placeholder.
 - **Scope**: route `ShellApp` to `EtymologyScreen` with its local fixture and add regression coverage.
 - **Constraints**: no host channel, protocol, or other-screen changes; Etymology remains fixture-only.
