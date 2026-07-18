@@ -11,7 +11,7 @@ E1 is a **standalone, unwired** host service: no `application.ex` edit, no proto
 
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
-| E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **In progress** (code on `claude/e1-word-origin-service-3fsz8x`, awaiting CI) |
+| E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **Done** (PR #60 merged; CI green) |
 | E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **Ready** (gated on E1) |
 
 ## Ownership (only these paths)
@@ -137,7 +137,7 @@ _(none — pure in-memory corpus; no `mix.exs` edit)_
 - [x] Snapshot matches `EtymologySnapshotV1`; nested `trace` + `mark_stale` (`snapshot_test.exs`)
 - [x] Service caches the day's tree, rebuilds on day-roll (`service_test.exs`)
 - [x] No `application.ex` / `mix.exs` / protocol / channel-union edits
-- [ ] `mix test` green — verified by CI (`ci` check); no local Elixir toolchain in this env
+- [x] `mix test` green — verified by CI (`ci` check, 121 tests) on merged PR #60
 
 ### E2 (later, gated on E1)
 - [ ] 2a/2b/2c as ONE screen driven by wheel (move) + press (dig) + back (up)
