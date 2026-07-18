@@ -182,6 +182,13 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - P6-I unlocks P7 #85 and P8 #86; P7 unlocks parallel W4 #87, F3 #88, and N4 #89.
 - P9 #90 is the final gate. Nix builds use host Podman and preserve the previous generation.
 
+## Next Session Context Chunk (P8 — 2026-07-18)
+
+- `src/input-bridge/src/device.rs` now retries evdev with 250ms–5s bounded backoff and resets held-key state across disconnects.
+- `bash scripts/check.sh` passed format, 17 musl tests, strict Clippy, and the aarch64 GNU all-target compile check.
+- Branch `feat/p8-device-input-bridge`, draft PR #98; issue #86 stays open with Project Status In progress.
+- Resume after P6-I/P6-N: rebase, add declarative service integration, deploy, remove `bridge=0`, run physical input/reconnect acceptance, final `ci`, and closeout sync.
+
 ## Next Session Context Chunk (P6-H — 2026-07-18)
 
 - `scripts/run-device-fixture.sh` now binds the UI and gateway to `0.0.0.0` instead of
