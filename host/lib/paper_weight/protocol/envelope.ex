@@ -6,7 +6,13 @@ defmodule PaperWeight.Protocol.Envelope do
   """
 
   @type channel ::
-          :now_playing | :weather | :feed | :photo | :etymology | :system
+          :now_playing
+          | :weather
+          | :feed
+          | :photo
+          | :etymology
+          | :playlist
+          | :system
 
   @type t :: %{
           required(:v) => 1,

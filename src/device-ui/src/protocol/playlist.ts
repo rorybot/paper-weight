@@ -1,6 +1,6 @@
 /**
  * Playlist grid payload types — owned by L1.
- * Not a frozen host channel yet (playlists may ride `now_playing` later).
+ * Frozen host channel `playlist` (protocol v1.1); see envelope.ts.
  * Intent: envelope `play_playlist` with `{ id: string }`.
  * @see features/playlist/spec.md
  */
