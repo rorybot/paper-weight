@@ -20,9 +20,9 @@ Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49 |
-| **In progress** | - |
+| **In progress** | W3-F #50 |
 | **In review** | - |
-| **Ready** | W3-F #50 |
+| **Ready** | - |
 | **Backlog** | D3 #20 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -180,6 +180,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   generation advances on refresh.
 - **Done**: PR #75 merged; host `mix test` 155 passed; CI green; issue #49 closed + Project Done.
   Covers stay `null` until JPEG→grayscale exists. Unblocks W3-F #50.
+
+### W3-F [platform] End-to-end fixture host to desktop UI smoke · #50 · In progress
+- **Goal**: document and prove a repeatable fixture-host-to-desktop-UI smoke including volume
+  intent round-trip.
+- **Scope**: `docs/architecture/wave-3-smoke.md`; host `gateway: [stubs: :all]` profile
+  (`PAPER_WEIGHT_GATEWAY_STUBS=all`); npm `dev:live`; fix only integration mismatches.
+- **Constraints**: branch `chore/w3f-e2e-smoke`; blocked by W3-D/E/G (met); no new features,
+  protocol changes, screen changes, or CI job.
+- **Acceptance**: clean-checkout instructions work; all channel envelopes render; keyboard
+  volume logs `set_volume`; host loss shows reconnect.
 
 ## Epic: weather (screen 4b)
 

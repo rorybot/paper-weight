@@ -11,9 +11,12 @@
 |---|---|
 | `npm run dev` | Shell harness @ 800×480 (keyboard map; optional P2 SSE). |
 | `npm run dev` + `?bridge=0` | Keyboard only (no EventSource). |
+| `npm run dev:live` | Keyboard + host gateway at `ws://127.0.0.1:9138/` (W3-F smoke). |
 | `npm run test` | Tokens, card, shell interaction map, bridge/dev adapters. |
 | `npm run build` | Kiosk-ready static bundle in `dist/`. |
 | `npm run check` | Typecheck, test, then build. |
+
+Wave-3 fixture-host smoke: `docs/architecture/wave-3-smoke.md`.
 
 ## Dev keyboard (workflow-v1)
 

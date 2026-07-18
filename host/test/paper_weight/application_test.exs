@@ -10,7 +10,8 @@ defmodule PaperWeight.ApplicationTest do
     photo: :disabled,
     photo_library_dir: nil,
     gateway: :disabled,
-    gateway_port: 9138
+    gateway_port: 9138,
+    gateway_stubs: :none
   }
 
   describe "children/1 (pure)" do
@@ -26,7 +27,8 @@ defmodule PaperWeight.ApplicationTest do
         photo: :enabled,
         photo_library_dir: "/tmp/photos",
         gateway: :disabled,
-        gateway_port: 9138
+        gateway_port: 9138,
+        gateway_stubs: :none
       }
 
       modules = config |> App.children() |> Enum.map(&elem(&1, 0))
@@ -86,8 +88,47 @@ defmodule PaperWeight.ApplicationTest do
                photo: :disabled,
                photo_library_dir: nil,
                gateway: :disabled,
-               gateway_port: 9138
+               gateway_port: 9138,
+               gateway_stubs: :none
              }
+    end
+  end
+
+  describe "gateway stubs profile (W3-F)" do
+    test "stubs: :all starts four stub services + Bandit, no real domain children" do
+      config = %{
+        @all_disabled
+        | gateway: :enabled,
+          gateway_stubs: :all,
+          gateway_port: 9199
+      }
+
+      children = App.children(config)
+
+      modules =
+        Enum.map(children, fn
+          {mod, _opts} ->
+            mod
+
+          %{id: {PaperWeight.Gateway.StubService, role}} ->
+            {PaperWeight.Gateway.StubService, role}
+
+          other ->
+            other
+        end)
+
+      assert PaperWeight.Dither.Cache in modules
+      assert Bandit in modules
+      refute PaperWeight.Weather.Service in modules
+      refute PaperWeight.Spotify.Service in modules
+      refute PaperWeight.Feed.Service in modules
+      refute PaperWeight.Photo.Service in modules
+
+      assert {Bandit, opts} = Enum.find(children, &match?({Bandit, _}, &1))
+      assert Keyword.get(opts, :port) == 9199
+      assert {PaperWeight.Gateway.Endpoint, endpoint_opts} = Keyword.get(opts, :plug)
+
+      assert Keyword.get(endpoint_opts, :adapters) == PaperWeight.Gateway.Stubs.adapters()
     end
   end
 
