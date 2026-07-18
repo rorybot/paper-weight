@@ -11,6 +11,13 @@ defmodule PaperWeight.Gateway.Endpoint do
       websocat ws://localhost:9138/
 
   Expect one JSON envelope per enabled channel immediately on connect.
+
+  ## Fixture smoke (W3-F)
+
+      PAPER_WEIGHT_GATEWAY_STUBS=all mix run --no-halt
+      # device UI: cd src/device-ui && npm run dev:live
+
+  See `docs/architecture/wave-3-smoke.md`.
   """
 
   @behaviour Plug

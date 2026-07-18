@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",
+    "dev:live": "vite --host 0.0.0.0 --open '/?bridge=0&gateway=ws://127.0.0.1:9138/'",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run test && npm run build"

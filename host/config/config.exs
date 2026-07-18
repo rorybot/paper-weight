@@ -37,10 +37,16 @@ config :paper_weight_host, photo_service: :disabled
 config :paper_weight_host, gateway_service: :enabled
 config :paper_weight_host, gateway_port: 9138
 
+# W3-F smoke profile: gateway: [stubs: :all]
+# Env override: PAPER_WEIGHT_GATEWAY_STUBS=all → fixture adapters for every
+# managed channel, real services forced off. See docs/architecture/wave-3-smoke.md.
+config :paper_weight_host, gateway_stubs: :none
+
 if config_env() == :test do
   config :paper_weight_host, weather_service: :disabled
   config :paper_weight_host, spotify_service: :disabled
   config :paper_weight_host, feed_service: :disabled
   config :paper_weight_host, photo_service: :disabled
   config :paper_weight_host, gateway_service: :disabled
+  config :paper_weight_host, gateway_stubs: :none
 end
