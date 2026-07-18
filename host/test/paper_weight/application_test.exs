@@ -8,7 +8,9 @@ defmodule PaperWeight.ApplicationTest do
     spotify: :disabled,
     feed: :disabled,
     photo: :disabled,
-    photo_library_dir: nil
+    photo_library_dir: nil,
+    gateway: :disabled,
+    gateway_port: 9138
   }
 
   describe "children/1 (pure)" do
@@ -22,7 +24,9 @@ defmodule PaperWeight.ApplicationTest do
         spotify: :enabled,
         feed: :enabled,
         photo: :enabled,
-        photo_library_dir: "/tmp/photos"
+        photo_library_dir: "/tmp/photos",
+        gateway: :disabled,
+        gateway_port: 9138
       }
 
       modules = config |> App.children() |> Enum.map(&elem(&1, 0))
@@ -80,7 +84,54 @@ defmodule PaperWeight.ApplicationTest do
                spotify: :disabled,
                feed: :disabled,
                photo: :disabled,
-               photo_library_dir: nil
+               photo_library_dir: nil,
+               gateway: :disabled,
+               gateway_port: 9138
+             }
+    end
+  end
+
+  describe "gateway_child (via children/1)" do
+    test "disabled gateway yields no Bandit child" do
+      refute Enum.any?(App.children(@all_disabled), &match?({Bandit, _}, &1))
+    end
+
+    test "enabled gateway yields a Bandit child bound to gateway_port" do
+      config = %{@all_disabled | gateway: :enabled, gateway_port: 9999}
+
+      assert [{Bandit, opts}] =
+               config
+               |> App.children()
+               |> Enum.reject(&match?({PaperWeight.Dither.Cache, _}, &1))
+
+      assert Keyword.get(opts, :port) == 9999
+      assert {PaperWeight.Gateway.Endpoint, endpoint_opts} = Keyword.get(opts, :plug)
+
+      assert Keyword.get(endpoint_opts, :adapters) == %{
+               weather: nil,
+               spotify: nil,
+               feed: nil,
+               photo: nil
+             }
+    end
+
+    test "gateway adapters only reference services that are themselves enabled" do
+      config = %{@all_disabled | gateway: :enabled, weather: :enabled, feed: :enabled}
+
+      assert [{Bandit, opts}] =
+               config
+               |> App.children()
+               |> Enum.reject(&match?({PaperWeight.Dither.Cache, _}, &1))
+               |> Enum.reject(&match?({PaperWeight.Weather.Service, _}, &1))
+               |> Enum.reject(&match?({PaperWeight.Feed.Service, _}, &1))
+
+      assert {PaperWeight.Gateway.Endpoint, endpoint_opts} = Keyword.get(opts, :plug)
+
+      assert Keyword.get(endpoint_opts, :adapters) == %{
+               weather: PaperWeight.Weather.Service,
+               spotify: nil,
+               feed: PaperWeight.Feed.Service,
+               photo: nil
              }
     end
   end

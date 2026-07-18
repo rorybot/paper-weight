@@ -30,9 +30,17 @@ config :paper_weight_host, feed_service: :disabled
 # Defaults :disabled until a deployment has a library directory configured.
 config :paper_weight_host, photo_service: :disabled
 
+# Bandit/WebSock gateway (PaperWeight.Gateway.*). Publishes the frozen envelope
+# per enabled channel on connect and on generation advance; binds gateway_port.
+# Disabled in test so `mix test` opens no port (see PaperWeight.Gateway.Socket
+# moduledoc for the manual iex + websocat smoke path).
+config :paper_weight_host, gateway_service: :enabled
+config :paper_weight_host, gateway_port: 9138
+
 if config_env() == :test do
   config :paper_weight_host, weather_service: :disabled
   config :paper_weight_host, spotify_service: :disabled
   config :paper_weight_host, feed_service: :disabled
   config :paper_weight_host, photo_service: :disabled
+  config :paper_weight_host, gateway_service: :disabled
 end
