@@ -15,8 +15,12 @@ import {
   type WeatherRange,
 } from "../screens/weather";
 import { bridgePayloadToShellInput } from "./bridge";
-import { fixtureChannelStoreState } from "./channelStore";
+import {
+  fixtureChannelStoreState,
+  type ChannelStoreState,
+} from "./channelStore";
 import { mapDevKeyboardEvent } from "./devKeyboard";
+import { commandsToIntentRequests } from "./intents";
 import {
   initialShellState,
   type OverlayId,
@@ -58,24 +62,10 @@ export const applyWeatherRangeToggles = (
   return next;
 };
 
-export type ShellIntentRequest = Pick<IntentV1, "name" | "args">;
-
-/**
- * Pure: map just-emitted shell commands to host intent requests. Envelope
- * fields (`v`/`ts`) are attached at the dispatch edge, not here.
- */
-export const commandsToIntentRequests = (
-  commands: readonly ShellCommand[],
-): readonly ShellIntentRequest[] =>
-  commands
-    .filter(
-      (command): command is Extract<ShellCommand, { type: "adjust-volume" }> =>
-        command.type === "adjust-volume",
-    )
-    .map((command) => ({
-      name: "set_volume" as const,
-      args: { delta: command.delta },
-    }));
+// Canonical command → intent mapping lives in `./intents` (W3-D);
+// re-exported here so existing importers keep working.
+export { commandsToIntentRequests } from "./intents";
+export type { ShellIntentRequest } from "./intents";
 
 const isFeedCommand = (
   command: ShellCommand,
@@ -135,10 +125,12 @@ const Placeholder = ({
 
 export interface ShellAppProps {
   readonly bridgeUrl?: string | null;
+  /** W3-D gateway seam: live channel-store state; omit → static fixtures. */
+  readonly channelState?: ChannelStoreState;
   readonly initialScreen?: ScreenId;
   /** Test / debug: observe commands without host services. */
   readonly onCommands?: (commands: readonly ShellCommand[]) => void;
-  /** Device → host intents (`set_volume`, `play_playlist`). No-op until the W3-D gateway wires a socket. */
+  /** Device → host intents (`set_volume`, `play_playlist`). main.tsx wires the W3-D gateway here when `?gateway=` is present. */
   readonly onIntent?: (intent: IntentV1) => void;
   /** Override weather snapshot (defaults to the channel store's fixture). */
   readonly weatherSnapshot?: typeof weatherFixtureSnapshot;
@@ -146,11 +138,12 @@ export interface ShellAppProps {
 
 /**
  * Shell harness: pure router + ScreenShell + wired screens + optional P2 SSE.
- * Screens render from `channelStore`'s fixture snapshots until the W3-D
- * gateway starts pushing real envelopes; Settings has no host channel.
+ * Screens render from `channelState` (fixture-seeded; the W3-D gateway feeds
+ * live envelopes via main.tsx); Settings has no host channel.
  */
 export const ShellApp = ({
   bridgeUrl = DEFAULT_BRIDGE_URL,
+  channelState,
   initialScreen = "home",
   onCommands,
   onIntent,
@@ -162,7 +155,7 @@ export const ShellApp = ({
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  const channelStore = fixtureChannelStoreState;
+  const channelStore = channelState ?? fixtureChannelStoreState;
   const resolvedWeatherSnapshot = weatherSnapshot ?? channelStore.snapshots.weather;
 
   const [lastCommands, setLastCommands] = useState<readonly ShellCommand[]>(

@@ -35,13 +35,18 @@ export type ChannelStoreState = {
   readonly gens: Readonly<Record<ManagedChannel, number>>;
 };
 
-const MANAGED_CHANNELS: ReadonlySet<ChannelV1> = new Set<ManagedChannel>([
+/** Managed channels in wire order — the W3-D gateway's refresh-on-open list. */
+export const MANAGED_CHANNEL_LIST: readonly ManagedChannel[] = Object.freeze([
   "now_playing",
   "weather",
   "feed",
   "photo",
   "playlist",
 ]);
+
+const MANAGED_CHANNELS: ReadonlySet<ChannelV1> = new Set<ManagedChannel>(
+  MANAGED_CHANNEL_LIST,
+);
 
 const isManagedChannel = (channel: ChannelV1): channel is ManagedChannel =>
   MANAGED_CHANNELS.has(channel);
