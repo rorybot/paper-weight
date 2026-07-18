@@ -14,7 +14,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P3-1 | [#23](https://github.com/rorybot/paper-weight/issues/23) | Fix swapped preset 2/3 preview routing | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
-| P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **In review** |
+| P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Done** (closed, PR #93) |
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Ready** |
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (blocked by P6-H, P6-N) |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Backlog** (blocked by P6-I) |
@@ -200,5 +200,6 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   `mix test`, stop/start restart cycle, health-check pass/fail detection) verified locally.
   See `docs/architecture/host-production-service.md` for full details.
 - Branch `feat/p6h-host-production-service`, built in worktree `.worktrees/p6h-host-production-service`
-  off `master` (not off #82's in-progress checkout). Issue #83 set to In review pending PR + CI.
-  Unblocks P6-I #82 alongside P6-N #84 (still Ready).
+  off `master` (not off #82's in-progress checkout). PR #93 merged (squash), `ci` green
+  (device-ui/host/input-bridge/screen-tests correctly skipped — no product-lane paths touched),
+  issue #83 closed, project Status Done. Unblocks P6-I #82 alongside P6-N #84 (still Ready).
