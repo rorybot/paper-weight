@@ -21,8 +21,8 @@ Status snapshot (2026-07-18, verified against remote project):
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
 | **In progress** | - |
-| **In review** | - |
-| **Ready** | P6-H #83; P6-N #84 |
+| **In review** | P6-H #83 |
+| **Ready** | P6-N #84 |
 | **Backlog** | P6-I #82; P7 #85; P8 #86; W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -106,12 +106,17 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: `host/lib/paper_weight/` provides Image/Resize/Atkinson/Bitmap/Cache; 11 tests pass,
   including the 8×8 gradient golden PBM; user approved and #5 closed.
 
-### P6-H [platform] Host production service · #83 · Ready
+### P6-H [platform] Host production service · #83 · In review
 - **Goal**: run the production UI `:8080` and fixture gateway `:9138` as a resilient host user service.
 - **Scope**: salvage/harden `scripts/run-device-fixture.sh`; add service operations, USB retry,
   and HTTP/WebSocket health checks.
 - **Constraints**: no device Nix, live lanes, `application.ex`, or #82 evidence edits.
 - **Acceptance**: build/check, restart, USB replug, health checks, and host reboot all pass.
+- **Status**: both servers now bind `0.0.0.0` so USB unplug/replug is a non-event (no gadget-IP
+  rebind to repair); added `scripts/host-service.sh` (`systemd --user` install/start/stop/
+  restart/status/uninstall + linger for reboot survival) and `scripts/host-health-check.sh`
+  (HTTP UI + WS-upgrade gateway check). Doc: `docs/architecture/host-production-service.md`.
+  `npm run check` and `mix test` both green; branch `feat/p6h-host-production-service`.
 
 ### P6-N [platform] Declarative NixOS kiosk · #84 · Ready
 - **Goal**: boot directly into the production kiosk through a rollback-safe NixOS generation.
