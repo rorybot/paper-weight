@@ -13,7 +13,7 @@ defmodule PaperWeight.Etymology.ServiceTest do
 
   test "caches the day's tree and serves it" do
     {:ok, pid} =
-      Service.start_link(entries: Corpus.entries(), today_fn: fn -> ~D[2026-07-15] end)
+      Service.start_link(entries: [Corpus.travel()], today_fn: fn -> ~D[2026-07-15] end)
 
     assert {:ok, snap} = Service.day_tree(pid)
     assert snap["as_of"] == "2026-07-15"
@@ -28,7 +28,7 @@ defmodule PaperWeight.Etymology.ServiceTest do
   test "rebuilds when the calendar day rolls over" do
     agent = start_clock(~D[2026-07-15])
 
-    {:ok, pid} = Service.start_link(entries: Corpus.entries(), today_fn: clock(agent))
+    {:ok, pid} = Service.start_link(entries: [Corpus.travel()], today_fn: clock(agent))
 
     {:ok, day1} = Service.day_tree(pid)
     gen1 = Service.get_gen(pid)
@@ -43,7 +43,7 @@ defmodule PaperWeight.Etymology.ServiceTest do
 
   test "refresh_now rebuilds for the current day" do
     {:ok, pid} =
-      Service.start_link(entries: Corpus.entries(), today_fn: fn -> ~D[2026-07-15] end)
+      Service.start_link(entries: [Corpus.travel()], today_fn: fn -> ~D[2026-07-15] end)
 
     gen = Service.get_gen(pid)
     assert {:ok, _snap} = Service.refresh_now(pid)
