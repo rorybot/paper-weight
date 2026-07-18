@@ -20,7 +20,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | W3-C | [#46](https://github.com/rorybot/paper-weight/issues/46) | Host WebSocket gateway snapshot push | **Done** (closed, PR #68) |
 | W3-D | [#47](https://github.com/rorybot/paper-weight/issues/47) | Device WebSocket client feeding channel store | **Done** (closed, PR #71) |
 | W3-E | [#48](https://github.com/rorybot/paper-weight/issues/48) | Host gateway intent handlers | **Done** (closed, PR #73) |
-| W3-F | [#50](https://github.com/rorybot/paper-weight/issues/50) | End-to-end fixture host → desktop UI smoke | **In progress** |
+| W3-F | [#50](https://github.com/rorybot/paper-weight/issues/50) | End-to-end fixture host → desktop UI smoke | **Done** (closed, PR #77) |
 
 ## Stack slice (do not re-litigate)
 
@@ -160,3 +160,10 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   `get_playlist_gen`; gateway Publisher/Socket consume it; `PlaylistStub` deleted.
 - Covers stay null until a JPEG/PNG→grayscale adapter exists; gen advances on successful
   playlist refresh only. PR #75 merged; issue #49 Done. Unblocks W3-F #50 smoke (D+E+G all Done).
+
+## Next Session Context Chunk — W3-F
+
+- Smoke: `docs/architecture/wave-3-smoke.md`; `PAPER_WEIGHT_GATEWAY_STUBS=all` starts fixture
+  adapters (no secrets); device `npm run dev:live` → `ws://127.0.0.1:9138/`.
+- Stubs log `set_volume` / `play_playlist`; five envelopes on connect. PR #77 merged; #50 Done.
+- Wave-3 platform cards complete. Next: product work or parked **D3 #20** (owner call).
