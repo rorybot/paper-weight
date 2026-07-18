@@ -50,11 +50,10 @@ defmodule PaperWeight.Gateway.SocketTest do
   end
 
   defp channels_of(frames) do
-    frames
-    |> Enum.map(fn {:text, json} -> json end)
-    |> Enum.map(&JSON.decode!/1)
-    |> Enum.map(&Map.fetch!(&1, "channel"))
-    |> Enum.map(&String.to_atom/1)
+    Enum.map(frames, fn {:text, json} ->
+      [_, channel] = Regex.run(~r/"channel":"([a-z_]+)"/, json)
+      String.to_atom(channel)
+    end)
   end
 
   defp start_feed_service(responses) do

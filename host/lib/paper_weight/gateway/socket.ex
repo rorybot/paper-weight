@@ -13,7 +13,7 @@ defmodule PaperWeight.Gateway.Socket do
 
   @behaviour WebSock
 
-  alias PaperWeight.Gateway.Publisher
+  alias PaperWeight.Gateway.{JsonEncoder, Publisher}
   alias PaperWeight.{Feed, Photo, Spotify, Weather}
 
   @poll_ms 1_000
@@ -61,7 +61,7 @@ defmodule PaperWeight.Gateway.Socket do
     {Enum.map(changed, &frame/1), %{state | gens: gens}}
   end
 
-  defp frame(envelope), do: {:text, JSON.encode!(envelope)}
+  defp frame(envelope), do: {:text, JsonEncoder.encode!(envelope)}
 
   defp schedule(state) do
     Process.send_after(self(), :poll, @poll_ms)
