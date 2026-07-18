@@ -1,0 +1,330 @@
+/* E2 etymology drill-down 2a/2b/2c — gruvbox terminal; 800×480 */
+
+.et-screen {
+  display: grid;
+  grid-template-rows: 34px 1fr 38px;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  background: var(--pw-desk);
+  color: var(--pw-paper);
+  font-family: var(--pw-font-mono);
+  font-size: var(--pw-text-min);
+  letter-spacing: -0.02em;
+}
+
+.et-screen[data-stale="true"] {
+  outline: 2px dashed color-mix(in srgb, var(--pw-accent) 50%, transparent);
+  outline-offset: -2px;
+}
+
+/* —— topbar —— */
+.et-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: color-mix(in srgb, var(--pw-desk) 80%, black);
+  font-weight: 700;
+}
+
+.et-topbar__brand {
+  color: var(--pw-accent);
+}
+
+.et-topbar__path {
+  color: var(--pw-muted);
+}
+
+.et-topbar__path strong {
+  color: var(--pw-paper);
+}
+
+.et-topbar__status {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--pw-paper) 78%, transparent);
+}
+
+/* —— depth 0: word pane + trace ladder (2a) —— */
+.et-ladder {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  min-height: 0;
+}
+
+.et-word {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px;
+  border-right: 1px solid color-mix(in srgb, var(--pw-paper) 14%, transparent);
+}
+
+.et-word__eyebrow {
+  margin: 0 0 10px;
+  color: var(--pw-muted);
+}
+
+.et-word__headword {
+  margin: 0;
+  color: var(--pw-positive);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.et-word__gloss {
+  margin: 8px 0 20px;
+  font-size: 18px;
+}
+
+.et-word__summary {
+  margin: 0;
+  color: var(--pw-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.et-word__meta {
+  margin-top: auto;
+  color: color-mix(in srgb, var(--pw-muted) 75%, transparent);
+}
+
+.et-word__meta p {
+  margin: 2px 0;
+}
+
+.et-trace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 18px 20px;
+}
+
+.et-trace__caption {
+  margin: 0 0 12px;
+  color: var(--pw-muted);
+  letter-spacing: 0.02em;
+}
+
+.et-trace__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.et-row {
+  display: grid;
+  grid-template-columns: 76px 18px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 10px;
+  border-left: 4px solid transparent;
+}
+
+.et-row--selected {
+  border-left-color: var(--pw-accent);
+  background: color-mix(in srgb, var(--pw-paper) 8%, transparent);
+}
+
+.et-row__period {
+  color: var(--pw-muted);
+}
+
+.et-row--selected .et-row__period {
+  color: var(--pw-accent);
+}
+
+.et-row__marker {
+  color: var(--pw-muted);
+}
+
+.et-row--selected .et-row__marker {
+  color: var(--pw-accent);
+}
+
+.et-row__form {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.et-row--selected .et-row__form {
+  color: var(--pw-accent);
+}
+
+.et-row:first-child .et-row__form {
+  color: var(--pw-positive);
+}
+
+.et-row__gloss {
+  color: var(--pw-muted);
+  font-size: 14px;
+}
+
+.et-row__compound {
+  color: var(--pw-accent-alt);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+/* —— depth 1: stage drill-down (2b) —— */
+.et-stage {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 20px 34px 16px;
+}
+
+.et-crumbs {
+  margin: 0 0 14px;
+  color: var(--pw-muted);
+}
+
+.et-crumbs__crumb[data-current="true"] {
+  color: var(--pw-accent);
+  font-weight: 700;
+}
+
+.et-root .et-crumbs__crumb[data-current="true"] {
+  color: var(--pw-accent-alt);
+}
+
+.et-stage__form {
+  margin: 0;
+  color: var(--pw-accent);
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.et-stage__meta {
+  margin-left: 16px;
+  color: var(--pw-muted);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.et-stage__gloss {
+  margin: 8px 0 18px;
+  font-size: 20px;
+}
+
+.et-stage__notes {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--pw-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.et-stage__links {
+  display: flex;
+  gap: 70px;
+  margin-top: auto;
+  padding-bottom: 6px;
+}
+
+.et-links__caption {
+  margin: 0 0 8px;
+  color: var(--pw-muted);
+  letter-spacing: 0.04em;
+}
+
+.et-splits ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.et-splits li {
+  margin: 4px 0;
+  font-size: 16px;
+}
+
+.et-splits__arrow,
+.et-from__arrow {
+  color: var(--pw-accent);
+}
+
+.et-splits__note,
+.et-from__lang {
+  color: var(--pw-muted);
+}
+
+.et-from p {
+  margin: 4px 0;
+  font-size: 16px;
+}
+
+/* —— depth 2: terminal root reveal (2c) —— */
+.et-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 0 40px;
+  text-align: center;
+}
+
+.et-root__form {
+  margin: 0;
+  color: var(--pw-accent-alt);
+  font-size: 62px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.et-root__gloss {
+  margin: 0;
+  color: var(--pw-muted);
+  font-size: 18px;
+}
+
+.et-root__components {
+  margin-top: 18px;
+}
+
+.et-root__compound {
+  margin: 0;
+  color: var(--pw-accent);
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.et-root__component-gloss {
+  margin: 8px 0 0;
+  color: var(--pw-muted);
+  font-size: 15px;
+}
+
+.et-root__bedrock {
+  margin: 22px 0 0;
+  padding: 8px 22px;
+  border: 1px solid color-mix(in srgb, var(--pw-muted) 55%, transparent);
+  color: var(--pw-muted);
+}
+
+/* —— footer —— */
+.et-footer {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 0 14px;
+  background: color-mix(in srgb, var(--pw-desk) 80%, black);
+  color: var(--pw-muted);
+}
+
+.et-footer strong {
+  color: var(--pw-accent);
+}
+
+.et-footer__depth {
+  margin-left: auto;
+}
