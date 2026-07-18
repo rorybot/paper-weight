@@ -15,6 +15,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
+| W3-A | [#44](https://github.com/rorybot/paper-weight/issues/44) | Device shell screen map + channel store | **In review** (PR #59) |
 
 ## Stack slice (do not re-litigate)
 
@@ -93,3 +94,19 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Payload stays `PlaylistSnapshotV1` from `src/device-ui/src/protocol/playlist.ts` (unchanged shape); doc now documents the Elixir-side map mirror for host authors.
 - No service/screen code touched — W3-A/B and the rest of wave 3 can now build against `channel: :playlist` / `"playlist"`.
 - `mix test` (100 passed) and `npm run check` (typecheck + 130 tests + build) both green; branch `chore/w3p1-playlist-channel`, PR #53, issue #43 set to In review pending CI + merge.
+
+## Next Session Context Chunk (W3-A — 2026-07-18)
+
+- `shell/channelStore.ts` is a pure `ChannelV1 → snapshot` store: `applyEnvelope` rejects `gen <=`
+  the stored generation per channel and ignores unmanaged channels (`system`, `etymology`, and any
+  unknown wire value); `fixtureChannelStoreState` seeds `now_playing`/`weather`/`feed`/`photo`/`playlist`.
+- `ShellApp.tsx` now renders the real Now Playing, Weather, Feed, Photo, Playlist, and Settings
+  screens plus the Lyrics/feed-detail overlays from that one store (weather was folded in too —
+  don't reintroduce a second `weatherSnapshot`-only path). `etymology` stays a placeholder; no E2
+  screen exists yet. New `onIntent` prop is a plumbed-but-unconsumed no-op until W3-D's gateway.
+- `npm run check` (typecheck + 146 tests + build) is green; dev server boots clean and every
+  changed module transforms via Vite with no errors — but no headless browser exists in this
+  environment, so live wheel/press click-through was **not** exercised interactively.
+- PR #59 open on `feat/w3a-shell-screen-map`, issue #44 set to In review. Next: wait for CI `ci`
+  check + merge, then flip GitHub Status → Done, `gh issue close 44`, and update this table +
+  `kanban/board.md` (currently show In review). W3-C #46 and W3-D #47 unblock once this merges.
