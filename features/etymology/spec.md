@@ -12,7 +12,7 @@ E1 is a **standalone, unwired** host service: no `application.ex` edit, no proto
 | ID | Issue | Title | Status |
 |----|-------|-------|--------|
 | E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **Done** (PR #60 merged; CI green) |
-| E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **Ready** (gated on E1) |
+| E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **In review** (PR #66) |
 
 ## Ownership (only these paths)
 
@@ -140,10 +140,23 @@ _(none — pure in-memory corpus; no `mix.exs` edit)_
 - [x] `mix test` green — verified by CI (`ci` check, 121 tests) on merged PR #60
 
 ### E2 (later, gated on E1)
-- [ ] 2a/2b/2c as ONE screen driven by wheel (move) + press (dig) + back (up)
-- [ ] Uses `EtymologySnapshotV1` payload type; matches the three mockups
+- [x] 2a/2b/2c as ONE screen driven by wheel (move) + press (dig) + back (up)
+- [x] Uses `EtymologySnapshotV1` payload type; matches the three mockups
 
-## Next Session Context Chunk
+## Next Session Context Chunk (E2)
+
+- **E2 built** on `feat/e2-etymology-drilldown` (PR #66): ONE state machine in
+  `src/device-ui/src/screens/etymology/model.ts` — `{cursor, path}` over `ladderOf(trace)`;
+  view mode `ladder`/`stage`/`root` derives from focus; wheel clamps, press digs, back pops
+  (no-op at depth 0). 25 tests, `npm run check` green.
+- **Seam for W3-D**: import from `screens/etymology/index.ts` (`EtymologyScreen`,
+  `etymologyFixtureSnapshot`, `reduceEtymologyUi` + commands
+  `scroll-etymology`/`dig-etymology`/`back-etymology`, or controlled `ui` prop). Shell owns
+  back-at-depth-0 → home. Channel still NOT in `ChannelV1`; fixture-only until wired.
+- **Shared-worktree hazard**: Day-2 agents share one checkout — W3-C's `git switch` moved HEAD
+  mid-session and my commit briefly landed on their branch (repaired via ref moves + reset).
+
+## Next Session Context Chunk (E1)
 
 - **E1 built & pushed** on `claude/e1-word-origin-service-3fsz8x` (card asked for
   `feat/e1-word-origin-service`; harness pinned this branch instead). Six modules under
