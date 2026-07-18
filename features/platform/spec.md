@@ -14,6 +14,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P3-1 | [#23](https://github.com/rorybot/paper-weight/issues/23) | Fix swapped preset 2/3 preview routing | **Done** (closed) |
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
+| W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **In review** (PR #53) |
 
 ## Stack slice (do not re-litigate)
 
@@ -86,3 +87,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Router regression cases carry explicit product expectations, and keyboard tests cover both Digit2 and Digit3; the evdev bridge remains untouched.
 - `cd src/device-ui && npm run check` passes typecheck, 53 tests, and production build; a static smoke assertion also verifies both frame paths.
 - GitHub Project card #23 is Done, issue #23 is closed, and the isolated implementation branch is `fix/23-preset-2-3-routing`.
+
+## Next Session Context Chunk (W3-P1 — 2026-07-17)
+- `playlist` is now a first-class `ChannelV1` member (protocol doc v1.1, `envelope.ex`, `envelope.ts`); envelope fields themselves are untouched.
+- Payload stays `PlaylistSnapshotV1` from `src/device-ui/src/protocol/playlist.ts` (unchanged shape); doc now documents the Elixir-side map mirror for host authors.
+- No service/screen code touched — W3-A/B and the rest of wave 3 can now build against `channel: :playlist` / `"playlist"`.
+- `mix test` (100 passed) and `npm run check` (typecheck + 130 tests + build) both green; branch `chore/w3p1-playlist-channel`, PR #53, issue #43 set to In review pending CI + merge.
