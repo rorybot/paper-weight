@@ -12,7 +12,7 @@ defmodule PaperWeight.Spotify.ClientTest do
   defp mock_http(opts \\ []) do
     fail? = Keyword.get(opts, :fail, false)
 
-    fn method, url, headers, _body ->
+    fn method, url, headers, body ->
       assert_bearer_header(headers)
 
       cond do
@@ -30,6 +30,10 @@ defmodule PaperWeight.Spotify.ClientTest do
 
         method == :put and String.contains?(url, "/me/player/volume") ->
           assert String.contains?(url, "volume_percent=")
+          {:ok, 204, ""}
+
+        method == :put and String.ends_with?(url, "/me/player/play") ->
+          assert body == ~s({"context_uri":"spotify:playlist:abc123"})
           {:ok, 204, ""}
 
         true ->
@@ -77,11 +81,16 @@ defmodule PaperWeight.Spotify.ClientTest do
     assert {:ok, 60} = Client.set_volume(config(), "tok", 60, mock_http())
   end
 
+  test "play_playlist PUTs only the selected Spotify playlist context" do
+    assert :ok = Client.play_playlist(config(), "tok", "abc123", mock_http())
+    assert {:error, :invalid_playlist_id} = Client.play_playlist(config(), "tok", "bad/id", mock_http())
+  end
+
   test "now_playing surfaces transport errors without retry" do
     assert {:error, :econnrefused} = Client.now_playing(config(), "tok", mock_http(fail: true))
   end
 
-  test "no play/pause/skip/previous functions exist on the client" do
+  test "no generic play/pause/skip/previous functions exist on the client" do
     exports = Client.__info__(:functions) |> Keyword.keys()
 
     refute :play in exports

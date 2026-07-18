@@ -104,7 +104,24 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert Agent.get(ref, & &1) == 47
   end
 
-  test "no play/pause/skip/previous public API exists on the service" do
+  test "play_playlist dispatches the selected id through the authenticated client" do
+    {:ok, ref} = Agent.start_link(fn -> nil end)
+
+    http = fn
+      :get, url, headers, body -> ok_http().(:get, url, headers, body)
+      :put, url, _headers, body ->
+        Agent.update(ref, fn _ -> {url, body} end)
+        {:ok, 204, ""}
+    end
+
+    server = start_service(http: http)
+
+    assert :ok = Service.play_playlist(server, "abc123")
+    assert {url, ~s({"context_uri":"spotify:playlist:abc123"})} = Agent.get(ref, & &1)
+    assert String.ends_with?(url, "/me/player/play")
+  end
+
+  test "no generic play/pause/skip/previous public API exists on the service" do
     exports = Service.__info__(:functions) |> Keyword.keys()
 
     refute :play in exports

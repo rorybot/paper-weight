@@ -139,3 +139,14 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - On every socket open the client sends `refresh_channel` for `MANAGED_CHANNEL_LIST` (new export from channelStore) — W3-C's gateway may treat these as no-ops if it already pushes snapshots on connect (protocol says unknown intents are ignored).
 - Verified beyond mocks: real Node `WebSocket` against a hand-rolled RFC6455 server — upgrade, masked refresh frames, envelope→store gen bump, garbage tolerance, reconnect after TCP kill, `set_volume` on the new connection, silent after dispose.
 - E2's etymology screen is intentionally NOT wired into ShellApp here (post-W3-D card); no play/pause anywhere. Sessions overlapping in one checkout: W3-C's `reset --hard` reverted my tracked edits mid-session — work was rebuilt in a git worktree; prefer worktrees for future parallel waves.
+
+## Next Session Context Chunk (W3-E local implementation — 2026-07-18)
+
+- Added `Gateway.Intents`: dependency-free JSON decode/validation for the three frozen v1 intents,
+  injected dispatch to enabled adapters, and safe errors for malformed/wrong-version/unknown input.
+- `Gateway.Socket.handle_in/2` now dispatches text intents and logs/drops every invalid,
+  unsupported, disabled, unavailable, or non-text frame without terminating the socket.
+- Added the narrowly permitted `Spotify.Client/Service.play_playlist` path; generic
+  play/pause/skip/previous remain absent. Tests cover exact playlist context and dispatch.
+- Local branch `feat/w3e-intent-handlers`; `git diff --check` passes. This environment has no
+  Elixir/Mix/container runtime, so formatting and `mix test` still require an Elixir-capable runner.

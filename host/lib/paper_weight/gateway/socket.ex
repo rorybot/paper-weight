@@ -2,8 +2,8 @@ defmodule PaperWeight.Gateway.Socket do
   @moduledoc """
   WebSock socket for the wave-3 gateway. Pushes one envelope per enabled
   channel on connect, then polls each backing service and re-pushes only the
-  channels whose `gen` advanced. Inbound frames are dropped — frame handling
-  is W3-E's job (#48).
+  channels whose `gen` advanced. W3-E validates and dispatches inbound intent frames; malformed,
+  unknown, or unsupported input is logged and dropped without terminating the socket.
 
   `init/1` receives a `PaperWeight.Gateway.adapters()` map of
   `channel => GenServer.server() | nil` (`nil` = disabled). Adapter calls are
@@ -13,7 +13,9 @@ defmodule PaperWeight.Gateway.Socket do
 
   @behaviour WebSock
 
-  alias PaperWeight.Gateway.{JsonEncoder, Publisher}
+  require Logger
+
+  alias PaperWeight.Gateway.{Intents, JsonEncoder, Publisher}
   alias PaperWeight.{Feed, Photo, Spotify, Weather}
 
   @poll_ms 1_000
@@ -33,7 +35,21 @@ defmodule PaperWeight.Gateway.Socket do
   end
 
   @impl WebSock
-  def handle_in(_frame, state), do: {:ok, state}
+  def handle_in({frame, [opcode: :text]}, state) when is_binary(frame) do
+    with {:ok, intent} <- Intents.decode(frame),
+         :ok <- Intents.dispatch(intent, state.adapters) do
+      {:ok, state}
+    else
+      {:error, reason} ->
+        Logger.warning("dropping gateway intent: #{inspect(reason)}")
+        {:ok, state}
+    end
+  end
+
+  def handle_in(_frame, state) do
+    Logger.warning("dropping non-text gateway frame")
+    {:ok, state}
+  end
 
   @impl WebSock
   def handle_info(:poll, state) do

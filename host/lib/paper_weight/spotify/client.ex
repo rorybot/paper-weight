@@ -5,7 +5,8 @@ defmodule PaperWeight.Spotify.Client do
   HTTP is injected as `http.(method, url, headers, body) -> {:ok, status, body} | {:error, reason}`
   so tests never hit the network.
 
-  **Explicit ban:** no `play`, `pause`, `skip`, or `previous` here — volume only.
+  **Explicit ban:** no generic `play`, `pause`, `skip`, or `previous`. W3-E adds only the
+  explicit `play_playlist/4` intent target selected by the device playlist screen.
   """
 
   alias PaperWeight.Spotify.{Config, JsonLite}
@@ -73,6 +74,25 @@ defmodule PaperWeight.Spotify.Client do
     end
   end
 
+  @spec play_playlist(Config.t(), String.t(), String.t(), http()) :: :ok | {:error, term()}
+  def play_playlist(config, access_token, playlist_id, http)
+      when is_function(http, 4) and is_binary(playlist_id) do
+    with true <- valid_playlist_id?(playlist_id) do
+      url = config.api_base <> "/me/player/play"
+      body = ~s({"context_uri":"spotify:playlist:#{playlist_id}"})
+
+      headers = auth_headers(access_token) ++ [{"Content-Type", "application/json"}]
+
+      case http.(:put, url, headers, body) do
+        {:ok, status, _body} when status in [200, 202, 204] -> :ok
+        {:ok, status, response_body} -> {:error, {:http_status, status, response_body}}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      false -> {:error, :invalid_playlist_id}
+    end
+  end
+
   @doc """
   Default HTTP client using Erlang `:httpc`. Requires `:inets` / `:ssl` in
   `extra_applications` for live calls — see deps request. Tests always inject a mock.
@@ -125,6 +145,8 @@ defmodule PaperWeight.Spotify.Client do
   defp auth_headers(access_token) do
     [{"Authorization", "Bearer " <> access_token}]
   end
+
+  defp valid_playlist_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
 
   defp parse_now_playing(body) do
     with {:ok, json} <- json_decode(body),
