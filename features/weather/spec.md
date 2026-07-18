@@ -10,7 +10,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
 | W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
-| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **Backlog** (blocked by P7) |
+| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **In progress** (blocked by P7 #85) |
 
 ## Ownership (only these paths)
 
@@ -133,6 +133,15 @@ _(lane agents append here; do not edit mix.exs)_
 
 ## Next Session Context Chunk — W4 (2026-07-18)
 
-- W4 #87 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
+- W4 #87 is In progress (lane-local WIP only) but still blocked from acceptance/merge until P7
+  #85 supplies the shared EnvironmentFile activation contract.
 - Own only Weather paths; keep the frozen envelope and shared shell/Application files unchanged.
 - Accept mocked failure/recovery plus live NWS/OpenUV rendering on the physical Car Thing.
+- Completed this session: mocked coverage for OpenUV-specific failure, malformed/partial NWS +
+  OpenUV responses, and post-failure recovery/generation transitions. Fixed a real bug caught by
+  the new recovery test — `Service.refresh_now/1` mis-bound a `case` result and returned a
+  malformed nested reply on a successful post-failure refresh instead of `{:ok, snap}`.
+  `mix test test/paper_weight/weather` → 38/38 green; no device-UI files touched.
+- Branch `lane/weather-w4-live-acceptance`; draft PR opened. Resume: rebase after P7 merges, wire
+  live activation, then run physical-device acceptance (live NWS/OpenUV render, network loss +
+  reconnect on-device, required `ci` green, Done/closeout sync).

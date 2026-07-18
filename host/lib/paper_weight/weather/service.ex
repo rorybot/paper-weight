@@ -82,18 +82,12 @@ defmodule PaperWeight.Weather.Service do
   def handle_call(:refresh_now, _from, state) do
     state = do_refresh(state)
 
+    # Stale last-good after failure still returns {:ok, snap} for callers that
+    # want cache — refresh_now returns error only when nothing to serve.
     reply =
       case state.snapshot do
         nil -> {:error, :no_snapshot}
-        snap -> if snap["stale"], do: {:error, :stale_only}, else: {:ok, snap}
-      end
-
-    # If we have a stale last-good after failure, still return {:ok, snap} for callers
-    # that want cache — refresh_now returns error only when nothing to serve.
-    reply =
-      case {reply, state.snapshot} do
-        {{:error, :stale_only}, snap} when is_map(snap) -> {:ok, snap}
-        other -> other
+        snap -> {:ok, snap}
       end
 
     {:reply, reply, state}

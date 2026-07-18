@@ -86,4 +86,48 @@ defmodule PaperWeight.Weather.ServiceTest do
     assert {:error, :no_snapshot} = Service.get_snapshot(pid)
     assert Service.get_gen(pid) == 0
   end
+
+  test "recovers after a later success following a failure" do
+    pid = start_service(good_http())
+
+    assert {:ok, fresh} = Service.get_snapshot(pid)
+    assert fresh["stale"] == false
+    gen_after_first_success = Service.get_gen(pid)
+
+    :sys.replace_state(pid, fn state -> %{state | http_get: failing_http()} end)
+    assert {:ok, stale_snap} = Service.refresh_now(pid)
+    assert stale_snap["stale"] == true
+    assert Service.get_gen(pid) == gen_after_first_success
+
+    :sys.replace_state(pid, fn state -> %{state | http_get: good_http()} end)
+    assert {:ok, recovered} = Service.refresh_now(pid)
+
+    assert recovered["stale"] == false
+    assert Service.get_gen(pid) == gen_after_first_success + 1
+
+    GenServer.stop(pid)
+  end
+
+  test "generation only advances on successful refreshes across a mixed sequence" do
+    pid = start_service(good_http())
+    assert Service.get_gen(pid) == 1
+
+    :sys.replace_state(pid, fn state -> %{state | http_get: failing_http()} end)
+    assert {:ok, _stale} = Service.refresh_now(pid)
+    assert Service.get_gen(pid) == 1
+
+    assert {:ok, _stale_again} = Service.refresh_now(pid)
+    assert Service.get_gen(pid) == 1
+
+    :sys.replace_state(pid, fn state -> %{state | http_get: good_http()} end)
+    assert {:ok, snap} = Service.refresh_now(pid)
+    assert snap["stale"] == false
+    assert Service.get_gen(pid) == 2
+
+    assert {:ok, snap2} = Service.refresh_now(pid)
+    assert snap2["stale"] == false
+    assert Service.get_gen(pid) == 3
+
+    GenServer.stop(pid)
+  end
 end

@@ -28,4 +28,22 @@ defmodule PaperWeight.Weather.NwsTest do
     assert hd(days).high_f == 88
     assert hd(days).low_f == 58
   end
+
+  test "parse_points rejects malformed/partial payload" do
+    assert {:error, :invalid_points} = Nws.parse_points(%{"unexpected" => true})
+    assert {:error, :missing_forecast_url} = Nws.parse_points(%{"properties" => %{}})
+  end
+
+  test "parse_forecast rejects malformed/partial payload" do
+    assert {:error, :invalid_forecast} = Nws.parse_forecast(%{"unexpected" => true})
+    assert {:error, :empty_forecast} = Nws.parse_forecast(%{"properties" => %{"periods" => []}})
+
+    partial = %{
+      "properties" => %{
+        "periods" => [%{"startTime" => "2026-07-16T06:00:00-04:00", "isDaytime" => true}]
+      }
+    }
+
+    assert {:error, :empty_forecast} = Nws.parse_forecast(partial)
+  end
 end
