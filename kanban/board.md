@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16 |
 | **In progress** | - |
 | **In review** | D1 #18 (PR #42) |
-| **Ready** | E1 #16; E2 #17; W3-A #44 |
+| **Ready** | E2 #17; W3-A #44 |
 | **Backlog** | D3 #20; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -230,12 +230,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: etymology (screens 2a→2b→2c)
 
-### E1 [etymology] Word-origin data service - #16 - Ready
+### E1 [etymology] Word-origin data service - #16 - Done ✅
 - **Goal**: day's word + nested origin trace.
 - **Scope**: Wiktionary-style source; recursive trace structure (stage → sub-trace → … → root);
   daily selection; cache the day's tree.
-- **Acceptance**: `travailler`-style fixture yields a ≥3-depth tree with a terminal root.
-- **Status note**: reopened after repository audit found no committed etymology host implementation.`n  Keep this lane outside Wave 3; `etymology` messages remain an ignored/omitted channel.
+- **Acceptance**: `travailler`-style fixture yields a ≥3-depth tree with a terminal root. **Met** —
+  `host/test/paper_weight/etymology/` (121 tests green on CI).
+- **Delivered** (PR #60, merged): standalone service under `host/lib/paper_weight/etymology/`
+  (Origin/Entry/Corpus/Selection/Snapshot/Service), `src/device-ui/src/protocol/etymology.ts`
+  (payload types only), `features/etymology/spec.md`. Not wired into `Application`; `etymology`
+  stays an ignored/omitted channel (no `ChannelV1` edit). Wave-3 child: `{PaperWeight.Etymology.Service, []}`.
 
 ### E2 [etymology] Drill-down screen (one state machine, 3 depths) - #17 - Ready
 - **Goal**: build 2a/2b/2c as ONE screen with depth states — not three screens.
