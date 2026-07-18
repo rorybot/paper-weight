@@ -273,24 +273,182 @@ already satisfied). Once E1 is Done, E2 #17 unblocks.
 
 ---
 
-## Wave 2 (after Wave 1 lands — draft full prompts then, not now)
+## Wave 3 Day-2 prompts (W3-C + W3-D + E2 parallel)
 
-Each of these unlocks independently on its own Wave-1 prerequisite — don't wait for all
-three of W3-A/W3-B/E1 to finish, only the one each depends on. All three trees are disjoint
-from each other, so once unlocked they're parallel-safe the same way Wave 1 is.
+Three agents are operating concurrently on #46, #47, and #17. Their dependencies (W3-B, W3-A,
+E1) are all merged and Done, so all three cards are Ready now.
 
-| Card | Unlocks when | Owns |
-|------|--------------|------|
-| W3-C #46 | W3-A44 Done | `host/lib/paper_weight/gateway/` (new) + one-line `application.ex` append |
-| W3-D #47 | W3-B45 Done | `src/device-ui/src/shell/gateway.ts`, `shell/intents.ts` (new), `main.tsx` |
-| E2 #17 | E1 #16 Done | `src/device-ui/src/screens/etymology/` (new) |
+Ownership is disjoint by design:
+- W3-C is host-only (`host/lib/paper_weight/gateway/**`)
+- W3-D is device-only (`src/device-ui/src/shell/gateway.ts`, `shell/intents.ts`, `main.tsx`,
+  plus the minimal `ShellApp`/`channelStore` seam for live envelopes)
+- E2 is a new isolated tree (`src/device-ui/src/screens/etymology/**`)
 
-Full copy-paste prompts aren't written yet — draft them from each issue body + the branch
-each Wave-1 card actually lands on, the same way the Wave 1 prompts above were drafted from
-issues #44/#45/#16. Writing them now risks drifting from what Wave 1 actually builds.
+The one conflict found during review: both W3-D and E2 could otherwise need `ShellApp.tsx`.
+Resolved by giving `ShellApp` exclusively to W3-D this wave — E2 exports a stable
+fixture-backed screen API and gets wired into `ShellApp` only after W3-D merges.
 
-**Wave 3–5 are solo, not parallel** — no prompts needed there, just work the single Ready
-card in sequence: W3-E #48 (needs W3-C) → W3-G #49 (needs W3-E) → W3-F #50 (needs W3-D,
-W3-E, W3-G — final integration smoke).
+### Shared preamble (all three agents)
+
+```text
+Repo: paper-weight (Car Thing). Stack: host Elixir services + device Preact UI.
+You are ONE of three parallel wave-3 Day-2 agents, operating concurrently on issues #46
+(W3-C), #47 (W3-D), and #17 (E2). Follow docs/architecture/parallel-lanes-v1.md ownership
+and the constraints in your own card below.
+
+Before editing: git fetch, switch to master, fast-forward pull, create your exact feature
+branch, run scripts/check-gh-auth.sh, and set ONLY your own issue to In progress via
+scripts/set-card-status.sh. Never edit another agent's paths or Project status.
+
+Before pushing: git fetch and inspect `git diff --name-only origin/master...HEAD` to confirm
+you have not touched another agent's files. Rebase only for a real dependency/conflict; never
+merge another in-flight feature branch. Never push to master. One branch, one issue, one PR.
+
+Mark your issue In review when you open your PR. Move to Done and close it only after CI is
+green and the PR is merged, updating kanban/board.md and your feature spec's card table.
+
+If you find yourself needing to cross into another agent's owned paths, stop and document the
+seam in your card's spec instead of crossing it.
+
+Work functional: pure cores, impure edges. Small modules. No unrelated refactors.
+
+Your handoff must report: files touched, tests added, CI/PR status, any remaining
+cross-lane seam, and a 3–5 line Next Session Context Chunk appended to your feature spec.
+```
+
+### Agent A — W3-C #46 (host WebSocket gateway snapshot push)
+
+```text
+[shared preamble]
+
+Card: W3-C #46 — Host WebSocket gateway snapshot push.
+Branch: feat/w3c-ws-gateway-push.
+Own:
+- host/lib/paper_weight/gateway/** (new)
+- host/test/paper_weight/gateway/** (new)
+- the smallest possible child/config append in application.ex to register the gateway
+- W3-C's own status/context docs only
+
+Goal: build a Bandit/WebSock endpoint on port 9138 that publishes one frozen-v1 envelope per
+enabled service on connect and on every generation advance.
+
+Implementation shape:
+- Pure snapshot collection / envelope assembly, with service adapters injected — keep the
+  network edge (socket handling) thin and separate from the pure assembly logic.
+- Use the existing W3-B dependencies only (bandit, websock_adapter, plug already in mix.exs);
+  do NOT edit mix.exs or mix.lock.
+- Publish actual now_playing/weather/feed/photo snapshots using each service's real API:
+  Weather get_snapshot/1 + get_gen/1; Spotify now_playing/1, queue/1, get_gen/1; Feed
+  current/1 (returns state including snapshot/gen); Photo get_snapshot/1 + get_gen/1.
+- Playlist channel: a valid fixture/stub is fine until W3-G lands.
+- Omit etymology entirely — it stays outside Wave 3.
+- Drop inbound frames for now (frame handling is W3-E's job) — this card is publish-only.
+- The gateway must bind no port under `MIX_ENV=test`.
+
+Constraints:
+- No device UI edits, no protocol/envelope.ex changes.
+- Do not react to inbound frames yet — that's W3-E #48.
+
+Acceptance:
+- Publisher edge-case tests (missing/disabled service, stale gen, etc).
+- Socket connect / generation-advance / disconnect tests.
+- Application/config tests covering the new child.
+- Moduledoc documents an `iex -S mix` + `websocat` smoke path.
+- mix format / mix test / CI green.
+```
+
+### Agent B — W3-D #47 (device WebSocket client feeding channel store)
+
+```text
+[shared preamble]
+
+Card: W3-D #47 — Device WebSocket client feeding channel store.
+Branch: feat/w3d-device-ws-client.
+Own:
+- src/device-ui/src/shell/gateway.ts (new) + tests
+- src/device-ui/src/shell/intents.ts (new) + tests
+- src/device-ui/src/main.tsx + focused tests
+- only the minimal ShellApp/channelStore seam needed to feed it live envelopes
+- W3-D's own status/context docs only
+
+Goal: when a `?gateway=ws://...` query param is present, connect to the host gateway and feed
+live envelopes into the existing W3-A channelStore.applyEnvelope path; when it is absent,
+fixture mode must behave exactly as it does today.
+
+Implementation shape:
+- Pure parsing, backoff, and command-to-intent mapping — keep the WebSocket edge thin.
+- Tolerant envelope decode that funnels into channelStore's applyEnvelope; ignore malformed,
+  wrong-version, unknown-channel, or stale-generation frames safely (no throws).
+- Deterministic, bounded reconnect/backoff.
+- Allowed outbound intents: set_volume, play_playlist, refresh_channel. No play/pause.
+- Preserve the existing P2 EventSource/keyboard path unchanged.
+
+Constraints:
+- Do NOT edit bridge.ts, router.ts, model.ts, ScreenShell.tsx, screens/**, protocol/**, or
+  anything under host/.
+- Do NOT wire E2/etymology — that integration lands after this card merges.
+
+Acceptance:
+- Mock-WebSocket coverage: connect, envelope update, malformed/ignore, send, reconnect,
+  backoff cap, and dispose.
+- Existing keyboard/EventSource fixture path still green.
+- npm run check and CI green.
+```
+
+### Agent C — E2 #17 (etymology drill-down screen)
+
+```text
+[shared preamble]
+
+Card: E2 #17 — Etymology drill-down screen (one state machine, 3 depths).
+Branch: feat/e2-etymology-drilldown.
+Own exclusively:
+- src/device-ui/src/screens/etymology/** (new)
+- E2's own status/context docs only
+
+Read only:
+- The E2 feature-spec slice
+- The frozen EtymologySnapshotV1 payload type (from E1, src/device-ui/src/protocol/etymology.ts)
+- The three local etymology PNGs in spec/
+
+Goal: build ONE pure state machine/component covering depths 0/1/2 — not three screens: depth
+0 = root-of-day + trace ladder (wheel scrolls stages); press digs into the highlighted stage
+(depth 1, breadcrumb grows); bottom = terminal root reveal (depth 2); back walks the
+breadcrumb up one level, no-op at depth 0.
+
+Constraints:
+- No shell/main/protocol/host/package.json edits, and no edits to any other screen's tree.
+- No networking, no ChannelV1 changes — this card consumes the frozen payload type only.
+- Wheel selection must clamp at trace-ladder bounds; treat the payload as immutable.
+- Export a stable component/fixture API — this is what W3-D's ShellApp seam wires in next,
+  after this PR merges.
+
+Acceptance:
+- Reducer tests: bounds, descend, terminal root, breadcrumb, back (including no-op at depth 0).
+- Component tests for all three depth states, rendered at 800×480, matching the mockup PNGs.
+- npm run check and CI green.
+- PR description records the remaining shell-integration seam for the W3-D follow-up.
+```
+
+### How to launch (human / orchestrator)
+
+```bash
+# from repo root — W3-B, W3-A, and E1 are all merged and Done on master
+git fetch
+git worktree add .worktrees/w3c -b feat/w3c-ws-gateway-push master
+git worktree add .worktrees/w3d -b feat/w3d-device-ws-client master
+git worktree add .worktrees/e2  -b feat/e2-etymology-drilldown master
+
+scripts/set-card-status.sh --issue 46 --status "In progress"
+scripts/set-card-status.sh --issue 47 --status "In progress"
+scripts/set-card-status.sh --issue 17 --status "In progress"
+```
+
+Open three agent sessions with cwd = each worktree; paste the matching prompt above (shared
+preamble + card-specific section). Merge order doesn't matter between W3-C and E2 (disjoint
+trees) — land whichever finishes review first. W3-D should land before E2's shell-integration
+follow-up is picked up, since E2 only gets wired into `ShellApp` after W3-D merges. Once W3-C
+is Done, W3-E #48 unblocks; once W3-D, W3-E, and W3-G are all Done, W3-F #50 (final
+integration smoke) unblocks.
 
 Full roadmap + dependency graph: `docs/architecture/parallel-lanes-v1.md` §Wave-3 card plan.
