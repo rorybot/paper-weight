@@ -10,6 +10,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | F1 | [#12](https://github.com/rorybot/paper-weight/issues/12) | X/Twitter snapshot service | **Done** |
 | F2 | [#13](https://github.com/rorybot/paper-weight/issues/13) | Screen 4f UI | **Done** |
+| F3 | [#88](https://github.com/rorybot/paper-weight/issues/88) | Live Feed acceptance | **Backlog** (blocked by P7) |
 
 ## Ownership (only these paths)
 
@@ -100,3 +101,9 @@ _(lane agents append here)_
 - F2: `src/device-ui/src/screens/feed/**` — pure `reduceFeedUi` (`scroll-feed` / toggle enlarge); BERG desk + cream selected card + mustard footer + receipt rail; 12 vitest.
 - Shell already emits `scroll-feed` + `feed-detail` overlay; wave 3 wires props into ShellApp. Leave `sample/FeedSample` as P4 artifact.
 - Branch: `lane/feed-f2` for F2.
+
+## Next Session Context Chunk — F3 (2026-07-18)
+
+- F3 #88 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
+- Own only Feed paths; keep the frozen envelope and shared shell/Application files unchanged.
+- Accept mocked atomic-refresh/failure recovery plus live feed interaction on the physical device.
