@@ -268,11 +268,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: PR #75 merged; host `mix test` 155 passed; CI green; issue #49 closed + Project Done.
   Covers stay `null` until JPEG→grayscale exists. Unblocks W3-F #50.
 
-### N4 [now-playing] Live Spotify acceptance · #89 · Backlog
+### N4 [now-playing] Live Spotify acceptance · #89 · In progress
 - **Goal**: accept real-account metadata, playlists, volume, failures, and reconnect on the device.
 - **Scope**: P7 activation plus Spotify-owned gaps/tests and physical validation.
 - **Constraints**: blocked by P7; Spotify-owned paths only; frozen envelopes; no play/pause; no secrets.
 - **Acceptance**: mocked token/failure recovery; live Now Playing/playlists; selection and volume pass.
+- **In progress**: `lane/spotify-n4-live-acceptance` — mocked coverage added for token reuse/refresh/
+  expiry, malformed/partial API responses, and stale→fresh recovery. P7 EnvironmentFile activation
+  and physical acceptance remain blocked. Draft PR opened for resumption after P7.
 
 ### W3-F [platform] End-to-end fixture host to desktop UI smoke · #50 ✅ Done
 - **Goal**: document and prove a repeatable fixture-host-to-desktop-UI smoke including volume

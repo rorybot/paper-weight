@@ -160,6 +160,21 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Covers always `cover_pbm_base64: nil` (no JPEG/PNG→grayscale path yet); device CSS hatch. No play/pause.
 - W3-F #50 Done (PR #77): stubs host + `dev:live` + wave-3-smoke.md.
 
+## N4 Next Session Context Chunk
+
+- Added `host/test/paper_weight/spotify/fetch_test.exs` (new): covers `Fetch.refresh_if_needed`
+  cached-token reuse, no-token/expired/near-buffer refresh, and `fetch_snapshot`/`fetch_playlists`
+  propagating both refresh failure and downstream API failure without a spurious client call.
+- Expanded `client_test.exs`: malformed/partial JSON on now-playing/queue/playlists, plus non-200
+  status on each read endpoint and on `set_volume`.
+- Expanded `service_test.exs`: stale→fresh recovery asserting `gen`/`playlist_gen` advance again
+  after a later successful poll (previously only failure-path stale-marking was covered).
+- `host/lib/paper_weight/spotify/**` untouched — this was gap-filling test coverage only, no
+  behavior change. `cd host && mix test test/paper_weight/spotify/` → 56 passed.
+- Branch `lane/spotify-n4-live-acceptance`, worktree `.worktrees/n4-spotify-live`, draft PR opened.
+  Resume after P7 lands: rebase, wire the EnvironmentFile contract, get out-of-band credentials, then
+  do physical Now Playing/playlist/volume/failure/reconnect acceptance and close out #89.
+
 ## Next Session Context Chunk — N4 (2026-07-18)
 
 - N4 #89 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.

@@ -89,6 +89,41 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert stale_snap["track"] == snap["track"]
   end
 
+  test "recovers from stale back to fresh and advances gen after a later successful poll" do
+    server = start_service()
+    assert {:ok, snap} = Service.now_playing(server)
+    assert snap["stale"] == false
+    gen_before = Service.get_gen(server)
+
+    :sys.replace_state(server, fn state -> %{state | http: ok_http(fail_all: true)} end)
+    assert {:ok, stale_snap} = Service.refresh_now(server)
+    assert stale_snap["stale"] == true
+    assert Service.get_gen(server) == gen_before
+
+    :sys.replace_state(server, fn state -> %{state | http: ok_http()} end)
+    assert {:ok, recovered_snap} = Service.refresh_now(server)
+
+    assert recovered_snap["stale"] == false
+    assert Service.get_gen(server) == gen_before + 1
+  end
+
+  test "recovers stale playlists back to fresh and advances playlist gen after later success" do
+    server = start_service()
+    assert {:ok, _snap} = Service.playlists(server)
+    gen_before = Service.get_playlist_gen(server)
+
+    :sys.replace_state(server, fn state -> %{state | http: ok_http(fail_all: true)} end)
+    assert {:ok, stale_snap} = Service.refresh_playlists(server)
+    assert stale_snap.stale == true
+    assert Service.get_playlist_gen(server) == gen_before
+
+    :sys.replace_state(server, fn state -> %{state | http: ok_http()} end)
+    assert {:ok, recovered_snap} = Service.refresh_playlists(server)
+
+    assert recovered_snap.stale == false
+    assert Service.get_playlist_gen(server) == gen_before + 1
+  end
+
   test "set_volume applies a positive delta and clamps at 100" do
     {:ok, ref} = Agent.start_link(fn -> nil end)
     server = start_service(http: ok_http(volume_ref: ref))

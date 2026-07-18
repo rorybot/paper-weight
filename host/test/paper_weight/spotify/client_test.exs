@@ -115,6 +115,45 @@ defmodule PaperWeight.Spotify.ClientTest do
     assert {:error, :econnrefused} = Client.now_playing(config(), "tok", mock_http(fail: true))
   end
 
+  test "now_playing surfaces malformed JSON as a bad response error" do
+    http = fn :get, _url, _headers, nil -> {:ok, 200, "not json"} end
+
+    assert {:error, {:bad_now_playing_response, "not json"}} =
+             Client.now_playing(config(), "tok", http)
+  end
+
+  test "now_playing surfaces a partial response missing the item field" do
+    http = fn :get, _url, _headers, nil -> {:ok, 200, ~s({"progress_ms": 1000})} end
+
+    assert {:error, {:bad_now_playing_response, _}} = Client.now_playing(config(), "tok", http)
+  end
+
+  test "queue surfaces malformed/partial responses as a bad response error" do
+    http = fn :get, _url, _headers, nil -> {:ok, 200, ~s({"unexpected": true})} end
+
+    assert {:error, {:bad_queue_response, _}} = Client.queue(config(), "tok", http)
+  end
+
+  test "playlists surfaces malformed/partial responses as a bad response error" do
+    http = fn :get, _url, _headers, nil -> {:ok, 200, "{not valid json"} end
+
+    assert {:error, {:bad_playlists_response, _}} = Client.playlists(config(), "tok", http)
+  end
+
+  test "client surfaces non-200 HTTP status errors for each read endpoint" do
+    http = fn :get, _url, _headers, nil -> {:ok, 500, "server error"} end
+
+    assert {:error, {:http_status, 500, "server error"}} = Client.now_playing(config(), "tok", http)
+    assert {:error, {:http_status, 500, "server error"}} = Client.queue(config(), "tok", http)
+    assert {:error, {:http_status, 500, "server error"}} = Client.playlists(config(), "tok", http)
+  end
+
+  test "set_volume surfaces a non-2xx status as an error" do
+    http = fn :put, _url, _headers, _body -> {:ok, 403, ~s({"error":"forbidden"})} end
+
+    assert {:error, {:http_status, 403, _}} = Client.set_volume(config(), "tok", 50, http)
+  end
+
   test "no generic play/pause/skip/previous functions exist on the client" do
     exports = Client.__info__(:functions) |> Keyword.keys()
 
