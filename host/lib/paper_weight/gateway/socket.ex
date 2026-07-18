@@ -9,6 +9,9 @@ defmodule PaperWeight.Gateway.Socket do
   `channel => GenServer.server() | nil` (`nil` = disabled). Adapter calls are
   wrapped in `fetch/3` so a dead/missing service degrades to `:disabled`
   rather than crashing the socket.
+
+  The `playlist` channel is collected from the same Spotify adapter as
+  now-playing (`Service.playlists/1` + `get_playlist_gen/1`).
   """
 
   @behaviour WebSock
@@ -92,7 +95,13 @@ defmodule PaperWeight.Gateway.Socket do
       spotify:
         fetch(adapters[:spotify], &Spotify.Service.now_playing/1, &Spotify.Service.get_gen/1),
       feed: feed_input(adapters[:feed]),
-      photo: fetch(adapters[:photo], &Photo.Service.get_snapshot/1, &Photo.Service.get_gen/1)
+      photo: fetch(adapters[:photo], &Photo.Service.get_snapshot/1, &Photo.Service.get_gen/1),
+      playlist:
+        fetch(
+          adapters[:spotify],
+          &Spotify.Service.playlists/1,
+          &Spotify.Service.get_playlist_gen/1
+        )
     }
   end
 

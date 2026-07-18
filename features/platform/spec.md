@@ -152,3 +152,10 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Branch `feat/w3e-intent-handlers`, PR #73 merge-merged to master; `mix format` (W3-E files),
   full host `mix test` 147 passed, required `ci` green (`host`/`lane-guard`/`changes`/`label`).
   Issue #48 closed, Status Done. Unblocks W3-G #49 (playlist snapshot source).
+
+## Next Session Context Chunk — W3-G
+
+- Live `playlist` channel: Spotify list API → `PlaylistSnapshot` → `Service.playlists` /
+  `get_playlist_gen`; gateway Publisher/Socket consume it; `PlaylistStub` deleted.
+- Covers stay null until a JPEG/PNG→grayscale adapter exists; gen advances on successful
+  playlist refresh only. Unblocks W3-F #50 smoke with D+E+G.
