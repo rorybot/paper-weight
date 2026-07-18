@@ -17,7 +17,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
 | W3-A | [#44](https://github.com/rorybot/paper-weight/issues/44) | Device shell screen map + channel store | **Done** (closed, PR #59) |
 | W3-B | [#45](https://github.com/rorybot/paper-weight/issues/45) | Host deps, Application children, and runtime config | **Done** (closed, PR #58) |
-| W3-C | [#46](https://github.com/rorybot/paper-weight/issues/46) | Host WebSocket gateway snapshot push | **In review** |
+| W3-C | [#46](https://github.com/rorybot/paper-weight/issues/46) | Host WebSocket gateway snapshot push | **Done** (closed, PR #68) |
 
 ## Stack slice (do not re-litigate)
 
@@ -128,4 +128,5 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - No `mix.exs`/`mix.lock` edits — W3-B's locked `bandit`/`websock_adapter`/`plug` deps compiled as-is; JSON encoding uses Elixir 1.20's built-in `JSON.encode!/1` (no `Jason` dep needed/added).
 - Verified live: `WEATHER_LAT=40.0 WEATHER_LON=-74.0 MIX_ENV=dev mix run --no-halt`, then an HTTP `Upgrade: websocket` `curl` to `localhost:9138/` completed the 101 handshake and received one `playlist` envelope frame immediately (weather/spotify/feed/photo all omitted — weather fetch fails with no real network/creds, others default `:disabled`), confirming the connect → push path end-to-end without needing `websocat` (not installed in this environment).
 - `mix test`: 139 passed (was 122; added `gateway/publisher_test.exs`, `gateway/socket_test.exs`, and 5 new `application_test.exs` cases for the gateway child + updated fixtures to include the new config keys).
-- Branch `feat/w3c-ws-gateway-push`; PR not yet opened as of this chunk — issue #46 set to In progress → will flip to In review once PR opens. No cross-lane seam: only `host/**` touched, device UI and other lanes' worktree files (etymology/, W3-D's `shell/gateway.ts` etc.) left untouched.
+- CI caught a real bug before merge: `JSON.encode!/1` is Elixir-1.20-only (built-in `JSON` module added in 1.18); CI runs 1.17. Replaced with a small dependency-free `PaperWeight.Gateway.JsonEncoder` (handles maps/lists/strings/numbers/booleans/nil/atoms) — no `mix.exs`/`mix.lock` edits needed. `mix test` green at 140 (was 139) after the fix.
+- Branch `feat/w3c-ws-gateway-push`, PR #68, squash-merged to master; `ci` required check green (`host`/`lane-guard`/`changes`/`label` passing, `device-ui`/`input-bridge`/`screen-tests` correctly skipped as host-only). Issue #46 closed, Status Done. No cross-lane seam: only `host/**` touched, device UI and other lanes' worktree files (etymology/, W3-D's `shell/gateway.ts` etc.) left untouched.
