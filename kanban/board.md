@@ -20,9 +20,9 @@ Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43 |
-| **In progress** | - |
+| **In progress** | W3-A #44 (worktree `.worktrees/w3a`); W3-B #45 (worktree `.worktrees/w3b`); E1 #16 (worktree `.worktrees/e1`) |
 | **In review** | D1 #18 (PR #42) |
-| **Ready** | E1 #16; E2 #17; W3-A #44; W3-B #45 |
+| **Ready** | E2 #17 |
 | **Backlog** | D3 #20; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
