@@ -55,7 +55,8 @@ defmodule PaperWeight.Spotify.Service do
   API, and cache the result. **No** play/pause counterpart exists.
   """
   @spec set_volume(GenServer.server(), integer()) :: {:ok, 0..100} | {:error, term()}
-  def set_volume(server, delta) when is_integer(delta), do: GenServer.call(server, {:set_volume, delta})
+  def set_volume(server, delta) when is_integer(delta),
+    do: GenServer.call(server, {:set_volume, delta})
 
   @spec play_playlist(GenServer.server(), String.t()) :: :ok | {:error, term()}
   def play_playlist(server, playlist_id) when is_binary(playlist_id) do

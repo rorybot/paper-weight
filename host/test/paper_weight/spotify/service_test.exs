@@ -21,9 +21,14 @@ defmodule PaperWeight.Spotify.ServiceTest do
 
       :get, url, _headers, nil ->
         cond do
-          String.contains?(url, "currently-playing") -> {:ok, 200, fixture("currently_playing.json")}
-          String.contains?(url, "/me/player/queue") -> {:ok, 200, fixture("queue.json")}
-          String.contains?(url, "/me/player") -> {:ok, 200, fixture("player.json")}
+          String.contains?(url, "currently-playing") ->
+            {:ok, 200, fixture("currently_playing.json")}
+
+          String.contains?(url, "/me/player/queue") ->
+            {:ok, 200, fixture("queue.json")}
+
+          String.contains?(url, "/me/player") ->
+            {:ok, 200, fixture("player.json")}
         end
 
       :put, url, _headers, _body ->
@@ -62,6 +67,7 @@ defmodule PaperWeight.Spotify.ServiceTest do
     server = start_service()
 
     assert {:ok, queue} = Service.queue(server)
+
     assert queue == [
              %{"title" => "Next Track", "artist" => "Someone"},
              %{"title" => "Another Track", "artist" => "Someone Else, Third"}
@@ -108,7 +114,9 @@ defmodule PaperWeight.Spotify.ServiceTest do
     {:ok, ref} = Agent.start_link(fn -> nil end)
 
     http = fn
-      :get, url, headers, body -> ok_http().(:get, url, headers, body)
+      :get, url, headers, body ->
+        ok_http().(:get, url, headers, body)
+
       :put, url, _headers, body ->
         Agent.update(ref, fn _ -> {url, body} end)
         {:ok, 204, ""}

@@ -81,6 +81,12 @@ defmodule PaperWeight.Gateway.SocketTest do
   end
 
   defp post(id) do
-    %{id: id, handle: "@ada", body: "hi", time_label: "1m", accent: PaperWeight.Feed.Accent.accent_for("@ada")}
+    %{
+      id: id,
+      handle: "@ada",
+      body: "hi",
+      time_label: "1m",
+      accent: PaperWeight.Feed.Accent.accent_for("@ada")
+    }
   end
 end

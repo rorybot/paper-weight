@@ -16,7 +16,9 @@ defmodule PaperWeight.Gateway.IntentsTest do
 
   test "decodes and validates each frozen v1 intent" do
     assert {:ok, {:set_volume, -5}} =
-             Intents.decode(~s({"v":1,"ts":1,"type":"intent","name":"set_volume","args":{"delta":-5}}))
+             Intents.decode(
+               ~s({"v":1,"ts":1,"type":"intent","name":"set_volume","args":{"delta":-5}})
+             )
 
     assert {:ok, {:play_playlist, "abc123"}} =
              Intents.decode(
@@ -69,7 +71,10 @@ defmodule PaperWeight.Gateway.IntentsTest do
     dead = spawn(fn -> :ok end)
     Process.sleep(5)
 
-    exiting_handlers = %{handlers() | set_volume: fn server, _delta -> GenServer.call(server, :x) end}
+    exiting_handlers = %{
+      handlers()
+      | set_volume: fn server, _delta -> GenServer.call(server, :x) end
+    }
 
     assert {:error, :service_unavailable} =
              Intents.dispatch({:set_volume, 1}, %{spotify: dead}, exiting_handlers)

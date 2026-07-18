@@ -43,7 +43,9 @@ defmodule PaperWeight.Spotify.ClientTest do
   end
 
   defp assert_bearer_header(headers) do
-    assert Enum.any?(headers, fn {k, v} -> k == "Authorization" and String.starts_with?(v, "Bearer ") end)
+    assert Enum.any?(headers, fn {k, v} ->
+             k == "Authorization" and String.starts_with?(v, "Bearer ")
+           end)
   end
 
   test "now_playing parses title/artist/album/duration/progress" do
@@ -83,7 +85,9 @@ defmodule PaperWeight.Spotify.ClientTest do
 
   test "play_playlist PUTs only the selected Spotify playlist context" do
     assert :ok = Client.play_playlist(config(), "tok", "abc123", mock_http())
-    assert {:error, :invalid_playlist_id} = Client.play_playlist(config(), "tok", "bad/id", mock_http())
+
+    assert {:error, :invalid_playlist_id} =
+             Client.play_playlist(config(), "tok", "bad/id", mock_http())
   end
 
   test "now_playing surfaces transport errors without retry" do

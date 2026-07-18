@@ -65,7 +65,8 @@ defmodule PaperWeight.Spotify.Client do
   @spec set_volume(Config.t(), String.t(), 0..100, http()) :: {:ok, 0..100} | {:error, term()}
   def set_volume(config, access_token, level, http)
       when is_function(http, 4) and is_integer(level) and level >= 0 and level <= 100 do
-    url = config.api_base <> "/me/player/volume?" <> URI.encode_query(%{"volume_percent" => level})
+    url =
+      config.api_base <> "/me/player/volume?" <> URI.encode_query(%{"volume_percent" => level})
 
     case http.(:put, url, auth_headers(access_token), "") do
       {:ok, status, _body} when status in [200, 202, 204] -> {:ok, level}
@@ -109,7 +110,8 @@ defmodule PaperWeight.Spotify.Client do
       _ = Application.ensure_all_started(:inets)
       _ = Application.ensure_all_started(:ssl)
 
-      charlist_headers = Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
+      charlist_headers =
+        Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
 
       result =
         case method do
