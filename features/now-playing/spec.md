@@ -149,7 +149,7 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 | Card | Status | Dependencies | Scope |
 |------|--------|--------------|-------|
 | W3-G #49 | **Done** (PR #75) | W3-E #48, W3-P1 #43 | Fetch Spotify playlists into the frozen `PlaylistSnapshotV1` shape, expose generation, and replace the gateway playlist stub. |
-| W3-F #50 | Ready | W3-D, W3-E, W3-G | End-to-end smoke after live playlist channel lands. |
+| W3-F #50 | **Done** (PR #77) | W3-D, W3-E, W3-G | End-to-end smoke after live playlist channel lands. |
 
 ## Next Session Context Chunk
 
@@ -157,4 +157,4 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - `Service.playlists/1` + `get_playlist_gen/1` (+ `refresh_playlists/1`); gen advances only on successful poll.
 - Gateway: `Publisher` takes `:playlist` input; `Socket` collects from the Spotify adapter; `PlaylistStub` removed.
 - Covers always `cover_pbm_base64: nil` (no JPEG/PNG→grayscale path yet); device CSS hatch. No play/pause.
-- Next: W3-F #50 smoke once D/E/G are Done.
+- W3-F #50 Done (PR #77): stubs host + `dev:live` + wave-3-smoke.md.
