@@ -158,4 +158,4 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Live `playlist` channel: Spotify list API → `PlaylistSnapshot` → `Service.playlists` /
   `get_playlist_gen`; gateway Publisher/Socket consume it; `PlaylistStub` deleted.
 - Covers stay null until a JPEG/PNG→grayscale adapter exists; gen advances on successful
-  playlist refresh only. Unblocks W3-F #50 smoke with D+E+G.
+  playlist refresh only. PR #75 merged; issue #49 Done. Unblocks W3-F #50 smoke (D+E+G all Done).

@@ -19,11 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49 |
 | **In progress** | - |
 | **In review** | - |
-| **Ready** | - |
-| **Backlog** | D3 #20; W3-G #49; W3-F #50 |
+| **Ready** | W3-F #50 |
+| **Backlog** | D3 #20 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -170,6 +170,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   device without disturbing NP state.
 - **Done**: PR #36 — `LyricsOverlay` BERG paper card + pure active-line sync; shell owns toggle;
   design snippet in feature spec; wave-3 wires `renderOverlay`.
+
+### W3-G [now-playing] Host playlist snapshot channel · #49 ✅ Done
+- **Goal**: publish real Spotify playlists on the `playlist` channel.
+- **Scope**: fetch id/name/(null cover) into `PlaylistSnapshotV1`; `Service.playlists` +
+  independent `playlist_gen`; replace gateway `PlaylistStub` with live publisher input.
+- **Constraints**: branch `feat/w3g-playlist-channel`; match `protocol/playlist.ts`; no play/pause.
+- **Acceptance**: mocked tests produce a valid playlist envelope; publisher emits live data;
+  generation advances on refresh.
+- **Done**: PR #75 merged; host `mix test` 155 passed; CI green; issue #49 closed + Project Done.
+  Covers stay `null` until JPEG→grayscale exists. Unblocks W3-F #50.
 
 ## Epic: weather (screen 4b)
 

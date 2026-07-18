@@ -148,7 +148,7 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 
 | Card | Status | Dependencies | Scope |
 |------|--------|--------------|-------|
-| W3-G #49 | In progress | W3-E #48, W3-P1 #43 | Fetch Spotify playlists into the frozen `PlaylistSnapshotV1` shape, expose generation, and replace the gateway playlist stub. |
+| W3-G #49 | **Done** (PR #75) | W3-E #48, W3-P1 #43 | Fetch Spotify playlists into the frozen `PlaylistSnapshotV1` shape, expose generation, and replace the gateway playlist stub. |
 | W3-F #50 | Ready | W3-D, W3-E, W3-G | End-to-end smoke after live playlist channel lands. |
 
 ## Next Session Context Chunk
