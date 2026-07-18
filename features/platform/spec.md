@@ -15,7 +15,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
-| W3-B | [#45](https://github.com/rorybot/paper-weight/issues/45) | Host deps, Application children, and runtime config | **In review** (PR #58) |
+| W3-B | [#45](https://github.com/rorybot/paper-weight/issues/45) | Host deps, Application children, and runtime config | **Done** (closed, PR #58) |
 
 ## Stack slice (do not re-litigate)
 
@@ -101,4 +101,5 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - `Photo.Config` has no `from_env/0` of its own (unlike Weather/Feed/Spotify, which read env inside their own `Config.new/1`), so `Application` reads `PAPER_WEIGHT_PHOTO_LIBRARY_DIR` directly and passes it as `:library_dir`.
 - `mix.exs`/`mix.lock` now lock `bandit ~> 1.5`, `websock_adapter ~> 0.5`, `plug ~> 1.16` — compiled only, nothing starts Bandit (that's W3-C's job: wire the actual listener/socket).
 - New `host/test/paper_weight/application_test.exs` covers zero-env, all-enabled (4 child specs), per-service isolation, photo `library_dir` plumbing, and a `start_supervised!` smoke test for the Photo child spec; existing `application_weather_test.exs` untouched and still green.
-- PR #58 (`feat/w3b-host-app-children`), issue #45 set to In review pending `ci` check + merge; local lane-guard simulation shows only `application.ex` hits a lane pattern (`platform`), no product lane touched, so no `cross-lane` label needed.
+- PR #58 (`feat/w3b-host-app-children`) merged (squash, ff to master); `ci` required check green with `host`/`lane-guard` passing and product-lane jobs (device-ui/input-bridge/screen-tests) correctly skipped — confirms no `cross-lane` label was needed. Issue #45 closed, Status Done.
+- Unblocked next: W3-C (wire the actual Bandit/websock_adapter listener + socket) can now build on `PaperWeight.Application`'s per-service `:enabled`/`:disabled` config and the locked WS deps.
