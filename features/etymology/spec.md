@@ -13,6 +13,7 @@ E1 is a **standalone, unwired** host service: no `application.ex` edit, no proto
 |----|-------|-------|--------|
 | E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **Done** (PR #60 merged; CI green) |
 | E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **Done** (PR #66 merged; CI green) |
+| E2-1 | [#79](https://github.com/rorybot/paper-weight/issues/79) | Wire preset 4 to Etymology screen | **In progress** |
 
 ## Ownership (only these paths)
 
