@@ -97,9 +97,17 @@ Orchestrator adds the line to `Application` in wave 3.
 
 ---
 
-## Branch / worktree convention
+## Branch / worktree convention (worktrees are REQUIRED, not suggested)
 
-| Lane | Branch | Worktree (suggested) |
+⚠️ **One worktree (or container) per concurrent agent — never a shared checkout.** `HEAD`
+is global per working tree; concurrent `git switch` calls in one checkout mis-route commits
+onto other agents' branches (bitten for real on 2026-07-18, Wave-3 Day-2). Every parallel
+prompt must carry the mandatory ISOLATION block from `features/_lanes/agent-prompts.md`,
+and each session must be launched with cwd inside its own worktree. If worktrees can't be
+used (pinned cwd, toolchain/port conflicts between lanes), give each agent its own
+distrobox container with a full clone instead.
+
+| Lane | Branch | Worktree (required) |
 |------|--------|----------------------|
 | Weather | `lane/weather-w1` | `.worktrees/weather` |
 | Feed | `lane/feed-f1` | `.worktrees/feed` |

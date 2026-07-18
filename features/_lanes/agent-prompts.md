@@ -5,6 +5,38 @@ Orchestrator doc: `docs/architecture/parallel-lanes-v1.md`.
 
 ---
 
+## ⚠️ ISOLATION IS MANDATORY — one worktree (or container) per agent
+
+**Never run two agents in the same checkout.** `HEAD` is global per working tree: another
+agent's `git switch` moves it mid-session and your commit silently lands on *their* branch.
+This is not hypothetical — in Wave-3 Day-2 (2026-07-18) the E2 agent's commit landed on
+W3-C's branch because all three sessions shared the repo-root checkout, and it took ref
+surgery (`git push <sha>:refs/heads/…`, `branch -f`, `reset --hard`) to untangle.
+
+**Every future parallel wave MUST paste this block verbatim at the top of each agent's
+prompt** (fill in `<lane>` / `<branch>`):
+
+```text
+ISOLATION (mandatory — do this FIRST, before any other git command):
+You share this machine with other concurrent agents. The repo-root checkout is SHARED —
+never `git switch` it and never commit from it. Instead, from the repo root run:
+  git fetch && git worktree add .worktrees/<lane> -b <your-exact-branch> origin/master
+then do ALL work with cwd inside .worktrees/<lane> for the entire session.
+Before EVERY commit and push, re-verify in the same compound command:
+  git rev-parse --show-toplevel    → must be your .worktrees/<lane> path
+  git symbolic-ref --short HEAD    → must be your exact branch
+Stage only your own paths — other agents' WIP may be loose in a shared tree.
+If worktrees are not possible in your environment (cwd is pinned, toolchain or port
+conflicts with other lanes), isolate harder: run inside your own distrobox container with
+its own full clone (distrobox create -n lane-<lane>; git clone inside it) — anything but
+a shared HEAD. If you cannot achieve isolation, STOP and report instead of proceeding.
+```
+
+Orchestrator side: launch each session with cwd already set to its worktree (or its
+container's clone) — do not rely on the agent to relocate itself.
+
+---
+
 ## Shared preamble (every agent)
 
 ```text
@@ -296,9 +328,14 @@ You are ONE of three parallel wave-3 Day-2 agents, operating concurrently on iss
 (W3-C), #47 (W3-D), and #17 (E2). Follow docs/architecture/parallel-lanes-v1.md ownership
 and the constraints in your own card below.
 
-Before editing: git fetch, switch to master, fast-forward pull, create your exact feature
-branch, run scripts/check-gh-auth.sh, and set ONLY your own issue to In progress via
-scripts/set-card-status.sh. Never edit another agent's paths or Project status.
+FIRST: follow the mandatory ISOLATION block (top of this file) — create your own worktree
+(or distrobox clone) and work only there. The shared repo-root checkout is off-limits for
+git switch/commit. [Historical note: this wave originally said "switch to master … create
+your exact feature branch" in a shared checkout, which caused the E2/W3-C branch collision.]
+
+Before editing: in YOUR worktree, git fetch, run scripts/check-gh-auth.sh, and set ONLY
+your own issue to In progress via scripts/set-card-status.sh. Never edit another agent's
+paths or Project status.
 
 Before pushing: git fetch and inspect `git diff --name-only origin/master...HEAD` to confirm
 you have not touched another agent's files. Rebase only for a real dependency/conflict; never
