@@ -1,13 +1,21 @@
+import type { ComponentChildren } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 
-import { FeedSample } from "../sample/FeedSample";
+import type { IntentV1 } from "../protocol/envelope";
+import type { NowPlayingSnapshotV1 } from "../protocol/now_playing";
+import { FeedScreen } from "../screens/feed";
 import { HomeScreen, homeFixtureGlance } from "../screens/home";
+import { LyricsOverlay, NowPlayingScreen } from "../screens/now-playing";
+import { PhotoScreen } from "../screens/photo";
+import { PlaylistScreen } from "../screens/playlist";
+import { SettingsScreen } from "../screens/settings";
 import {
   WeatherScreen,
   weatherFixtureSnapshot,
   type WeatherRange,
 } from "../screens/weather";
 import { bridgePayloadToShellInput } from "./bridge";
+import { fixtureChannelStoreState } from "./channelStore";
 import { mapDevKeyboardEvent } from "./devKeyboard";
 import {
   initialShellState,
@@ -50,6 +58,68 @@ export const applyWeatherRangeToggles = (
   return next;
 };
 
+export type ShellIntentRequest = Pick<IntentV1, "name" | "args">;
+
+/**
+ * Pure: map just-emitted shell commands to host intent requests. Envelope
+ * fields (`v`/`ts`) are attached at the dispatch edge, not here.
+ */
+export const commandsToIntentRequests = (
+  commands: readonly ShellCommand[],
+): readonly ShellIntentRequest[] =>
+  commands
+    .filter(
+      (command): command is Extract<ShellCommand, { type: "adjust-volume" }> =>
+        command.type === "adjust-volume",
+    )
+    .map((command) => ({
+      name: "set_volume" as const,
+      args: { delta: command.delta },
+    }));
+
+const isFeedCommand = (
+  command: ShellCommand,
+): command is Extract<ShellCommand, { type: "scroll-feed" }> =>
+  command.type === "scroll-feed";
+
+const isPlaylistCommand = (
+  command: ShellCommand,
+): command is Extract<
+  ShellCommand,
+  { type: "move-playlist-selection" | "play-selected-playlist" }
+> =>
+  command.type === "move-playlist-selection" ||
+  command.type === "play-selected-playlist";
+
+const isPhotoCommand = (
+  command: ShellCommand,
+): command is Extract<
+  ShellCommand,
+  { type: "skip-photo" | "keep-photo-on-show" }
+> => command.type === "skip-photo" || command.type === "keep-photo-on-show";
+
+const isSettingsCommand = (
+  command: ShellCommand,
+): command is Extract<
+  ShellCommand,
+  { type: "move-settings-field" | "edit-settings-field" }
+> =>
+  command.type === "move-settings-field" ||
+  command.type === "edit-settings-field";
+
+/**
+ * Pure: `lyrics` renders the real N3 overlay from the now-playing snapshot;
+ * `feed-detail` has no separate chrome — `FeedScreen` reflects `enlarged`
+ * itself, and `ScreenShell` already supplies the dim backdrop layer.
+ */
+export const renderShellOverlay = (
+  overlay: OverlayId,
+  nowPlayingSnapshot: NowPlayingSnapshotV1,
+): ComponentChildren =>
+  overlay === "lyrics" ? (
+    <LyricsOverlay snapshot={nowPlayingSnapshot} />
+  ) : null;
+
 const Placeholder = ({
   label,
   detail,
@@ -63,43 +133,37 @@ const Placeholder = ({
   </div>
 );
 
-const renderOverlay = (overlay: OverlayId) => (
-  <div class="shell-overlay-chrome" data-overlay-panel={overlay}>
-    <Placeholder
-      label={overlay}
-      detail={
-        overlay === "lyrics"
-          ? "Lyrics overlay (N3) — press again or Back to dismiss."
-          : "Feed detail enlarge — Back collapses."
-      }
-    />
-  </div>
-);
-
 export interface ShellAppProps {
   readonly bridgeUrl?: string | null;
   readonly initialScreen?: ScreenId;
   /** Test / debug: observe commands without host services. */
   readonly onCommands?: (commands: readonly ShellCommand[]) => void;
-  /** Override weather snapshot (defaults to W2 fixture until host WS). */
+  /** Device → host intents (`set_volume`, `play_playlist`). No-op until the W3-D gateway wires a socket. */
+  readonly onIntent?: (intent: IntentV1) => void;
+  /** Override weather snapshot (defaults to the channel store's fixture). */
   readonly weatherSnapshot?: typeof weatherFixtureSnapshot;
 }
 
 /**
  * Shell harness: pure router + ScreenShell + wired screens + optional P2 SSE.
- * Weather is wired: fixture snapshot + wheel toggles 5d ↔ 7d.
+ * Screens render from `channelStore`'s fixture snapshots until the W3-D
+ * gateway starts pushing real envelopes; Settings has no host channel.
  */
 export const ShellApp = ({
   bridgeUrl = DEFAULT_BRIDGE_URL,
   initialScreen = "home",
   onCommands,
-  weatherSnapshot = weatherFixtureSnapshot,
+  onIntent,
+  weatherSnapshot,
 }: ShellAppProps) => {
   const [state, setState] = useState<ShellState>(() =>
     initialShellState(initialScreen),
   );
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  const channelStore = fixtureChannelStoreState;
+  const resolvedWeatherSnapshot = weatherSnapshot ?? channelStore.snapshots.weather;
 
   const [lastCommands, setLastCommands] = useState<readonly ShellCommand[]>(
     [],
@@ -118,6 +182,10 @@ export const ShellApp = ({
     setState(result.state);
     setLastCommands(result.commands);
     onCommands?.(result.commands);
+
+    for (const request of commandsToIntentRequests(result.commands)) {
+      onIntent?.({ v: 1, ts: Date.now(), type: "intent", ...request });
+    }
 
     const nextRange = applyWeatherRangeToggles(
       weatherRangeRef.current,
@@ -170,17 +238,60 @@ export const ShellApp = ({
       return <HomeScreen glance={homeFixtureGlance} theme="gruvbox" />;
     }
 
-    if (screen === "feed") {
-      return <FeedSample />;
+    if (screen === "now-playing") {
+      return <NowPlayingScreen snapshot={channelStore.snapshots.now_playing} />;
     }
 
     if (screen === "weather") {
       return (
         <WeatherScreen
-          snapshot={weatherSnapshot}
+          snapshot={resolvedWeatherSnapshot}
           range={weatherRange}
           theme="gruvbox"
         />
+      );
+    }
+
+    if (screen === "playlist") {
+      return (
+        <PlaylistScreen
+          snapshot={channelStore.snapshots.playlist}
+          command={lastCommands.find(isPlaylistCommand) ?? null}
+          onPlaySelected={(_item, args) =>
+            onIntent?.({
+              v: 1,
+              ts: Date.now(),
+              type: "intent",
+              name: "play_playlist",
+              args,
+            })
+          }
+        />
+      );
+    }
+
+    if (screen === "feed") {
+      return (
+        <FeedScreen
+          snapshot={channelStore.snapshots.feed}
+          command={lastCommands.find(isFeedCommand) ?? null}
+          enlarged={state.overlay === "feed-detail"}
+        />
+      );
+    }
+
+    if (screen === "photo") {
+      return (
+        <PhotoScreen
+          snapshot={channelStore.snapshots.photo}
+          command={lastCommands.find(isPhotoCommand) ?? null}
+        />
+      );
+    }
+
+    if (screen === "settings") {
+      return (
+        <SettingsScreen command={lastCommands.find(isSettingsCommand) ?? null} />
       );
     }
 
@@ -197,7 +308,9 @@ export const ShellApp = ({
       <ScreenShell
         state={state}
         renderScreen={renderScreen}
-        renderOverlay={renderOverlay}
+        renderOverlay={(overlay) =>
+          renderShellOverlay(overlay, channelStore.snapshots.now_playing)
+        }
       />
       <footer class="shell-hud" data-shell-hud>
         <span>
