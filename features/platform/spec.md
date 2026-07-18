@@ -15,6 +15,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
+| W3-B | [#45](https://github.com/rorybot/paper-weight/issues/45) | Host deps, Application children, and runtime config | **In review** (PR #58) |
 
 ## Stack slice (do not re-litigate)
 
@@ -93,3 +94,11 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Payload stays `PlaylistSnapshotV1` from `src/device-ui/src/protocol/playlist.ts` (unchanged shape); doc now documents the Elixir-side map mirror for host authors.
 - No service/screen code touched — W3-A/B and the rest of wave 3 can now build against `channel: :playlist` / `"playlist"`.
 - `mix test` (100 passed) and `npm run check` (typecheck + 130 tests + build) both green; branch `chore/w3p1-playlist-channel`, PR #53, issue #43 set to In review pending CI + merge.
+
+## Next Session Context Chunk (W3-B — 2026-07-18)
+- `PaperWeight.Application` is now a pure `children/1` (config map `%{weather:, spotify:, feed:, photo:, photo_library_dir:}` → child specs) plus impure `config_from_env/0`. `start/2` just wires the two together.
+- Weather defaults `:enabled`; Spotify/Feed/Photo default `:disabled` in `config.exs`, and all four are forced `:disabled` under `MIX_ENV=test` so `mix test` needs zero credentials/network.
+- `Photo.Config` has no `from_env/0` of its own (unlike Weather/Feed/Spotify, which read env inside their own `Config.new/1`), so `Application` reads `PAPER_WEIGHT_PHOTO_LIBRARY_DIR` directly and passes it as `:library_dir`.
+- `mix.exs`/`mix.lock` now lock `bandit ~> 1.5`, `websock_adapter ~> 0.5`, `plug ~> 1.16` — compiled only, nothing starts Bandit (that's W3-C's job: wire the actual listener/socket).
+- New `host/test/paper_weight/application_test.exs` covers zero-env, all-enabled (4 child specs), per-service isolation, photo `library_dir` plumbing, and a `start_supervised!` smoke test for the Photo child spec; existing `application_weather_test.exs` untouched and still green.
+- PR #58 (`feat/w3b-host-app-children`), issue #45 set to In review pending `ci` check + merge; local lane-guard simulation shows only `application.ex` hits a lane pattern (`platform`), no product lane touched, so no `cross-lane` label needed.
