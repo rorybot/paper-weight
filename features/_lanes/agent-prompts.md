@@ -115,14 +115,19 @@ Do not edit shell; export screen component for wave-3 registry.
 
 ---
 
-## Wave 3 Day-1 prompts (W3-A + W3-B parallel)
+## Wave 3 Day-1 prompts (W3-A + W3-B + E1 parallel)
 
-**Prerequisite:** PR #53 (W3-P1, protocol v1.1) must be merged to `master` first — W3-A's
-fixture store needs the `playlist` channel already in `ChannelV1`. Do not start these agents
-against an unmerged `master`.
+**Prerequisite met:** PR #53 (W3-P1, protocol v1.1) is merged to `master` — the `playlist`
+channel is in `ChannelV1`, so W3-A's fixture store can include it.
 
-Zero file overlap: W3-A is device-only (`src/device-ui/**`), W3-B is host-only (`host/**`).
-Safe to run at the same time in separate worktrees. Neither is blocked by the other.
+Zero file overlap, three-way parallel-safe:
+- W3-A is device-only (`src/device-ui/src/shell/`)
+- W3-B is host-only (`host/mix.exs`, `application.ex`, `config/`)
+- E1 is a new isolated tree (`host/lib/paper_weight/etymology/`,
+  `src/device-ui/src/protocol/etymology.ts`)
+
+None of the three is blocked by either of the others — safe to run all three at once in
+separate worktrees.
 
 ### Shared preamble (both agents)
 
@@ -207,18 +212,85 @@ Acceptance:
 - New dependencies compile in CI.
 ```
 
+### Agent C — E1 #16 (word-origin data service)
+
+```text
+[shared preamble]
+
+Card: E1 #16 — Word-origin data service.
+Read ONLY:
+- docs/design/carthing-context.md — §Etymology sections only (day's-word + nested origin
+  trace description; do not read the rest of the design spec)
+- spec/etymology-2a-depth0.png, etymology-2b-depth1.png, etymology-2c-depth2.png (mockups,
+  for shape/context only — this card builds the data service, not the screen)
+- docs/architecture/host-device-protocol-v1.md (envelope, read-only — `etymology` stays an
+  ignored/omitted channel for now, do not add it to the channel union)
+- docs/architecture/parallel-lanes-v1.md (ownership section)
+
+Unlike the other lanes, there is no features/etymology/spec.md yet — write one as you work,
+following the same Goal/Scope/Acceptance shape as features/weather/spec.md, and record your
+payload type there once decided.
+
+Goal: day's word + nested origin trace (Wiktionary-style source), recursive trace structure
+(stage → sub-trace → … → root), daily selection, cache the day's tree.
+
+Implement under:
+- host/lib/paper_weight/etymology/ (new)
+- host/test/paper_weight/etymology/ (new)
+- src/device-ui/src/protocol/etymology.ts (new — payload types only)
+- features/etymology/spec.md (new — write this as you go)
+
+Constraints:
+- Branch: feat/e1-word-origin-service.
+- Do NOT edit host/lib/paper_weight/application.ex, mix.exs, shell/, protocol/envelope.ts,
+  envelope.ex, or any other lane's tree — this stays a standalone, unwired service.
+- Do NOT add `etymology` to the ChannelV1 / channel union — that's a future protocol card.
+
+Acceptance:
+- A `travailler`-style fixture yields a ≥3-depth tree with a terminal root.
+- mix test green for your tests.
+- features/etymology/spec.md exists and documents the payload shape.
+```
+
 ### How to launch (human / orchestrator)
 
 ```bash
-# from repo root, once PR #53 is merged to master
+# from repo root — PR #53 is already merged to master
 git fetch
 git worktree add .worktrees/w3a -b feat/w3a-shell-screen-map master
 git worktree add .worktrees/w3b -b feat/w3b-host-app-children master
+git worktree add .worktrees/e1  -b feat/e1-word-origin-service master
 
 scripts/set-card-status.sh --issue 44 --status "In progress"
 scripts/set-card-status.sh --issue 45 --status "In progress"
+scripts/set-card-status.sh --issue 16 --status "In progress"
 ```
 
-Open two agent sessions with cwd = each worktree; paste the matching prompt. Merge order
-doesn't matter (disjoint trees) — land whichever finishes review first. Once both are Done,
-W3-C #46 and W3-D #47 unblock (each still needs W3-P1 merged, which is already satisfied).
+Open three agent sessions with cwd = each worktree; paste the matching prompt. Merge order
+doesn't matter (disjoint trees) — land whichever finishes review first. Once W3-A and W3-B
+are both Done, W3-C #46 and W3-D #47 unblock (each still needs W3-P1 merged, which is
+already satisfied). Once E1 is Done, E2 #17 unblocks.
+
+---
+
+## Wave 2 (after Wave 1 lands — draft full prompts then, not now)
+
+Each of these unlocks independently on its own Wave-1 prerequisite — don't wait for all
+three of W3-A/W3-B/E1 to finish, only the one each depends on. All three trees are disjoint
+from each other, so once unlocked they're parallel-safe the same way Wave 1 is.
+
+| Card | Unlocks when | Owns |
+|------|--------------|------|
+| W3-C #46 | W3-A44 Done | `host/lib/paper_weight/gateway/` (new) + one-line `application.ex` append |
+| W3-D #47 | W3-B45 Done | `src/device-ui/src/shell/gateway.ts`, `shell/intents.ts` (new), `main.tsx` |
+| E2 #17 | E1 #16 Done | `src/device-ui/src/screens/etymology/` (new) |
+
+Full copy-paste prompts aren't written yet — draft them from each issue body + the branch
+each Wave-1 card actually lands on, the same way the Wave 1 prompts above were drafted from
+issues #44/#45/#16. Writing them now risks drifting from what Wave 1 actually builds.
+
+**Wave 3–5 are solo, not parallel** — no prompts needed there, just work the single Ready
+card in sequence: W3-E #48 (needs W3-C) → W3-G #49 (needs W3-E) → W3-F #50 (needs W3-D,
+W3-E, W3-G — final integration smoke).
+
+Full roadmap + dependency graph: `docs/architecture/parallel-lanes-v1.md` §Wave-3 card plan.
