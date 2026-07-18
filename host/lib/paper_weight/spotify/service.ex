@@ -8,7 +8,8 @@ defmodule PaperWeight.Spotify.Service do
   round trip when the API call itself fails.
 
   Wave 3 registers `{PaperWeight.Spotify.Service, []}` — do not add to
-  Application here. **No** `play`, `pause`, `skip`, `previous` — volume only.
+  Application here. **No generic** `play`, `pause`, `skip`, or `previous`; W3-E permits only
+  starting the explicit playlist selected by the device.
   """
 
   use GenServer
@@ -54,7 +55,13 @@ defmodule PaperWeight.Spotify.Service do
   API, and cache the result. **No** play/pause counterpart exists.
   """
   @spec set_volume(GenServer.server(), integer()) :: {:ok, 0..100} | {:error, term()}
-  def set_volume(server, delta) when is_integer(delta), do: GenServer.call(server, {:set_volume, delta})
+  def set_volume(server, delta) when is_integer(delta),
+    do: GenServer.call(server, {:set_volume, delta})
+
+  @spec play_playlist(GenServer.server(), String.t()) :: :ok | {:error, term()}
+  def play_playlist(server, playlist_id) when is_binary(playlist_id) do
+    GenServer.call(server, {:play_playlist, playlist_id})
+  end
 
   @impl true
   def init(opts) do
@@ -116,6 +123,19 @@ defmodule PaperWeight.Spotify.Service do
         state = %{state | snapshot: put_volume_level(state.snapshot, new_level)}
         {:reply, err, state}
     end
+  end
+
+  def handle_call({:play_playlist, playlist_id}, _from, state) do
+    reply =
+      case state.token do
+        %{access_token: access_token} ->
+          Client.play_playlist(state.config, access_token, playlist_id, state.http)
+
+        nil ->
+          {:error, :no_token}
+      end
+
+    {:reply, reply, state}
   end
 
   @impl true
