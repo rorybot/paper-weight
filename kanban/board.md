@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16 |
 | **In progress** | - |
 | **In review** | D1 #18 (PR #42); W3-A #44 (PR #59) |
-| **Ready** | E1 #16; E2 #17; W3-B #45 |
+| **Ready** | E2 #17 |
 | **Backlog** | D3 #20; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -129,6 +129,21 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   boots clean and every changed module transforms via Vite with no errors. Interactive
   click-through not exercised — no headless browser in this environment.
 
+### W3-B [platform] Host deps, Application children, and runtime config · #45 ✅ Done
+- **Goal**: supervise all four service GenServers with per-service enablement; add the locked
+  WebSocket deps/config plumbing (nothing starts Bandit yet — that's W3-C).
+- **Scope**: `mix.exs`/`mix.lock` add `bandit`, `websock_adapter`, `plug`; `application.ex`
+  generalizes into a pure `children/1` (config → child specs) plus an impure
+  `config_from_env/0` edge; `config.exs` documents per-service env vars and defaults
+  Weather `:enabled`, Spotify/Feed/Photo `:disabled`.
+- **Constraints**: platform wiring overrides the wave-1 "don't touch application.ex/mix.exs"
+  rule for this card only; no service internals, envelope, or device UI touched.
+- **Acceptance**: `mix test` passes zero-env; all-enabled config yields four service child
+  specs; weather default behavior unchanged; new deps compile in CI.
+- **Done**: PR #58 (`feat/w3b-host-app-children`) merged (squash, fast-forward to master); `ci`
+  required check green (`host`/`lane-guard` pass, product-lane jobs correctly skipped); issue #45
+  closed and Status set to Done.
+
 ## Epic: now-playing (screen 4a)
 
 ### N1 [now-playing] Spotify data service · #6 · Done (lane wave 1)
@@ -228,12 +243,16 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 
 ## Epic: etymology (screens 2a→2b→2c)
 
-### E1 [etymology] Word-origin data service - #16 - Ready
+### E1 [etymology] Word-origin data service - #16 - Done ✅
 - **Goal**: day's word + nested origin trace.
 - **Scope**: Wiktionary-style source; recursive trace structure (stage → sub-trace → … → root);
   daily selection; cache the day's tree.
-- **Acceptance**: `travailler`-style fixture yields a ≥3-depth tree with a terminal root.
-- **Status note**: reopened after repository audit found no committed etymology host implementation.`n  Keep this lane outside Wave 3; `etymology` messages remain an ignored/omitted channel.
+- **Acceptance**: `travailler`-style fixture yields a ≥3-depth tree with a terminal root. **Met** —
+  `host/test/paper_weight/etymology/` (121 tests green on CI).
+- **Delivered** (PR #60, merged): standalone service under `host/lib/paper_weight/etymology/`
+  (Origin/Entry/Corpus/Selection/Snapshot/Service), `src/device-ui/src/protocol/etymology.ts`
+  (payload types only), `features/etymology/spec.md`. Not wired into `Application`; `etymology`
+  stays an ignored/omitted channel (no `ChannelV1` edit). Wave-3 child: `{PaperWeight.Etymology.Service, []}`.
 
 ### E2 [etymology] Drill-down screen (one state machine, 3 depths) - #17 - Ready
 - **Goal**: build 2a/2b/2c as ONE screen with depth states — not three screens.
