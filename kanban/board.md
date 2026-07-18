@@ -19,10 +19,10 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17 |
 | **In progress** | - |
 | **In review** | - |
-| **Ready** | E2 #17; W3-C #46; W3-D #47 |
+| **Ready** | W3-C #46; W3-D #47 |
 | **Backlog** | D3 #20; W3-E #48; W3-G #49; W3-F #50 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -253,12 +253,15 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   (payload types only), `features/etymology/spec.md`. Not wired into `Application`; `etymology`
   stays an ignored/omitted channel (no `ChannelV1` edit). Wave-3 child: `{PaperWeight.Etymology.Service, []}`.
 
-### E2 [etymology] Drill-down screen (one state machine, 3 depths) - #17 - Ready
+### E2 [etymology] Drill-down screen (one state machine, 3 depths) - #17 - ✅ Done
 - **Goal**: build 2a/2b/2c as ONE screen with depth states — not three screens.
 - **Scope**: depth 0 = root-of-day + trace ladder (wheel scrolls stages); press digs into
   highlighted stage (depth 1, breadcrumb grows); bottom = dead-end reveal (depth 2); back walks
   breadcrumb up.
 - **Acceptance**: matches all three `etymology-*.png` states; back from depth 0 does nothing.
+- **Done**: PR #66 merged (CI green). One pure state machine + `EtymologyScreen` under
+  `src/device-ui/src/screens/etymology/`; 25 tests. Shell wire-up seam recorded in PR #66
+  for the W3-D follow-up; `etymology` channel still not in `ChannelV1` (fixture-only).
 
 ## Epic: design (remaining design work — can run anytime)
 
