@@ -187,7 +187,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Rebase onto merged P6-N is complete; local declarative Nix WIP packages/configures `input-bridge.service` for GPIO `event0` plus rotary `event1`.
 - Physical mapping is confirmed: wheel REL 6, press 28, presets 2–5, Back 1. Gen 4 SSE confirmed wheel/press/presets 2–4/Home/Back and exposed a pre-read timestamp bug.
 - The local candidate fixes post-read timing, per-device reconnect resets, and non-starvable hold deadlines; precise Nix source/artifact boundaries prevent needless rebuilds. All 23 tests + strict Clippy pass.
-- No final candidate is built yet; Weston and deployed bridge are active with `bridge=0`. Next: package-only physical/reconnect acceptance, remove the flag, then one final system deploy, CI, and closeout.
+- Package-only physical acceptance passed wheel/press/presets 1–4/Home/Back plus SSE reconnect; `bridge=0` is now removed locally. Next: one final system deploy, kiosk acceptance, CI, and closeout.
 
 ## Next Session Context Chunk (P8 — 2026-07-18)
 
