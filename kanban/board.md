@@ -19,8 +19,8 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105 |
-| **In progress** | W5 #109 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109 |
+| **In progress** | - |
 | **In review** | - |
 | **Ready** | - |
 | **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115 |
@@ -343,7 +343,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   refreshes to a fresh snapshot on-device.
 - **Acceptance**: both stale/error and recovery states are confirmed on-device against a real outage.
 
-### W5 [weather] Migrate Weather from NWS/OpenUV to Open-Meteo · #109 · In progress · P0
+### W5 [weather] Migrate Weather from NWS/OpenUV to Open-Meteo · #109 ✅ Done
 - **Goal**: remove the OpenUV credential requirement by using Open-Meteo as the live provider.
 - **Scope**: replace NWS/OpenUV parsing/fetching; preserve the frozen Weather snapshot and UI;
   remove `OPENUV_API_KEY` from the P7 runtime contract and docs.
@@ -351,6 +351,10 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   use the proven no-key request shape from local `newTab` where appropriate.
 - **Acceptance**: current conditions, 5/7-day forecast, UV/verdict, stale/reconnect behavior pass;
   startup requires only latitude/longitude; required `ci` green.
+- **Done**: PR #118 squash-merged; `host/lib/paper_weight/weather/{open_meteo,weather_code}.ex`
+  replace NWS/OpenUV parsing; `OPENUV_API_KEY` removed from runtime contract and `.env.example`;
+  frozen snapshot envelope and UV/verdict logic unchanged; required `ci` green; #109 closed
+  2026-07-19.
 
 ## Epic: playlist (screen 4c)
 
