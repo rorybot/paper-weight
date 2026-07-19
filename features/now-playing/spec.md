@@ -11,7 +11,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
-| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Backlog** (blocked by P7) |
+| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **In progress** (blocked by P7) |
 
 ## Ownership (only these paths)
 
@@ -180,3 +180,10 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - N4 #89 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
 - Own only Spotify paths; keep frozen `now_playing`/`playlist` envelopes and the no-play/pause rule.
 - Accept mocked token/failure recovery plus live metadata, playlists, and volume on the device.
+
+## Next Session Context Chunk — N4 (2026-07-19)
+
+- PR #96 rebased onto current `origin/master`; Spotify tests pass 56/56 and diff-check is clean.
+- P7 #85 remains open with Project Status Backlog, so no live activation or physical acceptance ran.
+- N4 #89 remains open and In progress; board mirror and this card table now match GitHub.
+- Resume only after P7 is Done: wire its runtime contract, use out-of-band credentials, validate device/reconnect, then close out.
