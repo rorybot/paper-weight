@@ -33,6 +33,11 @@ shell does not have that prefix — his working tree sits at the equivalent path
 anything outside the sandbox), strip the `/run/host` prefix first. A `/run/host/...` path handed
 to Rory points at a location that doesn't exist on his machine.
 
+Every command handed to Rory must also be self-contained: either begin with `cd` to the exact
+host-native working directory or use absolute host-native paths. Never assume his shell is still
+in the repository or the intended worktree. For worktree sessions, include the complete
+`.worktrees/<name>` path in the `cd`.
+
 ## Podman / Distrobox — preserve runtime wiring (mandatory)
 
 Normal use of the already-working container toolchain is allowed: repo build/test

@@ -230,8 +230,8 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 - #82 is In progress on `chore/p6i-cold-boot-integration`; the accepted P6-N generation is
   active on `172.16.42.2` with Weston and the frozen kiosk URL confirmed.
-- A manual fixture diagnostic passed UI `:8080`, gateway `:9138`, and an exact `800×480`
-  Chromium viewport; it is not cold-boot acceptance evidence.
+- A dev-environment fixture passed UI `:8080`, gateway `:9138`, exact `800×480`, and
+  owner-verified physical presets 1–4; final-host cold-boot acceptance remains open.
 - `host-service.sh install` ran inside Distrobox, but normal start returned
   `Unit paper-weight-host.service not found`; do not repair runtime wiring.
 - Rory clarified that this Archbox is not the eventual service host and `mix` intentionally lives

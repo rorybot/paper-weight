@@ -139,8 +139,8 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Scope**: finish `device-launch.md` operations; production-port checks; exact 800×480 evidence.
 - **Constraints**: integration/evidence only; fixture data only; no input bridge or live credentials.
 - **Acceptance**: host/device cold boot fullscreen; presets 1–4; status/reboot/rollback verified.
-- **Evidence**: 2026-07-18 production-fixture smoke passed all presets over USB; DevTools navigation
-  showed a Chrome frame, so fullscreen/cold-boot acceptance remains open.
+- **Evidence**: 2026-07-19 dev-environment fixture passed UI/gateway over USB, exact `800×480`,
+  and owner-verified physical presets 1–4. Final-host cold boot/reboot/rollback remains open.
 
 ### P7 [platform] Live-runtime contract · #85 · Backlog
 - **Goal**: one activation contract for live Weather, Feed, and Spotify.
