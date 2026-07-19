@@ -18,6 +18,45 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Functional style: pure functions, composition, immutability; small single-purpose modules.
 - Stack is decided in `docs/architecture/workflow-v1.md` (host Elixir + device Preact kiosk + evdev bridge).
 
+## Podman / Distrobox — preserve runtime wiring (mandatory)
+
+Normal use of the already-working container toolchain is allowed: repo build/test
+commands, native `podman` in the current shell, an already-functional
+`distrobox-host-exec podman ...`, and read-only `podman ps` / `distrobox list`.
+Do not ask merely to run those established paths.
+
+Never repair, replace, bridge, or reconfigure the host/container runtime from an
+agent session:
+- no `CONTAINERS_CONF*` / `CONTAINER_HOST`, custom `containers.conf`, helper-path
+  overrides, runtime wrappers/symlinks, or host-library injection;
+- no direct `/run/host/usr/bin/podman` fallback from inside Distrobox;
+- no touching/removing `pause.pid`, sockets, storage, `conmon`, `crun`, `netavark`,
+  `host-spawn`, or Distrobox plumbing;
+- no installing helpers, stopping/removing/recreating Distroboxes, or
+  `podman system reset`.
+
+If a normal invocation reports stale-pause removal, missing helpers, or
+host-exec status `126`/`127`, stop. Do not try alternate wiring or auto-install
+anything. Report the exact error and, when useful, hand Rory a host-native
+command with `/run/host` stripped from repo paths.
+
+Ask Rory first and wait for a clear yes only for an intentional engine or
+container lifecycle change not already requested by the active card.
+
+**Known limitation (P6-N #84):** even a working `distrobox-host-exec podman` cannot cross-build
+aarch64 here — rootless Podman gets a private `binfmt_misc` per container, so registering
+qemu-aarch64, even as real host root, never becomes visible to a nested build sandbox. Builds
+needing aarch64 emulation must run directly on the physical host, outside any container nesting.
+See `docs/architecture/device-nixos-kiosk.md` for the full writeup.
+
+## Host paths vs agent paths (mandatory)
+
+Agent sessions may see the machine through a Distrobox bind mount (`/run/host/...`). Rory's own
+shell does not have that prefix — his working tree sits at the equivalent path *without*
+`/run/host`. Before handing Rory any `cd` / command meant for his terminal (builds, deploys,
+anything outside the sandbox), strip the `/run/host` prefix first. A `/run/host/...` path handed
+to Rory points at a location that doesn't exist on his machine.
+
 ## Parallel lanes (weather / feed / spotify)
 - Playbook: `docs/architecture/parallel-lanes-v1.md`
 - Envelope (frozen): `docs/architecture/host-device-protocol-v1.md`
