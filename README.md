@@ -1,4 +1,4 @@
-# paper-weight — Car Thing custom app
+# paper-weight — A light deployment of fun widgets for my now-defunct CarThing, to make it... more than a paperweight!
 
 Custom UI for a reflashed Spotify Car Thing (800×480, wheel/buttons via evdev).  
 Aesthetic is locked BERG / Little Printer language — see `docs/design/carthing-context.md`.
