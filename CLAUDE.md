@@ -57,6 +57,14 @@ shell does not have that prefix — his working tree sits at the equivalent path
 anything outside the sandbox), strip the `/run/host` prefix first. A `/run/host/...` path handed
 to Rory points at a location that doesn't exist on his machine.
 
+Every command handed to Rory must also be self-contained: either begin with `cd` to the exact
+host-native working directory or use absolute host-native paths — never `~` or relative paths.
+Include the complete `.worktrees/<name>` path for worktree files, and **verify the file exists
+at the exact handed path before sending it** (`ls` the agent-side `/run/host` equivalent). A
+file merged to `master` is NOT reachable through a checkout sitting on another branch — if the
+session's worktree was removed after merge, materialize a fresh `origin/master` worktree and
+hand that path; do not delete a worktree Rory still needs to run something from.
+
 ## Parallel lanes (weather / feed / spotify)
 - Playbook: `docs/architecture/parallel-lanes-v1.md`
 - Envelope (frozen): `docs/architecture/host-device-protocol-v1.md`
