@@ -5,6 +5,9 @@ set -euo pipefail
 
 cd host
 
+echo "== mix deps.get =="
+mix deps.get
+
 # Format only the files this card touched — leaves pre-existing formatting
 # elsewhere untouched (some untouched files fail --check-formatted here,
 # which looks like a mix/Elixir version mismatch with CI, not real debt).
