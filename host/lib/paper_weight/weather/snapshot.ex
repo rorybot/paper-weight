@@ -3,7 +3,7 @@ defmodule PaperWeight.Weather.Snapshot do
   Pure assembly of WeatherSnapshotV1 maps (string keys for JSON shape).
   """
 
-  alias PaperWeight.Weather.{Grade, Nws, Verdict}
+  alias PaperWeight.Weather.{Grade, Verdict}
 
   @type day :: %{
           String.t() => term()
@@ -15,7 +15,7 @@ defmodule PaperWeight.Weather.Snapshot do
 
   @spec assemble(map()) :: t()
   def assemble(parts) do
-    days = parts |> Map.get(:days, []) |> Nws.finalize_days()
+    days = Map.get(parts, :days, [])
     days5 = Enum.take(days, 5)
     days7 = pad_days(days, 7)
 

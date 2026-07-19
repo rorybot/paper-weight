@@ -9,7 +9,6 @@ defmodule PaperWeight.Weather.FetchTest do
   defp fixture(name), do: File.read!(Path.join(@fixture_dir, name))
 
   defp mock_http(opts \\ []) do
-    fail_forecast? = Keyword.get(opts, :fail_forecast, false)
     fail_all? = Keyword.get(opts, :fail_all, false)
 
     fn url, headers ->
@@ -17,23 +16,9 @@ defmodule PaperWeight.Weather.FetchTest do
         fail_all? ->
           {:error, :econnrefused}
 
-        # Must check gridpoints before /points/ — "gridpoints" contains "points".
-        String.contains?(url, "gridpoints") and fail_forecast? ->
-          {:error, :timeout}
-
-        String.contains?(url, "gridpoints") ->
-          {:ok, fixture("nws_forecast.json")}
-
-        String.contains?(url, "/points/") ->
+        String.contains?(url, "api.open-meteo.com") ->
           assert_header(headers, "User-Agent")
-          {:ok, fixture("nws_points.json")}
-
-        String.contains?(url, "openuv") and String.contains?(url, "/uv") ->
-          assert_header(headers, "x-access-token")
-          {:ok, fixture("openuv_uv.json")}
-
-        String.contains?(url, "openuv") and String.contains?(url, "forecast") ->
-          {:ok, fixture("openuv_forecast.json")}
+          {:ok, fixture("open_meteo_forecast.json")}
 
         true ->
           {:error, {:unexpected_url, url}}
@@ -46,13 +31,11 @@ defmodule PaperWeight.Weather.FetchTest do
            "missing header #{name}"
   end
 
-  test "fetch_snapshot assembles full snapshot from mocked NWS + OpenUV" do
+  test "fetch_snapshot assembles full snapshot from mocked Open-Meteo response" do
     config =
       Config.new(
-        openuv_api_key: "test-key",
-        nws_points_url: "https://api.weather.gov/points/0,0",
-        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
-        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
+        location_label: "Exampleville, EX",
+        open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0"
       )
 
     assert {:ok, snap} = Fetch.fetch_snapshot(config, mock_http())
@@ -64,7 +47,7 @@ defmodule PaperWeight.Weather.FetchTest do
     assert snap["location_label"] == "Exampleville, EX"
     assert snap["stale"] == false
     assert snap["current"]["temp_f"] == 88
-    assert snap["current"]["summary"] == "Sunny"
+    assert snap["current"]["summary"] == "Clear"
     assert snap["uv"]["index"] == 9.2
     assert snap["uv"]["grade"] == "extreme"
     assert length(snap["days5"]) == 5
@@ -77,93 +60,35 @@ defmodule PaperWeight.Weather.FetchTest do
   test "public Weather.fetch_snapshot/2 uses injected client" do
     assert {:ok, snap} =
              Weather.fetch_snapshot(
-               [
-                 openuv_api_key: "k",
-                 nws_points_url: "https://api.weather.gov/points/1,2",
-                 openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
-                 openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
-               ],
+               [open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=1&longitude=2"],
                mock_http()
              )
 
     assert snap["uv"]["grade"] == "extreme"
   end
 
-  test "NWS failure surfaces as error" do
+  test "network failure surfaces as error" do
     config =
-      Config.new(
-        openuv_api_key: "k",
-        nws_points_url: "https://api.weather.gov/points/1,2"
-      )
+      Config.new(open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=1&longitude=2")
 
     assert {:error, _} = Fetch.fetch_snapshot(config, mock_http(fail_all: true))
   end
 
-  test "NWS forecast failure (after points succeeds) surfaces as error" do
+  test "malformed (non-JSON) response surfaces as error, not a partial snapshot" do
     config =
-      Config.new(
-        openuv_api_key: "k",
-        nws_points_url: "https://api.weather.gov/points/1,2"
-      )
+      Config.new(open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=1&longitude=2")
 
-    assert {:error, _} = Fetch.fetch_snapshot(config, mock_http(fail_forecast: true))
-  end
-
-  test "OpenUV failure surfaces as error even when NWS succeeds" do
-    config =
-      Config.new(
-        openuv_api_key: "test-key",
-        nws_points_url: "https://api.weather.gov/points/0,0",
-        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
-        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
-      )
-
-    openuv_failing_http = fn url, headers ->
-      if String.contains?(url, "openuv") do
-        {:error, :econnrefused}
-      else
-        mock_http().(url, headers)
-      end
-    end
-
-    assert {:error, _} = Fetch.fetch_snapshot(config, openuv_failing_http)
-  end
-
-  test "malformed (non-JSON) NWS response surfaces as error, not a partial snapshot" do
-    config =
-      Config.new(
-        openuv_api_key: "k",
-        nws_points_url: "https://api.weather.gov/points/1,2"
-      )
-
-    malformed_http = fn url, _headers ->
-      if String.contains?(url, "/points/") do
-        {:ok, "not json"}
-      else
-        {:error, {:unexpected_url, url}}
-      end
-    end
+    malformed_http = fn _url, _headers -> {:ok, "not json"} end
 
     assert {:error, _} = Fetch.fetch_snapshot(config, malformed_http)
   end
 
-  test "malformed (non-JSON) OpenUV response surfaces as error, not a partial snapshot" do
+  test "well-formed JSON missing required forecast fields surfaces as error" do
     config =
-      Config.new(
-        openuv_api_key: "test-key",
-        nws_points_url: "https://api.weather.gov/points/0,0",
-        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
-        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
-      )
+      Config.new(open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=1&longitude=2")
 
-    malformed_uv_http = fn url, headers ->
-      if String.contains?(url, "openuv") and String.contains?(url, "/uv") do
-        {:ok, "not json"}
-      else
-        mock_http().(url, headers)
-      end
-    end
+    partial_http = fn _url, _headers -> {:ok, "{\"current\":{}}"} end
 
-    assert {:error, _} = Fetch.fetch_snapshot(config, malformed_uv_http)
+    assert {:error, _} = Fetch.fetch_snapshot(config, partial_http)
   end
 end

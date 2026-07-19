@@ -18,8 +18,7 @@ defmodule PaperWeight.ApplicationTest do
 
   @fake_weather_vars %{
     "WEATHER_LAT" => "0.0",
-    "WEATHER_LON" => "0.0",
-    "OPENUV_API_KEY" => "fake-openuv-key"
+    "WEATHER_LON" => "0.0"
   }
   @fake_spotify_vars %{
     "SPOTIFY_CLIENT_ID" => "fake-client-id",
@@ -121,7 +120,7 @@ defmodule PaperWeight.ApplicationTest do
 
     test "PAPER_WEIGHT_WEATHER_ENABLED=true with missing required vars raises naming them" do
       assert_raise ArgumentError,
-                   "weather enabled but missing required env vars: WEATHER_LAT, WEATHER_LON, OPENUV_API_KEY",
+                   "weather enabled but missing required env vars: WEATHER_LAT, WEATHER_LON",
                    fn ->
                      App.resolve_config(getenv(%{"PAPER_WEIGHT_WEATHER_ENABLED" => "true"}))
                    end

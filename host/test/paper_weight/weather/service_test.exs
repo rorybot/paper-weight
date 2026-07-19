@@ -9,18 +9,10 @@ defmodule PaperWeight.Weather.ServiceTest do
 
   defp good_http do
     fn url, _headers ->
-      cond do
-        # gridpoints before /points/ — substring "points" matches both.
-        String.contains?(url, "gridpoints") -> {:ok, fixture("nws_forecast.json")}
-        String.contains?(url, "/points/") -> {:ok, fixture("nws_points.json")}
-        String.contains?(url, "openuv") and String.contains?(url, "/uv") ->
-          {:ok, fixture("openuv_uv.json")}
-
-        String.contains?(url, "openuv") and String.contains?(url, "forecast") ->
-          {:ok, fixture("openuv_forecast.json")}
-
-        true ->
-          {:error, {:unexpected_url, url}}
+      if String.contains?(url, "api.open-meteo.com") do
+        {:ok, fixture("open_meteo_forecast.json")}
+      else
+        {:error, {:unexpected_url, url}}
       end
     end
   end
@@ -36,10 +28,8 @@ defmodule PaperWeight.Weather.ServiceTest do
          http_get: http_get,
          auto_refresh: false,
          refresh_ms: :infinity,
-         openuv_api_key: "test-key",
-         nws_points_url: "https://api.weather.gov/points/0,0",
-         openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
-         openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
+         location_label: "Exampleville, EX",
+         open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0"
        ]}
     )
   end
@@ -58,10 +48,8 @@ defmodule PaperWeight.Weather.ServiceTest do
         http_get: good_http(),
         auto_refresh: false,
         refresh_ms: :infinity,
-        openuv_api_key: "test-key",
-        nws_points_url: "https://api.weather.gov/points/0,0",
-        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
-        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
+        location_label: "Exampleville, EX",
+        open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0"
       ])
 
     assert {:ok, fresh} = Service.get_snapshot(pid)

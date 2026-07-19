@@ -1,33 +1,28 @@
 defmodule PaperWeight.Weather.Fetch do
   @moduledoc """
-  Impure edge: HTTP fetch of NWS + OpenUV into a WeatherSnapshotV1 map.
+  Impure edge: single HTTP fetch of Open-Meteo forecast data into a WeatherSnapshotV1 map.
 
   HTTP is injected as `http_get.(url, headers) -> {:ok, body_binary} | {:error, reason}`
-  so tests never hit the network.
+  so tests never hit the network. No API key is required.
   """
 
-  alias PaperWeight.Weather.{Config, Nws, OpenUv, Snapshot}
+  alias PaperWeight.Weather.{Config, OpenMeteo, Snapshot}
 
   @type http_get :: (String.t(), [{String.t(), String.t()}] -> {:ok, binary()} | {:error, term()})
 
   @spec fetch_snapshot(Config.t(), http_get()) :: {:ok, Snapshot.t()} | {:error, term()}
   def fetch_snapshot(config, http_get) when is_function(http_get, 2) do
-    with {:ok, points_body} <- get_json(http_get, Config.points_url(config), nws_headers(config)),
-         {:ok, points} <- decode(points_body),
-         {:ok, %{location_label: nws_label, forecast_url: forecast_url}} <- Nws.parse_points(points),
-         {:ok, forecast_body} <- get_json(http_get, forecast_url, nws_headers(config)),
-         {:ok, forecast} <- decode(forecast_body),
-         {:ok, %{current: current, days: days}} <- Nws.parse_forecast(forecast),
-         {:ok, uv_index, hourly} <- fetch_uv(config, http_get) do
-      location = nws_label || config.location_label
-
+    with {:ok, body} <- get_json(http_get, Config.open_meteo_url(config), headers(config)),
+         {:ok, forecast} <- decode(body),
+         {:ok, %{current: current, days: days, uv_index: uv_index, hourly_uv: hourly_uv}} <-
+           OpenMeteo.parse(forecast) do
       snapshot =
         Snapshot.assemble(%{
-          location_label: location,
+          location_label: config.location_label,
           current: current,
           days: days,
           uv_index: uv_index,
-          hourly_uv: hourly,
+          hourly_uv: hourly_uv,
           stale: false
         })
 
@@ -74,46 +69,8 @@ defmodule PaperWeight.Weather.Fetch do
     end
   end
 
-  defp fetch_uv(config, http_get) do
-    key = config.openuv_api_key
-
-    if is_binary(key) and key != "" do
-      headers = [{"x-access-token", key}, {"content-type", "application/json"}]
-
-      with {:ok, uv_body} <- get_json(http_get, Config.openuv_uv_url(config), headers),
-           {:ok, uv_json} <- decode(uv_body),
-           {:ok, %{index: index}} <- OpenUv.parse_uv(uv_json) do
-        hourly =
-          case get_json(http_get, Config.openuv_forecast_url(config), headers) do
-            {:ok, fbody} ->
-              case decode(fbody) do
-                {:ok, fjson} ->
-                  case OpenUv.parse_forecast(fjson) do
-                    {:ok, hours} -> hours
-                    _ -> []
-                  end
-
-                _ ->
-                  []
-              end
-
-            _ ->
-              []
-          end
-
-        {:ok, index, hourly}
-      end
-    else
-      # No key: still produce a valid snapshot with UV 0 / empty hourly (tests inject key + mock).
-      {:ok, 0.0, []}
-    end
-  end
-
-  defp nws_headers(config) do
-    [
-      {"User-Agent", config.user_agent},
-      {"Accept", "application/geo+json"}
-    ]
+  defp headers(config) do
+    [{"User-Agent", config.user_agent}]
   end
 
   defp get_json(http_get, url, headers) do
@@ -137,9 +94,6 @@ defmodule PaperWeight.Weather.Fetch do
         e -> {:error, {:json_decode, e}}
       end
     else
-      # Tests pass pre-validated fixture binaries; use :erlang.binary_to_term only if tagged —
-      # otherwise require Jason-less path via Jason not available: use Code.string_to_quoted? No.
-      # Use a tiny pure decoder for object JSON used in fixtures.
       PaperWeight.Weather.JsonLite.decode(body)
     end
   end

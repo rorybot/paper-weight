@@ -13,7 +13,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **Done** |
 | W4-1 | [#114](https://github.com/rorybot/paper-weight/issues/114) | Wheel does not toggle 5-day/7-day on physical device | **Backlog** |
 | W4-2 | [#115](https://github.com/rorybot/paper-weight/issues/115) | Verify stale/recovery on real physical-device network outage | **Backlog** |
-| W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | **Ready** (Priority P0) |
+| W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | **In progress** (Priority P0) |
 
 ## Ownership (only these paths)
 
@@ -36,7 +36,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 ```ts
 /** Host → device payload for channel "weather" */
 type WeatherSnapshotV1 = {
-  location_label: string;       // display only; from NWS or WEATHER_LOCATION_LABEL
+  location_label: string;       // display only; from WEATHER_LOCATION_LABEL (Open-Meteo has no place name)
   as_of: string;                // ISO-8601
   stale: boolean;
   current: {
@@ -114,6 +114,13 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 - [x] UV band shows extreme / high / low correctly
 - [x] No shell edits
 
+### W5
+- [ ] Host service fetches Open-Meteo current/hourly/daily instead of NWS/OpenUV
+- [ ] `WeatherSnapshotV1` envelope unchanged; current/forecast/UV grade/walk verdict behavior preserved
+- [ ] `OPENUV_API_KEY` removed from P7 runtime validation, `.env.example`, and live-runtime docs
+- [ ] Mocked malformed-response, stale-cache, network-loss, recovery tests pass
+- [ ] Required `ci` green; card/issue/spec/kanban closeout synchronized
+
 ## Deps request
 
 _(lane agents append here; do not edit mix.exs)_
@@ -182,3 +189,34 @@ _(lane agents append here; do not edit mix.exs)_
 - W5 #109 (Open-Meteo migration, Ready/P0) would remove the `OPENUV_API_KEY` requirement
   entirely — worth doing before re-attempting #115, since it changes what "stale/error" even
   means for this lane.
+
+## Next Session Context Chunk — W5 (2026-07-19)
+
+- Replaced `PaperWeight.Weather.Nws` + `PaperWeight.Weather.OpenUv` with one pure parser,
+  `PaperWeight.Weather.OpenMeteo`, plus `PaperWeight.Weather.WeatherCode` (WMO `weather_code` →
+  short summary text). `Config.open_meteo_url/1` builds a single no-key request:
+  `current=temperature_2m,weather_code,uv_index`, `daily=weather_code,temperature_2m_max,temperature_2m_min`,
+  `hourly=uv_index`, `temperature_unit=fahrenheit`, `timezone=auto`, `forecast_days=7`.
+- `Fetch.fetch_snapshot/2` is now one HTTP round-trip (was points→forecast NWS calls plus a
+  separate OpenUV uv+forecast pair). `uv.index` now comes from Open-Meteo's `current.uv_index`
+  (an actual "now" value) rather than OpenUV's separate `/uv` endpoint; grading/verdict logic
+  (`Grade`, `Verdict`) is untouched.
+- `Snapshot.assemble/1` no longer calls `Nws.finalize_days/1` — Open-Meteo's `daily` block always
+  has both high and low per day, so the NWS-specific gap-fill logic was dead weight for this
+  provider; `pad_days/2` (7-day padding when short) is unchanged and provider-agnostic.
+- `location_label` now comes from `WEATHER_LOCATION_LABEL` only — Open-Meteo's forecast endpoint
+  has no reverse-geocoded place name (NWS's `relativeLocation` is gone). `WeatherSnapshotV1` itself
+  is unchanged; this is a comment-only note in the payload contract.
+- Removed `OPENUV_API_KEY` from `PaperWeight.RuntimeContract` (`weather` required-var list is now
+  just `WEATHER_LAT`/`WEATHER_LON`), `.env.example`, and `docs/architecture/live-runtime-contract-v1.md`
+  (table + example ArgumentError message); updated `runtime_contract_test.exs` and
+  `application_test.exs` to match. `application.ex` itself untouched — it only reads
+  `RuntimeContract.missing_vars/2`.
+- Deleted `nws.ex`/`open_uv.ex` + their tests/fixtures; added `open_meteo_test.exs` +
+  `fixtures/open_meteo_forecast.json` (7 days, 6 hourly UV points); rewrote `fetch_test.exs` and
+  `service_test.exs` mocks around the single Open-Meteo URL. `snapshot_test.exs`/`grade_test.exs`/
+  `verdict_test.exs` needed no changes (already provider-agnostic day maps).
+- Not yet run in this session: `mix test` (agent shell doesn't run mix per project convention —
+  hand Rory `cd ~/repos/paper-weight/.claude/worktrees/w5-openmeteo-109/host && mix test`).
+  Resume: get his test results, fix any fallout, then PR + `ci` + physical/live acceptance +
+  Done closeout (project Status, issue close, this table, `kanban/board.md`).

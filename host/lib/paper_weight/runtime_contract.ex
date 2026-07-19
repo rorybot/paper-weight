@@ -9,7 +9,7 @@ defmodule PaperWeight.RuntimeContract do
   """
 
   @required_vars %{
-    weather: ~w(WEATHER_LAT WEATHER_LON OPENUV_API_KEY),
+    weather: ~w(WEATHER_LAT WEATHER_LON),
     spotify: ~w(SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_SECRET SPOTIFY_REFRESH_TOKEN),
     feed: ~w(PAPER_WEIGHT_FEED_HANDLES PAPER_WEIGHT_FEED_LIST_ID PAPER_WEIGHT_FEED_API_TOKEN)
   }

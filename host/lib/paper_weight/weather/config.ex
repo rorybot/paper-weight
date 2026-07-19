@@ -4,12 +4,12 @@ defmodule PaperWeight.Weather.Config do
 
   Location is **not** hardcoded. Set opts or environment:
 
-  - `WEATHER_LAT` / `WEATHER_LON` — required for live NWS/OpenUV URL build
-  - `WEATHER_LOCATION_LABEL` — optional display label (default `"local"`)
-  - `OPENUV_API_KEY` — OpenUV key
-  - `WEATHER_USER_AGENT` — NWS requires a descriptive User-Agent
+  - `WEATHER_LAT` / `WEATHER_LON` — required to build the Open-Meteo forecast URL
+  - `WEATHER_LOCATION_LABEL` — optional display label (default `"local"`); Open-Meteo's
+    forecast endpoint does not return a place name, so this is the only source
+  - `WEATHER_USER_AGENT` — descriptive User-Agent sent with the request
 
-  Tests should pass explicit `nws_points_url` / OpenUV URLs or test coords.
+  No API key is required. Tests should pass an explicit `open_meteo_url` or test coords.
   """
 
   @type t :: %{
@@ -18,10 +18,7 @@ defmodule PaperWeight.Weather.Config do
           location_label: String.t(),
           refresh_ms: pos_integer(),
           user_agent: String.t(),
-          openuv_api_key: String.t() | nil,
-          nws_points_url: String.t() | nil,
-          openuv_uv_url: String.t() | nil,
-          openuv_forecast_url: String.t() | nil
+          open_meteo_url: String.t() | nil
         }
 
   @default_refresh_ms 15 * 60 * 1000
@@ -42,47 +39,32 @@ defmodule PaperWeight.Weather.Config do
         Keyword.get(opts, :user_agent) ||
           System.get_env("WEATHER_USER_AGENT") ||
           @default_ua,
-      openuv_api_key: Keyword.get(opts, :openuv_api_key, System.get_env("OPENUV_API_KEY")),
-      nws_points_url: Keyword.get(opts, :nws_points_url),
-      openuv_uv_url: Keyword.get(opts, :openuv_uv_url),
-      openuv_forecast_url: Keyword.get(opts, :openuv_forecast_url)
+      open_meteo_url: Keyword.get(opts, :open_meteo_url)
     }
   end
 
-  @spec points_url(t()) :: String.t()
-  def points_url(%{nws_points_url: url}) when is_binary(url), do: url
+  @spec open_meteo_url(t()) :: String.t()
+  def open_meteo_url(%{open_meteo_url: url}) when is_binary(url), do: url
 
-  def points_url(%{lat: lat, lon: lon}) when is_number(lat) and is_number(lon) do
-    "https://api.weather.gov/points/#{lat},#{lon}"
+  def open_meteo_url(%{lat: lat, lon: lon}) when is_number(lat) and is_number(lon) do
+    query =
+      URI.encode_query(%{
+        "latitude" => lat,
+        "longitude" => lon,
+        "current" => "temperature_2m,weather_code,uv_index",
+        "daily" => "weather_code,temperature_2m_max,temperature_2m_min",
+        "hourly" => "uv_index",
+        "temperature_unit" => "fahrenheit",
+        "timezone" => "auto",
+        "forecast_days" => "7"
+      })
+
+    "https://api.open-meteo.com/v1/forecast?#{query}"
   end
 
-  def points_url(_config) do
+  def open_meteo_url(_config) do
     raise ArgumentError,
-          "weather location missing: set WEATHER_LAT + WEATHER_LON or pass :nws_points_url"
-  end
-
-  @spec openuv_uv_url(t()) :: String.t()
-  def openuv_uv_url(%{openuv_uv_url: url}) when is_binary(url), do: url
-
-  def openuv_uv_url(%{lat: lat, lon: lon}) when is_number(lat) and is_number(lon) do
-    "https://api.openuv.io/api/v1/uv?lat=#{lat}&lng=#{lon}"
-  end
-
-  def openuv_uv_url(_config) do
-    raise ArgumentError,
-          "weather location missing: set WEATHER_LAT + WEATHER_LON or pass :openuv_uv_url"
-  end
-
-  @spec openuv_forecast_url(t()) :: String.t()
-  def openuv_forecast_url(%{openuv_forecast_url: url}) when is_binary(url), do: url
-
-  def openuv_forecast_url(%{lat: lat, lon: lon}) when is_number(lat) and is_number(lon) do
-    "https://api.openuv.io/api/v1/forecast?lat=#{lat}&lng=#{lon}"
-  end
-
-  def openuv_forecast_url(_config) do
-    raise ArgumentError,
-          "weather location missing: set WEATHER_LAT + WEATHER_LON or pass :openuv_forecast_url"
+          "weather location missing: set WEATHER_LAT + WEATHER_LON or pass :open_meteo_url"
   end
 
   defp opt_float(opts, key, env_key) do
