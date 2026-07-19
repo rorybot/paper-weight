@@ -116,6 +116,8 @@ export const renderShellOverlay = (
 
 export interface ShellAppProps {
   readonly bridgeUrl?: string | null;
+  /** Host/dev fallback; production disables this so evdev events are not handled twice. */
+  readonly devKeyboardEnabled?: boolean;
   /** W3-D gateway seam: live channel-store state; omit → static fixtures. */
   readonly channelState?: ChannelStoreState;
   readonly initialScreen?: ScreenId;
@@ -135,6 +137,7 @@ export interface ShellAppProps {
 export const ShellApp = ({
   bridgeUrl = DEFAULT_BRIDGE_URL,
   channelState,
+  devKeyboardEnabled = true,
   initialScreen = "home",
   onCommands,
   onIntent,
@@ -182,6 +185,10 @@ export const ShellApp = ({
   };
 
   useEffect(() => {
+    if (!devKeyboardEnabled) {
+      return;
+    }
+
     const onKeyDown = (event: KeyboardEvent) => {
       const mapped = mapDevKeyboardEvent(event);
       if (mapped === null) {
@@ -193,7 +200,7 @@ export const ShellApp = ({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onCommands]);
+  }, [devKeyboardEnabled, onCommands]);
 
   useEffect(() => {
     if (bridgeUrl === null || typeof EventSource === "undefined") {

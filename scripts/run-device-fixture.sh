@@ -131,7 +131,7 @@ done
 printf 'Paper Weight fixture host ready\n'
 printf '  UI:      http://%s:%s/  (bound 0.0.0.0:%s)\n' "$UI_HOST" "$UI_PORT" "$UI_PORT"
 printf '  Gateway: ws://%s:%s/  (bound 0.0.0.0:%s)\n' "$UI_HOST" "$GATEWAY_PORT" "$GATEWAY_PORT"
-printf '  Kiosk:   http://%s:%s/?gateway=ws://%s:%s/\n' \
+printf '  Kiosk:   http://%s:%s/?keyboard=0&gateway=ws://%s:%s/\n' \
   "$UI_HOST" "$UI_PORT" "$UI_HOST" "$GATEWAY_PORT"
 printf 'Press Ctrl-C to stop both processes (or "systemctl --user stop paper-weight-host").\n'
 

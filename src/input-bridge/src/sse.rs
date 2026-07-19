@@ -15,6 +15,7 @@ const RESPONSE_HEADERS: &str = concat!(
 );
 const FORBIDDEN_RESPONSE: &str =
     "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+const KIOSK_ORIGIN: &str = "http://172.16.42.1:8080";
 
 pub fn serve(listener: TcpListener, bus: EventBus) -> io::Result<()> {
     for stream in listener.incoming() {
@@ -77,6 +78,7 @@ fn allowed_origin(request: &str) -> Result<Option<&str>, ()> {
     match origin {
         None => Ok(None),
         Some("null") => Ok(Some("null")),
+        Some(KIOSK_ORIGIN) => Ok(Some(KIOSK_ORIGIN)),
         Some(value) if is_loopback_origin(value) => Ok(Some(value)),
         Some(_) => Err(()),
     }
@@ -109,6 +111,10 @@ mod tests {
         assert_eq!(
             allowed_origin("GET /v1/events HTTP/1.1\r\nOrigin: http://127.0.0.1:4173\r\n\r\n"),
             Ok(Some("http://127.0.0.1:4173"))
+        );
+        assert_eq!(
+            allowed_origin("GET /v1/events HTTP/1.1\r\nOrigin: http://172.16.42.1:8080\r\n\r\n"),
+            Ok(Some("http://172.16.42.1:8080"))
         );
     }
 

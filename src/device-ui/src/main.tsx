@@ -30,6 +30,7 @@ if (!root) {
 const params = new URLSearchParams(window.location.search);
 const bridgeUrl =
   params.get("bridge") === "0" ? null : "http://127.0.0.1:9137/v1/events";
+const devKeyboardEnabled = params.get("keyboard") !== "0";
 
 // W3-D: ?gateway=ws://host:port/path feeds live envelopes into the channel
 // store and sends intents back; absent/invalid → fixture mode, unchanged.
@@ -47,6 +48,7 @@ const renderShell = (channelState: ChannelStoreState) => {
     <ShellApp
       bridgeUrl={bridgeUrl}
       channelState={channelState}
+      devKeyboardEnabled={devKeyboardEnabled}
       onIntent={gateway === null ? undefined : gateway.sendIntent}
     />,
     root,

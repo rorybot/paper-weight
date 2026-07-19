@@ -6,7 +6,7 @@ FLAKE_REF="path:/workdir?dir=device/nix"
 BUILDER_IMAGE="${PAPER_WEIGHT_NIX_BUILDER:-ghcr.io/joeyeamigh/nixos-superbird/builder:latest}"
 DEVICE_TARGET="${PAPER_WEIGHT_DEVICE_TARGET:-root@172.16.42.2}"
 SYSTEM_PROFILE="/nix/var/nix/profiles/system"
-EXPECTED_KIOSK_URL="http://172.16.42.1:8080/?gateway=ws://172.16.42.1:9138/"
+EXPECTED_KIOSK_URL="http://172.16.42.1:8080/?keyboard=0&gateway=ws://172.16.42.1:9138/"
 NIXBUILD_HOST="eu.nixbuild.net"
 NIXBUILD_HOST_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM"
 # Default key location (host path). Override with PAPER_WEIGHT_NIXBUILD_KEY.

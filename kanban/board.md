@@ -23,7 +23,7 @@ Status snapshot (2026-07-19, verified against remote project):
 | **In progress** | P8 #86 |
 | **In review** | - |
 | **Ready** | - |
-| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20; agent-instructions review #108 |
+| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -163,6 +163,19 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   remove `bridge=0` after acceptance.
 - **Constraints**: #82 is Done; no live-lane or frozen-envelope edits.
 - **Acceptance**: fmt/test/clippy, aarch64 build, physical events, boot service, and reconnect pass.
+
+### P6-N1 [platform] Hide kiosk pointer reliably · #111 · Backlog
+- **Goal**: remove the visible Chromium/Weston pointer from the production 800×480 kiosk.
+- **Scope**: identify pointer ownership; apply the smallest declarative fix; validate restart and boot.
+- **Constraints**: preserve host/dev browser and keyboard workflows; do not reopen P8.
+- **Acceptance**: no pointer on-device; relevant checks and physical validation pass.
+
+### P6-N2 [platform] Recover when host UI starts after device · #112 · Backlog
+- **Goal**: load the kiosk automatically when the host fixture becomes ready after device startup.
+- **Scope**: readiness/reload strategy covering late host startup and USB reconnect.
+- **Constraints**: no restart storm; preserve kiosk restart, rollback, and diagnosability.
+- **Acceptance**: late host and USB reconnect recover without SSH/manual service restart; cold-boot
+  physical validation passes.
 
 ### P9 [platform] Demo-appliance acceptance · #90 · Backlog
 - **Goal**: accept the unattended eventual-host appliance with live lanes and physical input.
