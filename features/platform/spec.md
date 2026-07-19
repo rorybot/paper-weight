@@ -18,7 +18,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Done** (closed, PR #102) |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Done** (closed, PR #106) |
-| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In progress** (P6-I Done, PR #98) |
+| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In review** (physical acceptance complete; PR #98) |
+| P6-N1 | [#111](https://github.com/rorybot/paper-weight/issues/111) | Hide kiosk pointer reliably | **Backlog** |
+| P6-N2 | [#112](https://github.com/rorybot/paper-weight/issues/112) | Recover when host UI starts after device | **Backlog** |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
 | W3-A | [#44](https://github.com/rorybot/paper-weight/issues/44) | Device shell screen map + channel store | **Done** (closed, PR #59) |
@@ -182,6 +184,20 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - P6-I unlocks P7 #85 and P8 #86; P7 unlocks parallel W4 #87, F3 #88, and N4 #89.
 - P9 #90 is the final gate. Nix builds use host Podman and preserve the previous generation.
 
+## Next Session Context Chunk (P8 — 2026-07-19)
+
+- Rebase onto merged P6-N is complete; local declarative Nix WIP packages/configures `input-bridge.service` for GPIO `event0` plus rotary `event1`.
+- Physical mapping is confirmed: wheel REL 6, press 28, presets 2–5, Back 1. Gen 4 SSE confirmed wheel/press/presets 2–4/Home/Back and exposed a pre-read timestamp bug.
+- The local candidate fixes post-read timing, per-device reconnect resets, and non-starvable hold deadlines; precise Nix source/artifact boundaries prevent needless rebuilds. All 23 tests + strict Clippy pass.
+- Package-only physical acceptance passed wheel/press/presets 1–4/Home/Back plus SSE reconnect; `bridge=0` is now removed locally. Next: one final system deploy, kiosk acceptance, CI, and closeout.
+
+## Next Session Context Chunk (P8 — 2026-07-18)
+
+- `src/input-bridge/src/device.rs` now retries evdev with 250ms–5s bounded backoff and resets held-key state across disconnects.
+- `bash scripts/check.sh` passed format, 17 musl tests, strict Clippy, and the aarch64 GNU all-target compile check.
+- Branch `feat/p8-device-input-bridge`, draft PR #98; issue #86 stays open with Project Status In progress.
+- Resume after P6-I/P6-N: rebase, add declarative service integration, deploy, remove `bridge=0`, run physical input/reconnect acceptance, final `ci`, and closeout sync.
+
 ## Next Session Context Chunk (P6-H — 2026-07-18)
 
 - `scripts/run-device-fixture.sh` now binds the UI and gateway to `0.0.0.0` instead of
@@ -266,3 +282,12 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   default preserved with no `.env`; fail-fast naming exactly `OPENUV_API_KEY` with lat/lon
   present; clean boot with all fake vars present) all passed via a throwaway verify script.
 - Unblocks parallel W4 #87, F3 #88, N4 #89 once merged.
+
+## Next Session Context Chunk (P8 acceptance — 2026-07-19)
+
+- Generation 6 deploys the aarch64 bridge service, exact kiosk-origin SSE access, and production
+  `keyboard=0`; both evdev devices, boot services, and loopback SSE are active.
+- Chromium needed a cache-bypassing reload to consume the rebuilt named-event listener.
+- Physical acceptance passed: preset 2 opened Weather and wheel rotation changed the forecast/range;
+  raw SSE also captured presets and repeated `wheel { ticks: 1 }` events.
+- Only required PR `ci`, merge, and GitHub/local status synchronization remain.

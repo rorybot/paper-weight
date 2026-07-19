@@ -20,10 +20,10 @@ Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85 |
-| **In progress** | P8 #86 |
-| **In review** | - |
+| **In progress** | - |
+| **In review** | P8 #86 |
 | **Ready** | - |
-| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
+| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -157,12 +157,25 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   boot checks (fixture default, fail-fast, success path) all passed. PR #106 squash-merged,
   required `ci` green, issue #85 closed. Unblocks W4 #87, F3 #88, N4 #89.
 
-### P8 [platform] Device input-bridge deployment · #86 · In progress
+### P8 [platform] Device input-bridge deployment · #86 · In review
 - **Goal**: package/supervise the Rust bridge on aarch64 and feed physical input through loopback SSE.
 - **Scope**: device package/service at `127.0.0.1:9137/v1/events`, evdev access, reconnect;
   remove `bridge=0` after acceptance.
 - **Constraints**: #82 is Done; no live-lane or frozen-envelope edits.
 - **Acceptance**: fmt/test/clippy, aarch64 build, physical events, boot service, and reconnect pass.
+
+### P6-N1 [platform] Hide kiosk pointer reliably · #111 · Backlog
+- **Goal**: remove the visible Chromium/Weston pointer from the production 800×480 kiosk.
+- **Scope**: identify pointer ownership; apply the smallest declarative fix; validate restart and boot.
+- **Constraints**: preserve host/dev browser and keyboard workflows; do not reopen P8.
+- **Acceptance**: no pointer on-device; relevant checks and physical validation pass.
+
+### P6-N2 [platform] Recover when host UI starts after device · #112 · Backlog
+- **Goal**: load the kiosk automatically when the host fixture becomes ready after device startup.
+- **Scope**: readiness/reload strategy covering late host startup and USB reconnect.
+- **Constraints**: no restart storm; preserve kiosk restart, rollback, and diagnosability.
+- **Acceptance**: late host and USB reconnect recover without SSH/manual service restart; cold-boot
+  physical validation passes.
 
 ### P9 [platform] Demo-appliance acceptance · #90 · Backlog
 - **Goal**: accept the unattended eventual-host appliance with live lanes and physical input.
@@ -170,6 +183,15 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: gate only; actual eventual host required; interactive dev fixture is insufficient.
 - **Acceptance**: unattended host services; exact 800×480 cold boot; post-boot health; live screens,
   playlist/volume input, degraded/reconnect states, screenshots, green `ci`.
+
+### Chore [process] Agent-instructions review and reusable template · #108 · Backlog
+- **Goal**: make the repository's agent instructions coherent, reliable, and reusable.
+- **Scope**: audit instruction sources, resolve duplication/conflicts, and extract a future-project
+  template with explicit customization points.
+- **Constraints**: documentation/process only; preserve project safety boundaries and call out any
+  proposed workflow behavior changes for owner review.
+- **Acceptance**: precedence and ownership are explicit, expensive-cycle lessons are integrated,
+  the reusable template is scenario-reviewed, and required `ci` passes.
 
 ### W3-P1 [platform] Protocol v1.1 — freeze playlist channel · #43 ✅ Done
 - **Goal**: make `playlist` a first-class host-to-device channel rather than a now-playing fixture.

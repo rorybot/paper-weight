@@ -40,10 +40,11 @@
           };
           modules = [
             nixos-superbird.nixosModules.superbird
+            ./input-bridge.nix
             (
               { ... }:
               {
-                superbird.gui.kiosk_url = "http://172.16.42.1:8080/?bridge=0&gateway=ws://172.16.42.1:9138/";
+                superbird.gui.kiosk_url = "http://172.16.42.1:8080/?keyboard=0&gateway=ws://172.16.42.1:9138/";
 
                 superbird.stateVersion = "0.2";
                 system.stateVersion = "24.11";

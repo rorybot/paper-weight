@@ -1,5 +1,5 @@
 import type { ComponentChildren } from "preact";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 
 import type { IntentV1 } from "../protocol/envelope";
 import type { NowPlayingSnapshotV1 } from "../protocol/now_playing";
@@ -116,6 +116,8 @@ export const renderShellOverlay = (
 
 export interface ShellAppProps {
   readonly bridgeUrl?: string | null;
+  /** Host/dev fallback; production disables this so evdev events are not handled twice. */
+  readonly devKeyboardEnabled?: boolean;
   /** W3-D gateway seam: live channel-store state; omit → static fixtures. */
   readonly channelState?: ChannelStoreState;
   readonly initialScreen?: ScreenId;
@@ -135,6 +137,7 @@ export interface ShellAppProps {
 export const ShellApp = ({
   bridgeUrl = DEFAULT_BRIDGE_URL,
   channelState,
+  devKeyboardEnabled = true,
   initialScreen = "home",
   onCommands,
   onIntent,
@@ -182,6 +185,10 @@ export const ShellApp = ({
   };
 
   useEffect(() => {
+    if (!devKeyboardEnabled) {
+      return;
+    }
+
     const onKeyDown = (event: KeyboardEvent) => {
       const mapped = mapDevKeyboardEvent(event);
       if (mapped === null) {
@@ -193,9 +200,9 @@ export const ShellApp = ({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onCommands]);
+  }, [devKeyboardEnabled, onCommands]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (bridgeUrl === null || typeof EventSource === "undefined") {
       return;
     }
@@ -207,14 +214,18 @@ export const ShellApp = ({
       return;
     }
 
-    source.onmessage = (message) => {
+    const onInput = (message: MessageEvent<string>) => {
       const input = bridgePayloadToShellInput(message.data);
       if (input !== null) {
         dispatch([input]);
       }
     };
+    source.addEventListener("input", onInput);
 
-    return () => source.close();
+    return () => {
+      source.removeEventListener("input", onInput);
+      source.close();
+    };
   }, [bridgeUrl, onCommands]);
 
   const renderScreen = (screen: ScreenId) => {

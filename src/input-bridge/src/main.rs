@@ -2,6 +2,7 @@ use std::{
     env,
     fs::File,
     net::TcpListener,
+    ops::ControlFlow,
     process::ExitCode,
     sync::mpsc::{self, RecvTimeoutError},
     thread,
@@ -11,10 +12,12 @@ use std::{
 use paper_weight_input_bridge::{
     bus::EventBus,
     config::BridgeConfig,
-    linux::read_raw_input,
-    reducer::{RawInput, State, reduce},
+    device::{reconnecting_read_loop, DeviceId, DeviceUpdate, ReconnectPolicy},
+    processor::InputProcessor,
     sse,
 };
+
+const TICK_INTERVAL: Duration = Duration::from_millis(10);
 
 fn main() -> ExitCode {
     match run() {
@@ -39,45 +42,51 @@ fn run() -> Result<(), String> {
         }
     });
 
-    let mut device = File::open(&config.device)
-        .map_err(|error| format!("could not open {}: {error}", config.device.display()))?;
     let started = Instant::now();
-    let (raw_sender, raw_receiver) = mpsc::channel::<Result<RawInput, String>>();
+    let (device_sender, device_receiver) = mpsc::channel::<DeviceUpdate>();
 
-    thread::spawn(move || {
-        loop {
-            let at_ms = started.elapsed().as_millis() as u64;
-            match read_raw_input(&mut device, at_ms) {
-                Ok(Some(raw)) => {
-                    if raw_sender.send(Ok(raw)).is_err() {
-                        return;
-                    }
-                }
-                Ok(None) => {}
-                Err(error) => {
-                    let _ = raw_sender.send(Err(format!("evdev read failed: {error}")));
-                    return;
-                }
-            }
-        }
-    });
+    for (device_index, device_path) in config.devices.into_iter().enumerate() {
+        let device_sender = device_sender.clone();
+        thread::spawn(move || {
+            reconnecting_read_loop(
+                DeviceId(device_index),
+                || File::open(&device_path),
+                || started.elapsed().as_millis() as u64,
+                |delay| {
+                    thread::sleep(delay);
+                    ControlFlow::Continue(())
+                },
+                |update| match device_sender.send(update) {
+                    Ok(()) => ControlFlow::Continue(()),
+                    Err(_) => ControlFlow::Break(()),
+                },
+                |error, delay| {
+                    eprintln!(
+                        "evdev {} unavailable: {error}; retrying in {}ms",
+                        device_path.display(),
+                        delay.as_millis()
+                    );
+                },
+                ReconnectPolicy::default(),
+            );
+        });
+    }
+    drop(device_sender);
 
-    let mut state = State::default();
+    let mut processor = InputProcessor::new(0, TICK_INTERVAL.as_millis() as u64);
     loop {
-        let raw = match raw_receiver.recv_timeout(Duration::from_millis(10)) {
-            Ok(Ok(raw)) => raw,
-            Ok(Err(error)) => return Err(error),
-            Err(RecvTimeoutError::Timeout) => RawInput::Tick {
-                at_ms: started.elapsed().as_millis() as u64,
-            },
+        let now_ms = started.elapsed().as_millis() as u64;
+        let wait = Duration::from_millis(processor.milliseconds_until_tick(now_ms));
+        let update = match device_receiver.recv_timeout(wait) {
+            Ok(update) => Some(update),
+            Err(RecvTimeoutError::Timeout) => None,
             Err(RecvTimeoutError::Disconnected) => {
                 return Err("evdev reader stopped unexpectedly".into());
             }
         };
 
-        let transition = reduce(state, raw, &config.bindings);
-        state = transition.state;
-        for event in transition.events {
+        let now_ms = started.elapsed().as_millis() as u64;
+        for event in processor.process(update, now_ms, &config.bindings) {
             bus.publish(event);
         }
     }

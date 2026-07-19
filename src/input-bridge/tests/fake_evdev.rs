@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use paper_weight_input_bridge::{
     event::InputEvent,
-    reducer::{Action, Bindings, KeyState, RawInput, State, reduce_all},
+    reducer::{reduce_all, Action, Bindings, KeyState, RawInput, State},
 };
 
 const WHEEL_REL: u16 = 8;
@@ -86,6 +86,32 @@ fn configurable_hold_threshold_changes_short_press_vs_home() {
 
     assert_eq!(short_threshold.events, [InputEvent::Home]);
     assert_eq!(long_threshold.events, [InputEvent::Preset { number: 3 }]);
+}
+
+#[test]
+fn every_preset_short_press_keeps_its_configured_number() {
+    let feed = [
+        key(PRESET_1, KeyState::Pressed, 0),
+        key(PRESET_1, KeyState::Released, 40),
+        key(PRESET_2, KeyState::Pressed, 100),
+        key(PRESET_2, KeyState::Released, 140),
+        key(PRESET_3, KeyState::Pressed, 200),
+        key(PRESET_3, KeyState::Released, 240),
+        key(PRESET_4, KeyState::Pressed, 300),
+        key(PRESET_4, KeyState::Released, 340),
+    ];
+
+    let output = reduce_all(State::default(), feed, &bindings(650));
+
+    assert_eq!(
+        output.events,
+        [
+            InputEvent::Preset { number: 1 },
+            InputEvent::Preset { number: 2 },
+            InputEvent::Preset { number: 3 },
+            InputEvent::Preset { number: 4 },
+        ]
+    );
 }
 
 #[test]

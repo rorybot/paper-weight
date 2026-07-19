@@ -14,6 +14,62 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
   Summarize tool/API outputs instead of pasting them.
 - End major work by appending a 3–5 line "Next Session Context Chunk" to the feature's spec.md.
 
+## MVP-first planning (mandatory)
+
+- Every new milestone or multi-card plan must name a **First Visible Slice** before creating its
+  supporting cards. Its acceptance must be something Rory can see or operate in the real target
+  environment; tests, services, protocols, and successful builds alone are not a visible slice.
+- The First Visible Slice must be deliverable within the first two cards of the milestone. If it
+  would sit behind three or more prerequisite cards, stop and redesign the plan vertically or get
+  Rory's explicit approval for that dependency depth.
+- Fixture data, manual launch commands, disabled unfinished integrations, and temporary diagnostic
+  controls are valid for the First Visible Slice unless Rory explicitly requires production data,
+  cold boot, or final hardware interaction. Do not silently redefine MVP to include polish,
+  automation, live credentials, reconnect behavior, or production deployment.
+- After completing one card whose acceptance is not user-visible, the next completed card must
+  produce or improve the visible target-device slice. Starting another invisible prerequisite
+  requires Rory's explicit approval and a written explanation of why the visible slice cannot
+  proceed first.
+- When Rory states a near-term demo goal (for example, "one working screen tonight"), that outcome
+  becomes the active planning gate. Preserve unrelated WIP safely, but do not start or continue
+  infrastructure work that is not required for that exact demo until the demo is accepted or Rory
+  explicitly changes priority.
+- Before implementation begins, publish a **Vertical-slice check** containing:
+  - the exact first screen/action Rory will see;
+  - the smallest fixture/manual path that can produce it;
+  - the cards and expensive operations that truly block it;
+  - the features intentionally deferred until after the visible slice.
+- At every pre-MVP card closeout, state the exact visible blocker removed and the next command/card
+  that advances the First Visible Slice. If no direct visible blocker was removed, the card was
+  mis-prioritized and the remaining plan must be re-reviewed before more work starts.
+
+## Ticket sizing and expensive hardware work (mandatory)
+
+- One card must have one primary deliverable and one acceptance boundary. Ordinary implementation
+  plus its unit tests may stay together; independently failing discovery, integration, physical
+  acceptance, and release steps may not be hidden inside one "deployment" card.
+- Split hardware/device work into dependent cards when it spans these phases:
+  1. device discovery and physical mapping (read-only probes);
+  2. package/service implementation (unit tests and package-only build);
+  3. candidate installation and physical/reconnect acceptance;
+  4. production enablement (feature-flag removal and final system deploy).
+- Before moving a proposed card to Ready, identify its slow lifecycle operations: remote builds,
+  full system/image builds, flashes, deploys, reboots, and destructive migrations. If the card is
+  expected to require more than one full build/deploy cycle, split it or get Rory's explicit
+  approval for the exception.
+- Before the first slow lifecycle operation, publish a **Cycle budget**: the exact expensive
+  commands expected, what evidence must exist before each command, and its abort conditions.
+  Do not give a duration estimate without measurements from the same current execution path.
+- Finish discovery before building. Never run a full system build with provisional device paths,
+  numeric mappings, credentials, URLs, or acceptance behavior. Prefer read-only probes,
+  fake-device tests, and package-only candidate builds before assembling an image.
+- Treat commands by behavior, not by name. If `deploy` performs a build, do not schedule a
+  separate `build` unless its output is proven reusable. An ephemeral builder store means a prior
+  standalone build is validation evidence, not a cache for deployment.
+- If independent acceptance boundaries emerge after work starts, stop before the next slow
+  operation, preserve the current WIP, and propose the new cards/dependency order to Rory. Create
+  or re-scope GitHub cards only after approval; do not silently absorb the extra scope.
+
 ## Code rules
 - Functional style: pure functions, composition, immutability; small single-purpose modules.
 - Stack is decided in `docs/architecture/workflow-v1.md` (host Elixir + device Preact kiosk + evdev bridge).
@@ -28,6 +84,23 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
   credentials). Reuse compatible patterns and interfaces, never secret values.
 - Card ownership and frozen contracts still win. Record the reused project/module in the active
   card or feature spec, or note briefly why the existing implementation was not compatible.
+
+## Launchers and dependency preflight (mandatory)
+
+- A canonical launcher must own dependency readiness for every stack it starts. Check/bootstrap
+  missing dependencies before starting any child process or opening any listener; do not expose a
+  briefly healthy UI port and then tear it down because a second process failed.
+- Run dependency commands from the directory containing their manifest (`host/mix.exs`,
+  `src/device-ui/package.json`, etc.). Before handing Rory a recovery command, inspect the launcher
+  and give the exact `cd` plus command instead of assuming the repository root is a project root.
+- A skip-build flag skips compilation only. It must not skip dependency checks, configuration
+  validation, required artifact checks, or other startup preconditions.
+- Prefer one idempotent launcher over a sequence of undocumented manual setup commands. A clean
+  checkout with toolchains installed should either become ready from that command or fail before
+  side effects with one precise corrective error.
+- When Rory identifies a valid intended recovery (for example `mix deps.get`), verify its required
+  context and help execute that path. Do not replace it with a different workflow merely because
+  another path could also work.
 
 ## Parallel lanes (weather / feed / spotify)
 - Playbook: `docs/architecture/parallel-lanes-v1.md`
