@@ -24,7 +24,6 @@ Status snapshot (2026-07-18, verified against remote project):
 | **In review** | - |
 | **Ready** | - |
 | **Backlog** | P6-I #82; P7 #85; P8 #86; W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
-| **Backlog** | P7 #85; P8 #86; W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -132,7 +131,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   nixbuild.net remote builder). Doc: `docs/architecture/device-nixos-kiosk.md`. Physically
   verified on `172.16.42.2`: deploy landed generation 2, survived a real `systemctl reboot`
   (Weston active, production URL, Home screen confirmed on-device), rollback to generation 1
-  and return to generation 2 both confirmed; generation 1 retained throughout. PR pending merge,
+  and return to generation 2 both confirmed; generation 1 retained throughout. PR #100 merged,
   issue #84 closed.
 
 ### P6-I [platform] Cold-boot integration · #82 · Backlog
