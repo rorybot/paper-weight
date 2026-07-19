@@ -11,7 +11,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
-| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **In progress** |
+| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 
 ## Ownership (only these paths)
 
@@ -194,3 +194,13 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Spotify tests pass 56/56 and the full host suite passes 191/191; Car Thing `172.16.42.2` is reachable.
 - No ignored `.env` or exported Spotify credentials are present; the host user manager still loads the old P6-I unit.
 - Resume with out-of-band credentials and a host-native P7 unit install, then run physical live/failure/reconnect acceptance.
+
+## Next Session Context Chunk — N4 (2026-07-19, closed)
+
+- Physical acceptance passed: live metadata + 50 real playlists on device; scripted ethernet-outage
+  drill confirmed stale=true frozen snapshot then gen 1670→1688 fresh recovery (`.n4-drill.log`).
+- Waived/deferred: playlist *selection* (no shell-router path reaches PlaylistScreen — presets 1–4
+  only; needs a future shell card) and wheel volume (kiosk runs `bridge=0`; P8 owns input).
+- Known quirks: stale flag only reaches *new* WS connections (gen doesn't advance on failure);
+  `art_pbm_base64` stays nil; USB replug drops host `172.16.42.1` (re-add + kiosk restart —
+  see `.n4-failure-drill.py` preflight).
