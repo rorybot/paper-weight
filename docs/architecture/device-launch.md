@@ -92,7 +92,20 @@ Before rollback, copy the current accepted generation number from `device-nixos.
 After exercising `rollback`, restore that exact generation with `activate`; do not deploy a new
 generation merely to return to the accepted state.
 
-## Physical cold-boot acceptance
+## P6-I physical integration acceptance
+
+P6-I accepts the host/device integration seam independently of the hardware that will eventually
+run the unattended service. Its evidence must cover the accepted device generation and rollback,
+the production kiosk URL, UI and gateway over USB, exact `800×480` rendering, and presets 1–4.
+
+On a temporary development host where `mix` intentionally exists only in the dev environment,
+run `scripts/run-device-fixture.sh` there. Do not install or bridge a second host runtime merely
+to emulate the eventual appliance.
+
+## P9 final-appliance cold-boot acceptance
+
+The unattended eventual-host test is a P9 #90 gate. It is explicitly retained here for the final
+appliance operator; it does not block P6-I, P7, or P8.
 
 1. Confirm the host unit is enabled, active, and permitted to run without an interactive login.
 2. Confirm the accepted device generation and preserve the immediately previous generation.
@@ -113,10 +126,12 @@ generation merely to return to the accepted state.
 8. Exercise and record the stop/start, device reboot, generation rollback, and accepted-generation
    restore operations from the table above.
 
-## Evidence record
+## Evidence records
 
-Commit the completed record at `docs/evidence/p6-i-cold-boot.md`. Summarize command results rather
-than pasting full logs, and include:
+P6-I integration results belong in `docs/evidence/p6-i-cold-boot.md`. P9 must add its own final
+appliance record rather than rewriting the P6-I environment boundary.
+
+For the P9 record, summarize command results rather than pasting full logs, and include:
 
 - test date, operator, host, and Car Thing generation numbers;
 - the exact kiosk URL and `800×480` viewport result;
@@ -129,4 +144,5 @@ than pasting full logs, and include:
 - Fixture snapshots only; no live API credentials.
 - Etymology remains local fixture-backed.
 - Device input-bridge deployment, wheel, press, and back acceptance belong to P8.
+- Unattended eventual-host startup and simultaneous host/device cold boot belong to P9.
 - Host-service defects require a P6-H follow-up; Nix/deployment defects require a P6-N follow-up.

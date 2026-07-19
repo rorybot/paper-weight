@@ -135,12 +135,13 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   issue #84 closed.
 
 ### P6-I [platform] Cold-boot integration · #82 · In progress
-- **Goal**: integrate P6-H and P6-N into the repeatable physical cold-boot path.
+- **Goal**: integrate P6-H and P6-N into one physically verified device-launch path.
 - **Scope**: finish `device-launch.md` operations; production-port checks; exact 800×480 evidence.
-- **Constraints**: integration/evidence only; fixture data only; no input bridge or live credentials.
-- **Acceptance**: host/device cold boot fullscreen; presets 1–4; status/reboot/rollback verified.
+- **Constraints**: integration/evidence only; fixture data only; eventual-host cold boot is P9.
+- **Acceptance**: device boot/fullscreen; presets 1–4; status/reboot/rollback; final-head `ci`.
 - **Evidence**: 2026-07-19 dev-environment fixture passed UI/gateway over USB, exact `800×480`,
-  and owner-verified physical presets 1–4. Final-host cold boot/reboot/rollback remains open.
+  and owner-verified physical presets 1–4; device reboot/rollback/restore passed under P6-N.
+  Only final-head `ci` and closeout remain.
 
 ### P7 [platform] Live-runtime contract · #85 · Backlog
 - **Goal**: one activation contract for live Weather, Feed, and Spotify.
@@ -157,10 +158,11 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: fmt/test/clippy, aarch64 build, physical events, boot service, and reconnect pass.
 
 ### P9 [platform] Demo-appliance acceptance · #90 · Backlog
-- **Goal**: accept the rebootable appliance with live Weather/Feed/Spotify and physical input.
-- **Scope**: integrate accepted P8/W4/F3/N4 outputs; cold boot, network recovery, final evidence.
-- **Constraints**: gate only; Etymology remains fixture-backed; Photo remains outside the milestone.
-- **Acceptance**: live screens, playlist/volume input, degraded/reconnect states, screenshots, green `ci`.
+- **Goal**: accept the unattended eventual-host appliance with live lanes and physical input.
+- **Scope**: integrate P8/W4/F3/N4; final-host/device cold boot, network recovery, final evidence.
+- **Constraints**: gate only; actual eventual host required; interactive dev fixture is insufficient.
+- **Acceptance**: unattended host services; exact 800×480 cold boot; post-boot health; live screens,
+  playlist/volume input, degraded/reconnect states, screenshots, green `ci`.
 
 ### W3-P1 [platform] Protocol v1.1 — freeze playlist channel · #43 ✅ Done
 - **Goal**: make `playlist` a first-class host-to-device channel rather than a now-playing fixture.

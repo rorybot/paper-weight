@@ -228,14 +228,11 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 ## Next Session Context Chunk (P6-I — 2026-07-19)
 
-- #82 is In progress on `chore/p6i-cold-boot-integration`; the accepted P6-N generation is
-  active on `172.16.42.2` with Weston and the frozen kiosk URL confirmed.
-- A dev-environment fixture passed UI `:8080`, gateway `:9138`, exact `800×480`, and
-  owner-verified physical presets 1–4; final-host cold-boot acceptance remains open.
-- `host-service.sh install` ran inside Distrobox, but normal start returned
-  `Unit paper-weight-host.service not found`; do not repair runtime wiring.
-- Rory clarified that this Archbox is not the eventual service host and `mix` intentionally lives
-  in the dev environment. For present device checks, run `run-device-fixture.sh` there; do not
-  misclassify the native-host failure as a product defect without confirming the deployment host.
-- Finish with the documented host-native cold boot, preset 1–4, reboot/rollback checks, and
-  committed `docs/evidence/p6-i-cold-boot.md` before moving #82 to Done.
+- #82 physical integration passed UI `:8080`, gateway `:9138`, exact `800×480`, presets 1–4,
+  device reboot, and generation rollback/restore; only final-head `ci` and closeout remain.
+- This Archbox is a temporary development/physical-integration host; `mix` intentionally lives in
+  its dev environment. Do not bridge or reconfigure host/Distrobox execution.
+- GitHub #90 now owns unattended eventual-host service startup, post-boot health, and simultaneous
+  final-host/Car Thing cold boot; this preserves the gate without blocking P7/P8 on future hardware.
+- Resume Agent D in `.worktrees/p6i-cold-boot-integration`, finish PR #102, then immediately sync
+  #82 Done/closed and unblock P7 #85 plus P8 #86.

@@ -1,4 +1,4 @@
-# P6-I cold-boot evidence
+# P6-I physical integration evidence
 
 Ticket: [#82](https://github.com/rorybot/paper-weight/issues/82)
 
@@ -20,13 +20,17 @@ Ticket: [#82](https://github.com/rorybot/paper-weight/issues/82)
   is not the eventual production service host.
 - These results prove USB runtime integration, the exact device viewport, and physical preset
   routing.
-- They do not prove unattended host cold boot, host reboot survival, device reboot, or generation
-  rollback/restore on the eventual service host.
+- P6-N evidence separately proves accepted-generation device reboot, rollback to generation 1,
+  restoration to generation 2, and preservation of generation 1.
+- These results do not prove unattended startup on the eventual service host.
 
-## Remaining acceptance
+## Transferred final-appliance acceptance
 
-- [ ] Final host starts UI and gateway unattended after a cold boot.
-- [ ] Physical display opens fullscreen with no browser frame or DevTools after that cold boot.
-- [ ] Final-host UI/gateway health checks pass.
-- [ ] Device reboot is verified against the final host.
-- [ ] Previous-generation rollback and accepted-generation restore are verified.
+P9 #90 retains the unattended eventual-host requirements:
+
+- final host starts UI and gateway without login, a dev-environment process, or manual start;
+- simultaneous final-host/Car Thing cold boot opens fullscreen at exactly `800×480`;
+- UI/gateway health passes after that boot and final operations evidence is committed.
+
+This transfer prevents P6-I from blocking P7/P8 on hardware reserved for final-appliance
+acceptance; it does not waive the cold-boot requirement.
