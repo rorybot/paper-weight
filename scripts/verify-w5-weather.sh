@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # One-shot verification for W5 (#109) Open-Meteo migration.
-# Run from the repo root of this worktree in your Elixir dev environment.
+# Safe to run from anywhere — locates its own worktree root.
 set -euo pipefail
 
-cd host
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$script_dir/../host"
 
 echo "== mix deps.get =="
 mix deps.get
