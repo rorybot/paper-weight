@@ -10,11 +10,23 @@ defmodule PaperWeight.Application do
   Starts fixture-backed stub adapters for every managed channel, enables the
   gateway on `gateway_port` (default 9138), and skips real domain services so
   desktop smoke needs no API secrets. See `docs/architecture/wave-3-smoke.md`.
+
+  ## Live-runtime contract (P7)
+
+  Weather/Spotify/Feed can each be switched between compiled default and
+  live at runtime via `PAPER_WEIGHT_WEATHER_ENABLED` / `PAPER_WEIGHT_SPOTIFY_ENABLED`
+  / `PAPER_WEIGHT_FEED_ENABLED` (`true`/`1`/`enabled` or `false`/`0`/`disabled`,
+  case-insensitive; unset falls back to the compiled `config.exs` default).
+  `PAPER_WEIGHT_GATEWAY_STUBS=all` still overrides all three to `:disabled`
+  regardless of these vars. An enabled lane with missing/empty required env
+  vars fails boot loudly (var *names* only, never values) rather than
+  starting broken. Full contract: `docs/architecture/live-runtime-contract-v1.md`.
   """
 
   use Application
 
   alias PaperWeight.Gateway.Stubs
+  alias PaperWeight.RuntimeContract
 
   @type service_state :: :enabled | :disabled
   @type stubs_mode :: :none | :all
@@ -60,40 +72,58 @@ defmodule PaperWeight.Application do
     |> Kernel.++(gateway_child(config))
   end
 
+  @type getenv :: (String.t() -> String.t() | nil)
+
   @spec config_from_env() :: config()
-  def config_from_env do
-    stubs = stubs_mode()
+  def config_from_env, do: resolve_config(&System.get_env/1)
+
+  @doc """
+  Pure decision layer behind `config_from_env/0`, injectable for tests. Takes
+  one env-lookup function so env-driven enable/disable and startup
+  validation can be exercised with a fake map instead of mutating real OS
+  env vars — this suite runs test modules concurrently, and `System.put_env`
+  is process-wide, so a real mutation could race any other test that calls
+  `config_from_env/0`.
+  """
+  @spec resolve_config(getenv()) :: config()
+  def resolve_config(getenv) when is_function(getenv, 1) do
+    stubs = stubs_mode(getenv)
 
     base = %{
-      weather: service_state(:weather_service, :enabled),
-      spotify: service_state(:spotify_service, :disabled),
-      feed: service_state(:feed_service, :disabled),
+      weather: lane_state(getenv, "PAPER_WEIGHT_WEATHER_ENABLED", :weather_service, :enabled),
+      spotify: lane_state(getenv, "PAPER_WEIGHT_SPOTIFY_ENABLED", :spotify_service, :disabled),
+      feed: lane_state(getenv, "PAPER_WEIGHT_FEED_ENABLED", :feed_service, :disabled),
       photo: service_state(:photo_service, :disabled),
-      photo_library_dir: System.get_env("PAPER_WEIGHT_PHOTO_LIBRARY_DIR"),
+      photo_library_dir: getenv.("PAPER_WEIGHT_PHOTO_LIBRARY_DIR"),
       gateway: service_state(:gateway_service, :enabled),
       gateway_port: Application.get_env(:paper_weight_host, :gateway_port, 9138),
       gateway_stubs: stubs
     }
 
-    case stubs do
-      :all ->
-        # Stub profile owns adapters; real services stay off to avoid name/API conflicts.
-        %{
-          base
-          | weather: :disabled,
-            spotify: :disabled,
-            feed: :disabled,
-            photo: :disabled,
-            gateway: :enabled
-        }
+    config =
+      case stubs do
+        :all ->
+          # Stub profile owns adapters; real services stay off to avoid name/API conflicts.
+          %{
+            base
+            | weather: :disabled,
+              spotify: :disabled,
+              feed: :disabled,
+              photo: :disabled,
+              gateway: :enabled
+          }
 
-      :none ->
-        base
-    end
+        :none ->
+          base
+      end
+
+    validate_live_lanes!(config, getenv)
+
+    config
   end
 
-  defp stubs_mode do
-    env = System.get_env("PAPER_WEIGHT_GATEWAY_STUBS")
+  defp stubs_mode(getenv) do
+    env = getenv.("PAPER_WEIGHT_GATEWAY_STUBS")
 
     cond do
       env in ["all", "ALL"] ->
@@ -115,6 +145,40 @@ defmodule PaperWeight.Application do
       :disabled -> :disabled
       _enabled -> :enabled
     end
+  end
+
+  @live_lanes [:weather, :spotify, :feed]
+
+  # Raw env wins if it's a recognized literal; otherwise falls back to the
+  # existing compiled-config resolution so zero-env behavior is unchanged.
+  defp lane_state(getenv, env_var, config_key, default) do
+    case getenv.(env_var) do
+      nil -> service_state(config_key, default)
+      value -> parse_lane_state(value, config_key, default)
+    end
+  end
+
+  defp parse_lane_state(value, config_key, default) do
+    case String.downcase(value) do
+      v when v in ["true", "1", "enabled"] -> :enabled
+      v when v in ["false", "0", "disabled"] -> :disabled
+      _unrecognized -> service_state(config_key, default)
+    end
+  end
+
+  defp validate_live_lanes!(config, getenv) do
+    Enum.each(@live_lanes, fn lane ->
+      if Map.fetch!(config, lane) == :enabled do
+        case RuntimeContract.missing_vars(lane, getenv) do
+          [] ->
+            :ok
+
+          missing ->
+            raise ArgumentError,
+                  "#{lane} enabled but missing required env vars: #{Enum.join(missing, ", ")}"
+        end
+      end
+    end)
   end
 
   defp service_child(:disabled, _module), do: []

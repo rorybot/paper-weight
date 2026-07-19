@@ -3,8 +3,8 @@
 Ticket: [#83](https://github.com/rorybot/paper-weight/issues/83)
 Runs the production Preact UI (`:8080`) and the fixture WebSocket gateway
 (`:9138`) as a resilient `systemd --user` service on the USB-host machine.
-Live credentials are out of scope — this stays on `PAPER_WEIGHT_GATEWAY_STUBS=all`
-fixture adapters per P7.
+Live credentials are out of scope here — the activation contract for those
+lives in `docs/architecture/live-runtime-contract-v1.md` (P7/#85).
 
 ## Why wildcard bind
 
@@ -91,8 +91,9 @@ address once a Car Thing is connected.
 
 ## Boundary
 
-- Fixture snapshots only (`PAPER_WEIGHT_GATEWAY_STUBS=all`); no live API
-  credentials — that belongs to P7 (#85).
+- Fixture snapshots only (`PAPER_WEIGHT_GATEWAY_STUBS=all`) by default; live
+  API credentials and per-lane enable/disable are documented separately in
+  `docs/architecture/live-runtime-contract-v1.md` (P7/#85).
 - Does not touch device Nix configuration, `application.ex`, live lane
   services, or #82's cold-boot evidence/doc (`docs/architecture/device-launch.md`).
 - Input bridge and physical device wiring are out of scope; P6-I (#82)

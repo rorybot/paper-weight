@@ -99,7 +99,11 @@ fi
 
 (
   cd "$HOST_DIR"
-  exec env PAPER_WEIGHT_GATEWAY_STUBS=all MIX_ENV=dev mix run --no-halt
+  # Fixture-safe by default, but doesn't clobber an inherited value — an
+  # EnvironmentFile (or sourced .env) setting PAPER_WEIGHT_GATEWAY_STUBS=none
+  # plus the PAPER_WEIGHT_*_ENABLED vars flips this same script to live mode.
+  # See docs/architecture/live-runtime-contract-v1.md.
+  exec env PAPER_WEIGHT_GATEWAY_STUBS="${PAPER_WEIGHT_GATEWAY_STUBS:-all}" MIX_ENV=dev mix run --no-halt
 ) &
 CHILD_PIDS+=("$!")
 
