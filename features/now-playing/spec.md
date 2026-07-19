@@ -11,7 +11,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
-| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **In progress** (blocked by P7) |
+| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **In progress** |
 
 ## Ownership (only these paths)
 
@@ -187,3 +187,10 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - P7 #85 remains open with Project Status Ready, so no live activation or physical acceptance ran.
 - N4 #89 remains open and In progress; board mirror and this card table now match GitHub.
 - Resume only after P7 is Done: wire its runtime contract, use out-of-band credentials, validate device/reconnect, then close out.
+
+## Next Session Context Chunk — N4 (2026-07-19, P7 unblocked)
+
+- Rebased onto master with P7 #85/PR #106; shared live-runtime wiring is inherited unchanged.
+- Spotify tests pass 56/56 and the full host suite passes 191/191; Car Thing `172.16.42.2` is reachable.
+- No ignored `.env` or exported Spotify credentials are present; the host user manager still loads the old P6-I unit.
+- Resume with out-of-band credentials and a host-native P7 unit install, then run physical live/failure/reconnect acceptance.
