@@ -16,9 +16,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 | P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Done** (closed, PR #93) |
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
-| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (unblocked: P6-H and P6-N both Done) |
-| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Backlog** (blocked by P6-I) |
-| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **Backlog** (blocked by P6-I) |
+| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Done** (closed, PR #102) |
+| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Ready** (P6-I Done) |
+| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In progress** (P6-I Done, PR #98) |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
 | W3-A | [#44](https://github.com/rorybot/paper-weight/issues/44) | Device shell screen map + channel store | **Done** (closed, PR #59) |
@@ -225,3 +225,13 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   `switch-to-configuration switch` does not restart Weston itself — restart it manually after any
   generation change. Issue #84 closed, project Status Done. Unblocks P6-I #82 alongside P6-H #83
   (both now Done).
+
+## Next Session Context Chunk (P6-I — 2026-07-19)
+
+- #82 is Done/closed: UI `:8080`, gateway `:9138`, exact `800×480`, presets 1–4, device reboot,
+  generation rollback/restore, committed evidence, and required `ci` all passed.
+- This Archbox is a temporary development/physical-integration host; `mix` intentionally lives in
+  its dev environment. Do not bridge or reconfigure host/Distrobox execution.
+- GitHub #90 now owns unattended eventual-host service startup, post-boot health, and simultaneous
+  final-host/Car Thing cold boot; this preserves the gate without blocking P7/P8 on future hardware.
+- P7 #85 is now Ready; P8 #86 is In progress on PR #98. Their agents may resume independently.

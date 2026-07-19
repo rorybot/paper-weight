@@ -489,3 +489,162 @@ is Done, W3-E #48 unblocks; once W3-D, W3-E, and W3-G are all Done, W3-F #50 (fi
 integration smoke) unblocks.
 
 Full roadmap + dependency graph: `docs/architecture/parallel-lanes-v1.md` §Wave-3 card plan.
+
+---
+
+## Resume prompts — P6-I / P7 / P8 / W4 / N4
+
+Snapshot as of 2026-07-19: #82 P6-I is Done/closed. #85 P7 is Ready and #86 P8 is In progress;
+they may resume independently. #87 W4 and #89 N4 remain transitively blocked on #85. Unattended
+startup on the eventual service host and simultaneous host/Car Thing cold boot belong to
+final-appliance gate #90 P9, not #82.
+
+```
+#83 P6-H + #84 P6-N → #82 P6-I (Done)
+                              ├─→ #85 P7 (Ready) → #87 W4 + #89 N4
+                              └─→ #86 P8 (In progress)
+#85 + #86 + #87 + #88 F3 + #89 → #90 P9 (eventual-host cold boot)
+```
+
+Hand each active agent its own letter below and point it at this section only — do not let one
+agent read another's block. Agent D is complete; Agents A and E can now resume independently.
+
+### Agent A — P8 #86 (input bridge deployment)
+
+```text
+ISOLATION (mandatory — do this FIRST):
+The repo-root checkout is SHARED — never `git switch` it, never commit from it.
+Your worktree already exists. Run:
+  cd /run/host/home/rory/repos/paper-weight/.worktrees/p8-input-bridge
+  git rev-parse --show-toplevel    → must print this worktree's path
+  git symbolic-ref --short HEAD    → must print feat/p8-device-input-bridge
+Re-verify both before every commit and push.
+
+Card: P8 #86 — Device input-bridge deployment. PR #98 (draft, CI green, mergeable clean).
+Read ONLY:
+- The current PR #98 diff/description (gh pr view 98 --repo rorybot/paper-weight)
+- features/platform/spec.md — P8 section only
+- docs/architecture/parallel-lanes-v1.md (ownership section)
+
+#82 P6-I is Done. Confirm that state once, then continue below.
+
+Status: evdev reconnect/backoff + held-key reset is done and tested (17 x86_64-musl tests,
+strict Clippy, aarch64 cross-compile check, all passing). #84 P6-N is now Done, so its Nix
+tree is available — this is no longer a blocker. Remaining checklist from the PR body:
+  [ ] Rebase/resume onto the accepted P6-N baseline
+  [ ] Add declarative device-service integration in the P6-N-owned Nix tree
+  [ ] Deploy/install on the physical Car Thing
+  [ ] Remove `bridge=0` from the accepted kiosk URL after input acceptance
+  [ ] Validate physical wheel, press, preset, hold, back, and reconnect behavior
+  [ ] Run final required `ci` on the completed integration
+  [ ] Sync P8 Done status, issue closeout, board mirror, platform spec — only after all
+      acceptance criteria pass
+
+Constraints: do not edit host/, device-ui screens, or other lanes.
+```
+
+### Agent B — W4 #87 (weather live acceptance)
+
+```text
+ISOLATION (mandatory — do this FIRST):
+cd /run/host/home/rory/repos/paper-weight/.worktrees/w4-weather-live
+  git rev-parse --show-toplevel    → must print this worktree's path
+  git symbolic-ref --short HEAD    → must print lane/weather-w4-live-acceptance
+Re-verify both before every commit and push.
+
+Card: W4 #87. PR #95 (draft, CI green, CONFLICTING against master — rebase needed).
+Read ONLY: PR #95 diff/description, features/weather/spec.md (W4 section), parallel-lanes-v1.md.
+
+Status: mocked coverage done (38/38 tests), incl. a real bug fix in Service.refresh_now/1.
+
+Step 1: rebase onto current master, resolve conflicts, re-run
+  mix test test/paper_weight/weather — confirm still green.
+
+Step 2: check whether #85 P7 has reached Done.
+  - Still open: stop after the rebase/push. Comment on PR #95 noting rebase-only status and
+    the P7 block. Do not change issue status or attempt live wiring/credentials.
+  - Done: resume the blocked-remainder checklist — rebase onto P7's env/runtime contract,
+    live activation wiring, out-of-band NWS/OpenUV credentials (never commit them), physical
+    acceptance (current conditions, 5/7-day, UV/walk verdict), network-loss/reconnect
+    acceptance, required `ci` green, then Done closeout (issue close, board + spec sync).
+
+Constraints: do not touch application.ex, mix.exs, other lanes, or device-ui beyond W2's scope.
+```
+
+### Agent C — N4 #89 (spotify live acceptance)
+
+```text
+ISOLATION (mandatory — do this FIRST):
+cd /run/host/home/rory/repos/paper-weight/.worktrees/n4-spotify-live
+  git rev-parse --show-toplevel    → must print this worktree's path
+  git symbolic-ref --short HEAD    → must print lane/spotify-n4-live-acceptance
+Re-verify both before every commit and push.
+
+Card: N4 #89. PR #96 (draft, CI green, CONFLICTING against master — rebase needed).
+Read ONLY: PR #96 diff/description, features/now-playing/spec.md (N4 section), parallel-lanes-v1.md.
+
+Status: mocked coverage done (56 spotify tests, up from 44) — token refresh, malformed/partial
+responses, stale→fresh recovery. No behavior changes to spotify/** yet.
+
+Step 1: rebase onto current master, resolve conflicts, re-run
+  mix test test/paper_weight/spotify — confirm still green.
+
+Step 2: check whether #85 P7 has reached Done.
+  - Still open: stop after rebase/push. Comment on PR #96 noting rebase-only status and the
+    P7 block. Do not change issue status.
+  - Done: resume the blocked-remainder checklist — rebase onto P7's env/runtime contract,
+    live activation wiring, out-of-band Spotify credentials (never commit them), physical
+    Now Playing / playlist selection / wheel-volume acceptance on the Car Thing, physical
+    failure/reconnect acceptance, required `ci` green, then Done closeout (Project Status
+    Done, issue close, board + spec sync).
+
+Constraints: NO play/pause anywhere (still flagged off). Don't touch application.ex,
+mix.exs, other lanes, or shell/.
+```
+
+### Agent D — P6-I #82 (physical integration closeout)
+
+```text
+Card complete. #82 is Done/closed and PR #102 contains the accepted runbook/evidence.
+Do not resume implementation or reopen the card. Unattended eventual-host service startup,
+post-boot health, and simultaneous host/Car Thing cold boot remain P9 #90 acceptance.
+```
+
+### Agent E — P7 #85 (live-runtime contract)
+
+```text
+ISOLATION (mandatory — do this FIRST, before any other git command):
+The worktree already exists. Run:
+  cd /run/host/home/rory/repos/paper-weight/.worktrees/p7-live-runtime-contract
+Before every commit and push, re-verify:
+  git rev-parse --show-toplevel    → must be this worktree's path
+  git symbolic-ref --short HEAD    → must be chore/p7-live-runtime-contract
+
+Card: P7 #85 — Live-runtime contract. No branch/PR yet.
+Read ONLY:
+- gh issue view 85 --repo rorybot/paper-weight (full card text)
+- features/platform/spec.md — P7 section only
+- docs/architecture/parallel-lanes-v1.md (ownership section)
+
+#82 P6-I is Done and #85 is Ready. Confirm both once, set #85 In progress when real
+implementation resumes, and proceed with the scope below.
+
+Goal (once unblocked): one documented runtime activation contract for switching the host
+from fixtures to live Weather, Feed, and Spotify services.
+
+Scope:
+  [ ] One EnvironmentFile contract + example with non-secret variable names
+  [ ] Wire shared environment/config activation only
+  [ ] Document startup validation and per-lane enable/disable behavior
+  [ ] Keep Weather/OpenUV and Spotify credentials out-of-band and untracked
+
+Constraints: do not implement or repair lane clients in this card. Keep frozen host-device
+envelopes unchanged. Etymology stays local fixture-backed; Photo is outside this milestone.
+Do not commit credentials or secret-bearing EnvironmentFile contents. Suggested branch
+(already used above): chore/p7-live-runtime-contract.
+
+Acceptance: one documented EnvironmentFile contract activates live Weather, Feed, and
+Spotify; missing/invalid required variables fail clearly without exposing secrets; each
+live lane can be enabled/disabled through the shared contract; zero-secret automated config
+tests pass; required `ci` green. This unblocks W4 #87 and N4 #89 (Agents B and C above).
+```

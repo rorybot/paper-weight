@@ -33,6 +33,11 @@ shell does not have that prefix — his working tree sits at the equivalent path
 anything outside the sandbox), strip the `/run/host` prefix first. A `/run/host/...` path handed
 to Rory points at a location that doesn't exist on his machine.
 
+Every command handed to Rory must also be self-contained: either begin with `cd` to the exact
+host-native working directory or use absolute host-native paths. Never assume his shell is still
+in the repository or the intended worktree. For worktree sessions, include the complete
+`.worktrees/<name>` path in the `cd`.
+
 ## Podman / Distrobox — preserve runtime wiring (mandatory)
 
 Normal use of the already-working container toolchain is allowed: repo build/test
@@ -98,6 +103,9 @@ Mirror: `kanban/board.md` (update **after** GitHub succeeds, never instead of).
   `gh project item-edit`.
 - Status vocabulary: `Backlog` | `Ready` | `In progress` | `In review` | `Done`.
 - **In progress** only when real work for that card exists or is actively started this session.
+- Update the GitHub issue checklist immediately as each scope or acceptance item is verified.
+  Do not batch checkbox updates at session close; GitHub must show incremental progress while
+  work is underway, then mirror the verified evidence in `kanban/board.md` and the feature spec.
 - **Done** only when acceptance is met: set Status → Done, **and** `gh issue close <N>`, **and**
   update `kanban/board.md` + `features/<name>/spec.md` card table.
 - New cards: `gh issue create --repo rorybot/paper-weight ...` then
