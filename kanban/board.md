@@ -23,7 +23,7 @@ Status snapshot (2026-07-19, verified against remote project):
 | **In progress** | - |
 | **In review** | P6-N1 #111 |
 | **Ready** | - |
-| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; late-host kiosk recovery #112; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115 |
+| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; late-host kiosk recovery #112; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -183,6 +183,15 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: gate only; actual eventual host required; interactive dev fixture is insufficient.
 - **Acceptance**: unattended host services; exact 800×480 cold boot; post-boot health; live screens,
   playlist/volume input, degraded/reconnect states, screenshots, green `ci`.
+
+### Chore [process] distrobox-host-exec exits 127 for all commands from dev box · #122 · Backlog
+- **Goal**: restore the `distrobox-host-exec` bridge so device scripts work from inside the `dev` box.
+- **Scope**: root-cause the universal exit 127 (even `distrobox-host-exec true`); likely host-spawn
+  missing/unreachable; fix is human-driven per the Podman/Distrobox wiring policy.
+- **Constraints**: agents must not repair runtime wiring; workaround is running device scripts from
+  a native host shell (no `CONTAINER_ID`).
+- **Acceptance**: `distrobox-host-exec true` exits 0 from the `dev` box and
+  `scripts/device-nixos.sh evaluate` succeeds from inside it.
 
 ### Chore [process] Agent-instructions review and reusable template · #108 · Backlog
 - **Goal**: make the repository's agent instructions coherent, reliable, and reusable.
