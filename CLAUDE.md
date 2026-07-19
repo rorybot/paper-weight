@@ -77,6 +77,13 @@ hand that path; do not delete a worktree Rory still needs to run something from.
 - Path-filtered jobs: device-ui (`npm run check`), host (`mix test`), input-bridge (fmt/test/clippy),
   lane-guard, screen-test co-location. Docs: `docs/architecture/ci-and-pr.md`.
 - Multi-lane code changes need label `cross-lane` or branch `chore/*`.
+- **CI green is not validation for device-affecting changes.** For `device/` paths CI runs
+  lane-guard/label jobs only — it proves nothing about on-device behavior. If a card's
+  acceptance needs the physical device (or anything only Rory can run), do **not** merge on
+  green CI: keep the PR open, hand Rory the verification run from the **branch worktree**
+  (self-locating scripts deploy the branch, not master; exact host path rules above), and
+  merge only after the logged physical pass. Learned on #111: attempt A merged on green CI
+  and failed on hardware.
 
 ## Kanban rules (mandatory — GitHub is source of truth)
 
