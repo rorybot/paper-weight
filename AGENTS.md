@@ -103,6 +103,9 @@ Mirror: `kanban/board.md` (update **after** GitHub succeeds, never instead of).
   `gh project item-edit`.
 - Status vocabulary: `Backlog` | `Ready` | `In progress` | `In review` | `Done`.
 - **In progress** only when real work for that card exists or is actively started this session.
+- Update the GitHub issue checklist immediately as each scope or acceptance item is verified.
+  Do not batch checkbox updates at session close; GitHub must show incremental progress while
+  work is underway, then mirror the verified evidence in `kanban/board.md` and the feature spec.
 - **Done** only when acceptance is met: set Status → Done, **and** `gh issue close <N>`, **and**
   update `kanban/board.md` + `features/<name>/spec.md` card table.
 - New cards: `gh issue create --repo rorybot/paper-weight ...` then
