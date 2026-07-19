@@ -61,6 +61,21 @@ not build the kernel or full device system; the full build occurs during `build`
 6. Run `rollback`; confirm the prior store path and its prior kiosk URL.
 7. Run `activate <new-generation>`, then `reboot`; confirm the production URL and fullscreen kiosk.
 
+## Pointer / cursor (#111)
+
+- The visible pointer is Weston's desktop-shell cursor sprite, not Chromium's: the rotary
+  encoder emits a relative axis (`wheel_relative=6`), libinput classifies it as a pointer
+  device, and the seat's pointer capability makes Weston draw the sprite.
+- Upstream `weston.ini` sets `[core] hide-cursor=true`, but that key does not exist in stock
+  Weston 14 — it is silently ignored.
+- Fix: `device/nix/flake.nix` overrides `environment.etc."weston/weston.ini".source`
+  (`lib.mkForce`) with `device/nix/resources/weston.ini`, identical to upstream except
+  `[shell] cursor-size=0`. Fallback if the sprite survives on-device: ship a fully
+  transparent `cursor-theme` instead.
+- Weston only reads the ini at startup: after `deploy`, restart `weston-tty1.service`
+  (or `reboot`) before judging the result. `scripts/verify-kiosk-pointer.sh` walks the
+  full deploy → restart → cold-boot → rollback observation loop and logs the evidence.
+
 ## Evidence (2026-07-18 physical run)
 
 - Baseline: generation 1, `.../nixos-system-superbird-25.05.20241207.22c3f2c`,
