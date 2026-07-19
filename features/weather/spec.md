@@ -10,7 +10,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
 | W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
-| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **In progress** (blocked by P7 #85) |
+| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **In progress** (P7 #85 Done; live acceptance pending) |
 
 ## Ownership (only these paths)
 
@@ -152,3 +152,10 @@ _(lane agents append here; do not edit mix.exs)_
 - P7 #85 is still open, so no live activation, credentials, or physical acceptance was attempted.
 - PR remains draft and W4 #87 remains In progress; rebase-only blocker comment is posted.
 - Resume only after P7 lands, using its EnvironmentFile/runtime contract for live acceptance.
+
+## Next Session Context Chunk — W4 (2026-07-19, P7 landed)
+
+- P7 #85 is Done; W4 rebased onto `origin/master` at `89e82f4` and the runtime contract is present.
+- Validation remains green: Weather 38/38 and full host 184/184.
+- This worktree has no untracked `.env`; live NWS/OpenUV activation has not started.
+- Resume with out-of-band Weather env values and the physical Car Thing available.

@@ -312,10 +312,10 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 ### W4 [weather] Live Weather acceptance · #87 · In progress
 - **Goal**: accept live NWS/OpenUV Weather behavior on the physical device.
 - **Scope**: P7 activation plus Weather-owned gaps/tests and physical validation.
-- **Constraints**: blocked by P7 #85 (open); Weather-owned paths only; frozen envelope;
+- **Constraints**: P7 #85 Done; Weather-owned paths only; frozen envelope;
   credentials untracked.
 - **Acceptance**: mocked stale/recovery; live forecast/UV/verdict; network loss and reconnect pass.
-- **This session (WIP, lane-local, not mergeable — still P7-blocked)**: inspected existing
+- **Pre-P7 preparation (WIP, lane-local)**: inspected existing
   coverage; added mocked tests for OpenUV-specific failure, malformed/partial NWS + OpenUV
   responses, and post-failure recovery/generation transitions
   (`service_test.exs`/`fetch_test.exs`/`nws_test.exs`/`open_uv_test.exs`). Recovery test caught
