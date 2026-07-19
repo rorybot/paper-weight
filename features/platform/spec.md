@@ -16,7 +16,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 | P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Done** (closed, PR #93) |
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
-| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (unblocked: P6-H and P6-N both Done) |
+| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **In progress** |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Backlog** (blocked by P6-I) |
 | P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **Backlog** (blocked by P6-I) |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
@@ -225,3 +225,14 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   `switch-to-configuration switch` does not restart Weston itself — restart it manually after any
   generation change. Issue #84 closed, project Status Done. Unblocks P6-I #82 alongside P6-H #83
   (both now Done).
+
+## Next Session Context Chunk (P6-I — 2026-07-19)
+
+- #82 is In progress on `chore/p6i-cold-boot-integration`; the accepted P6-N generation is
+  active on `172.16.42.2` with Weston and the frozen kiosk URL confirmed.
+- A manual fixture diagnostic passed UI `:8080`, gateway `:9138`, and an exact `800×480`
+  Chromium viewport; it is not cold-boot acceptance evidence.
+- `host-service.sh install` ran inside Distrobox, but normal start returned
+  `Unit paper-weight-host.service not found`; do not repair runtime wiring.
+- Finish with the documented host-native cold boot, preset 1–4, reboot/rollback checks, and
+  committed `docs/evidence/p6-i-cold-boot.md` before moving #82 to Done.

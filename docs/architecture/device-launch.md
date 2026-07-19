@@ -1,0 +1,109 @@
+# P6 persistent device launch
+
+Ticket: [#82](https://github.com/rorybot/paper-weight/issues/82)
+Mode: production Preact bundle + fixture WebSocket gateway over USB NCM.
+
+## Runtime contract
+
+| Item | Value |
+|---|---|
+| USB host | `172.16.42.1` |
+| Car Thing | `root@172.16.42.2` |
+| Production UI | `http://172.16.42.1:8080/` |
+| Fixture gateway | `ws://172.16.42.1:9138/` |
+| Kiosk URL | `http://172.16.42.1:8080/?bridge=0&gateway=ws://172.16.42.1:9138/` |
+| Host unit | `paper-weight-host.service` (`systemd --user`) |
+| Device configuration | NixOS system generation selected by `/nix/var/nix/profiles/system` |
+| Device input | Native presets 1–4; input-bridge deployment is outside P6 |
+
+## One-time installation
+
+Run host commands from a native host terminal at the repository root, not from inside
+Distrobox:
+
+```bash
+scripts/host-service.sh install
+scripts/host-service.sh start
+scripts/host-health-check.sh
+```
+
+`install` enables the user unit and attempts to enable linger. If it reports that linger could
+not be enabled, run the printed `loginctl enable-linger <user>` command on the host, then verify:
+
+```bash
+loginctl show-user "$USER" -p Linger
+scripts/host-service.sh status
+```
+
+The accepted P6-N generation must already be deployed. Confirm its active kiosk URL without
+creating an override:
+
+```bash
+scripts/device-nixos.sh status
+```
+
+Expected state:
+
+- `weston_active=active`
+- `weston_enabled=enabled`
+- `kiosk_url=http://172.16.42.1:8080/?bridge=0&gateway=ws://172.16.42.1:9138/`
+- the accepted generation is current and at least one earlier generation remains available
+
+Do not replace the Nix-managed kiosk URL with an `/etc` symlink or a systemd override.
+
+## Operations
+
+| Action | Command | Verification |
+|---|---|---|
+| Start host runtime | `scripts/host-service.sh start` | `scripts/host-health-check.sh` passes |
+| Stop host runtime | `scripts/host-service.sh stop` | `scripts/host-service.sh status` reports inactive |
+| Restart host runtime | `scripts/host-service.sh restart` | health check passes again |
+| Host status | `scripts/host-service.sh status` | unit is enabled and active |
+| Device status | `scripts/device-nixos.sh status` | generation, Weston, and kiosk URL match |
+| Reboot Car Thing | `scripts/device-nixos.sh reboot` | SSH returns and device status passes |
+| Reboot host | `sudo systemctl reboot` | after reconnect, host status and health check pass without login |
+| Roll back device | `scripts/device-nixos.sh rollback` | previous generation becomes current |
+| Restore accepted device generation | `scripts/device-nixos.sh activate <generation>` | accepted generation and kiosk URL return |
+
+Before rollback, copy the current accepted generation number from `device-nixos.sh status`.
+After exercising `rollback`, restore that exact generation with `activate`; do not deploy a new
+generation merely to return to the accepted state.
+
+## Physical cold-boot acceptance
+
+1. Confirm the host unit is enabled, active, and permitted to run without an interactive login.
+2. Confirm the accepted device generation and preserve the immediately previous generation.
+3. Shut down the host and fully remove power from the Car Thing.
+4. Power the host and Car Thing, without opening a browser or DevTools.
+5. From a host terminal, run:
+
+   ```bash
+   scripts/host-service.sh status
+   scripts/host-health-check.sh
+   scripts/device-nixos.sh status
+   ```
+
+6. On the physical 800×480 display, confirm Chromium opens the app fullscreen with no browser
+   frame or DevTools.
+7. Press physical presets 1–4 and record that they select, in order: Now Playing, Weather, Feed,
+   and Etymology.
+8. Exercise and record the stop/start, device reboot, generation rollback, and accepted-generation
+   restore operations from the table above.
+
+## Evidence record
+
+Commit the completed record at `docs/evidence/p6-i-cold-boot.md`. Summarize command results rather
+than pasting full logs, and include:
+
+- test date, operator, host, and Car Thing generation numbers;
+- the exact kiosk URL and `800×480` viewport result;
+- host status plus UI `:8080` and gateway `:9138` health results after cold boot;
+- fullscreen/no-DevTools observation and physical preset 1–4 results;
+- device reboot, rollback, and accepted-generation restore results.
+
+## Boundary
+
+- Fixture snapshots only; no live API credentials.
+- Etymology remains local fixture-backed.
+- Device input-bridge deployment, wheel, press, and back acceptance belong to P8.
+- Host-service defects require a P6-H follow-up; Nix/deployment defects require a P6-N follow-up.
