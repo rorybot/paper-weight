@@ -227,14 +227,11 @@ build_system() {
 build_input_bridge() {
   local artifact_dir
   local artifact_path
-  local git_dir
 
   if [[ -n "${PAPER_WEIGHT_ARTIFACT_DIR:-}" ]]; then
     artifact_dir="$PAPER_WEIGHT_ARTIFACT_DIR"
   else
-    require_command git
-    git_dir="$(git -C "$ROOT_DIR" rev-parse --absolute-git-dir)"
-    artifact_dir="$git_dir/paper-weight-artifacts/input-bridge"
+    artifact_dir="${XDG_CACHE_HOME:-$HOME/.cache}/paper-weight/input-bridge"
   fi
   mkdir -p "$artifact_dir"
   artifact_dir="$(cd "$artifact_dir" && pwd)"
