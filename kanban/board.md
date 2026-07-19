@@ -19,9 +19,9 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85 |
 | **In progress** | P8 #86 |
-| **In review** | P7 #85 |
+| **In review** | - |
 | **Ready** | - |
 | **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
 
@@ -143,19 +143,19 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   and owner-verified physical presets 1–4; device reboot/rollback/restore passed under P6-N.
   Required `ci` passed; #82 closed and project Status set to Done.
 
-### P7 [platform] Live-runtime contract · #85 · In review
+### P7 [platform] Live-runtime contract · #85 ✅ Done
 - **Goal**: one activation contract for live Weather, Feed, and Spotify.
 - **Scope**: documented EnvironmentFile variables, validation, and per-lane enablement only.
 - **Constraints**: #82 is Done; secrets stay untracked/out-of-band; frozen envelopes unchanged;
   Etymology stays fixture-backed and Photo stays outside the milestone.
 - **Acceptance**: zero-secret config tests and clear safe failure for missing/invalid variables.
-- **In review**: new pure `PaperWeight.RuntimeContract` + `Application.resolve_config/1` add
+- **Done**: new pure `PaperWeight.RuntimeContract` + `Application.resolve_config/1` add
   `PAPER_WEIGHT_WEATHER_ENABLED`/`_SPOTIFY_ENABLED`/`_FEED_ENABLED` runtime overrides and
   fail-fast validation (missing var *names* only, never values); `run-device-fixture.sh` and
   the systemd unit template now accept a live `EnvironmentFile` while staying fixture-safe by
   default. Doc: `docs/architecture/live-runtime-contract-v1.md`. `mix test` 174 passed; manual
-  boot checks (fixture default, fail-fast, success path) all passed. Branch
-  `chore/p7-live-runtime-contract`, PR pending.
+  boot checks (fixture default, fail-fast, success path) all passed. PR #106 squash-merged,
+  required `ci` green, issue #85 closed. Unblocks W4 #87, F3 #88, N4 #89.
 
 ### P8 [platform] Device input-bridge deployment · #86 · In progress
 - **Goal**: package/supervise the Rust bridge on aarch64 and feed physical input through loopback SSE.

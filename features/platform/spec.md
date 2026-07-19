@@ -17,7 +17,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Done** (closed, PR #93) |
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Done** (closed, PR #102) |
-| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **In review** (PR #106, branch `chore/p7-live-runtime-contract`) |
+| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Done** (closed, PR #106) |
 | P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In progress** (P6-I Done, PR #98) |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
