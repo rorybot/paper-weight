@@ -6,6 +6,9 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=__PAPER_WEIGHT_ROOT__
+# Optional (leading "-"): absent file is not an error, unit still boots in
+# fixture mode. See docs/architecture/live-runtime-contract-v1.md.
+EnvironmentFile=-__PAPER_WEIGHT_ROOT__/.env
 ExecStart=__PAPER_WEIGHT_ROOT__/scripts/run-device-fixture.sh
 Restart=always
 RestartSec=2

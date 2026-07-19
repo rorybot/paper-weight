@@ -17,7 +17,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Done** (closed, PR #93) |
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Done** (closed, PR #102) |
-| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Ready** (P6-I Done) |
+| P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **In review** (PR #106, branch `chore/p7-live-runtime-contract`) |
 | P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In progress** (P6-I Done, PR #98) |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
@@ -235,3 +235,34 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - GitHub #90 now owns unattended eventual-host service startup, post-boot health, and simultaneous
   final-host/Car Thing cold boot; this preserves the gate without blocking P7/P8 on future hardware.
 - P7 #85 is now Ready; P8 #86 is In progress on PR #98. Their agents may resume independently.
+
+## Next Session Context Chunk (P7 — 2026-07-18)
+
+- New `PaperWeight.RuntimeContract` (`host/lib/paper_weight/runtime_contract.ex`) is a pure
+  presence/non-empty check (never format validation) for each live lane's required env vars,
+  hand-kept in sync with Weather/Spotify/Feed's own `Config` modules (not derived from them —
+  P7 is not permitted to touch lane client internals).
+- `PaperWeight.Application.config_from_env/0` is now a 1-line impure edge over a new pure
+  `resolve_config/1` that takes an injectable `getenv` function — added specifically so tests
+  didn't need real `System.put_env` (which would race the existing async `application_test.exs`
+  suite calling `config_from_env/0`). Three new raw env vars — `PAPER_WEIGHT_WEATHER_ENABLED` /
+  `_SPOTIFY_ENABLED` / `_FEED_ENABLED` (`true`/`1`/`enabled` or `false`/`0`/`disabled`,
+  case-insensitive; unset falls back to the existing compiled default) — flip each lane live at
+  runtime. `PAPER_WEIGHT_GATEWAY_STUBS=all` still wins over all three. An enabled lane with a
+  missing/empty required var raises `ArgumentError` naming var *names* only (never values),
+  crashing app boot — expected to crash-loop under the systemd unit's `Restart=always`.
+- `scripts/run-device-fixture.sh` no longer hardcodes `PAPER_WEIGHT_GATEWAY_STUBS=all` — it
+  now defaults to `all` only if nothing already set it, so an inherited env (systemd
+  `EnvironmentFile` or a sourced `.env`) can flip the same script to live mode.
+  `scripts/paper-weight-host.service.template` gained an **optional** (`-` prefixed)
+  `EnvironmentFile=-__PAPER_WEIGHT_ROOT__/.env` line — missing file still boots fixture-only.
+- Full contract (table, precedence, validation semantics, both consumption paths):
+  `docs/architecture/live-runtime-contract-v1.md`. `.env.example` extended with Feed vars and
+  the three enable switches (still zero real secret values, already gitignored as `.env`).
+- Verified in Rory's dev env (agent shell's `mix` is a different/wrong toolchain — do not run
+  `mix` from an agent session, see memory): `mix test` 174 passed, 0 failures;
+  `mix format --check-formatted` flags only pre-existing unrelated files (nws.ex, auth.ex,
+  weather/service_test.exs, etc.) — none touched by this card. Manual boot checks (fixture
+  default preserved with no `.env`; fail-fast naming exactly `OPENUV_API_KEY` with lat/lon
+  present; clean boot with all fake vars present) all passed via a throwaway verify script.
+- Unblocks parallel W4 #87, F3 #88, N4 #89 once merged.

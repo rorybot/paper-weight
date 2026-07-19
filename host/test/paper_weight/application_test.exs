@@ -14,6 +14,24 @@ defmodule PaperWeight.ApplicationTest do
     gateway_stubs: :none
   }
 
+  defp getenv(values), do: fn name -> Map.get(values, name) end
+
+  @fake_weather_vars %{
+    "WEATHER_LAT" => "0.0",
+    "WEATHER_LON" => "0.0",
+    "OPENUV_API_KEY" => "fake-openuv-key"
+  }
+  @fake_spotify_vars %{
+    "SPOTIFY_CLIENT_ID" => "fake-client-id",
+    "SPOTIFY_CLIENT_SECRET" => "fake-client-secret",
+    "SPOTIFY_REFRESH_TOKEN" => "fake-refresh-token"
+  }
+  @fake_feed_vars %{
+    "PAPER_WEIGHT_FEED_HANDLES" => "fake-handle",
+    "PAPER_WEIGHT_FEED_LIST_ID" => "fake-list-id",
+    "PAPER_WEIGHT_FEED_API_TOKEN" => "fake-api-token"
+  }
+
   describe "children/1 (pure)" do
     test "zero-env: every service disabled yields only the shared Dither cache" do
       assert [{PaperWeight.Dither.Cache, _opts}] = App.children(@all_disabled)
@@ -91,6 +109,72 @@ defmodule PaperWeight.ApplicationTest do
                gateway_port: 9138,
                gateway_stubs: :none
              }
+    end
+  end
+
+  describe "resolve_config/1 (pure, injectable — P7 live-runtime contract)" do
+    test "no env: matches the compiled test-env default (all disabled)" do
+      assert App.resolve_config(getenv(%{})).weather == :disabled
+      assert App.resolve_config(getenv(%{})).spotify == :disabled
+      assert App.resolve_config(getenv(%{})).feed == :disabled
+    end
+
+    test "PAPER_WEIGHT_WEATHER_ENABLED=true with missing required vars raises naming them" do
+      assert_raise ArgumentError,
+                   "weather enabled but missing required env vars: WEATHER_LAT, WEATHER_LON, OPENUV_API_KEY",
+                   fn ->
+                     App.resolve_config(getenv(%{"PAPER_WEIGHT_WEATHER_ENABLED" => "true"}))
+                   end
+    end
+
+    test "PAPER_WEIGHT_WEATHER_ENABLED=true with all required vars present enables, no raise" do
+      values = Map.put(@fake_weather_vars, "PAPER_WEIGHT_WEATHER_ENABLED", "true")
+
+      assert App.resolve_config(getenv(values)).weather == :enabled
+    end
+
+    test "enable var accepts 1/ENABLED case-insensitively, same as true" do
+      for literal <- ["1", "ENABLED", "Enabled", "TRUE"] do
+        values = Map.put(@fake_weather_vars, "PAPER_WEIGHT_WEATHER_ENABLED", literal)
+
+        assert App.resolve_config(getenv(values)).weather == :enabled
+      end
+    end
+
+    test "an unrecognized enable value falls back to the compiled default" do
+      values = Map.put(@fake_weather_vars, "PAPER_WEIGHT_WEATHER_ENABLED", "maybe")
+
+      assert App.resolve_config(getenv(values)).weather == :disabled
+    end
+
+    test "spotify and feed enable independently with their own fake vars, no cross-talk" do
+      values =
+        @fake_spotify_vars
+        |> Map.merge(@fake_feed_vars)
+        |> Map.put("PAPER_WEIGHT_SPOTIFY_ENABLED", "true")
+        |> Map.put("PAPER_WEIGHT_FEED_ENABLED", "true")
+
+      config = App.resolve_config(getenv(values))
+
+      assert config.spotify == :enabled
+      assert config.feed == :enabled
+      assert config.weather == :disabled
+    end
+
+    test "PAPER_WEIGHT_GATEWAY_STUBS=all forces every lane off and skips validation entirely" do
+      values = %{
+        "PAPER_WEIGHT_GATEWAY_STUBS" => "all",
+        "PAPER_WEIGHT_WEATHER_ENABLED" => "true",
+        "PAPER_WEIGHT_SPOTIFY_ENABLED" => "true",
+        "PAPER_WEIGHT_FEED_ENABLED" => "true"
+      }
+
+      config = App.resolve_config(getenv(values))
+
+      assert config.weather == :disabled
+      assert config.spotify == :disabled
+      assert config.feed == :disabled
+      assert config.gateway_stubs == :all
     end
   end
 
