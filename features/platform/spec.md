@@ -282,3 +282,12 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   default preserved with no `.env`; fail-fast naming exactly `OPENUV_API_KEY` with lat/lon
   present; clean boot with all fake vars present) all passed via a throwaway verify script.
 - Unblocks parallel W4 #87, F3 #88, N4 #89 once merged.
+
+## Next Session Context Chunk (P8 acceptance — 2026-07-19)
+
+- Generation 6 deploys the aarch64 bridge service, exact kiosk-origin SSE access, and production
+  `keyboard=0`; both evdev devices, boot services, and loopback SSE are active.
+- Chromium needed a cache-bypassing reload to consume the rebuilt named-event listener.
+- Physical acceptance passed: preset 2 opened Weather and wheel rotation changed the forecast/range;
+  raw SSE also captured presets and repeated `wheel { ticks: 1 }` events.
+- Only required PR `ci`, merge, and GitHub/local status synchronization remain.
