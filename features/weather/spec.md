@@ -13,7 +13,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **Done** |
 | W4-1 | [#114](https://github.com/rorybot/paper-weight/issues/114) | Wheel does not toggle 5-day/7-day on physical device | **Backlog** |
 | W4-2 | [#115](https://github.com/rorybot/paper-weight/issues/115) | Verify stale/recovery on real physical-device network outage | **Backlog** |
-| W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | **In progress** (Priority P0) |
+| W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | ✅ Done |
 
 ## Ownership (only these paths)
 
@@ -115,11 +115,11 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 - [x] No shell edits
 
 ### W5
-- [ ] Host service fetches Open-Meteo current/hourly/daily instead of NWS/OpenUV
-- [ ] `WeatherSnapshotV1` envelope unchanged; current/forecast/UV grade/walk verdict behavior preserved
-- [ ] `OPENUV_API_KEY` removed from P7 runtime validation, `.env.example`, and live-runtime docs
-- [ ] Mocked malformed-response, stale-cache, network-loss, recovery tests pass
-- [ ] Required `ci` green; card/issue/spec/kanban closeout synchronized
+- [x] Host service fetches Open-Meteo current/hourly/daily instead of NWS/OpenUV
+- [x] `WeatherSnapshotV1` envelope unchanged; current/forecast/UV grade/walk verdict behavior preserved
+- [x] `OPENUV_API_KEY` removed from P7 runtime validation, `.env.example`, and live-runtime docs
+- [x] Mocked malformed-response, stale-cache, network-loss, recovery tests pass
+- [x] Required `ci` green; card/issue/spec/kanban closeout synchronized
 
 ## Deps request
 
@@ -220,3 +220,21 @@ _(lane agents append here; do not edit mix.exs)_
   hand Rory `cd ~/repos/paper-weight/.claude/worktrees/w5-openmeteo-109/host && mix test`).
   Resume: get his test results, fix any fallout, then PR + `ci` + physical/live acceptance +
   Done closeout (project Status, issue close, this table, `kanban/board.md`).
+
+## Next Session Context Chunk — W5 (2026-07-19, closed)
+
+- Rory ran `scripts/verify-w5-weather.sh` in his dev env; deps/format/compile/tests all green
+  (Weather suite + full host suite). One real bug caught along the way: `application_weather_test.exs`
+  still referenced removed `Config` keys (`nws_points_url`/`openuv_uv_url`/`openuv_forecast_url`) —
+  fixed to use `open_meteo_url`.
+- PR #118 opened, then hit a merge conflict against `master` (which had moved on with the W4
+  closeout + stale-branch cleanup #105 landing first) — resolved via `git rebase origin/master`,
+  one conflict in `kanban/board.md`'s status table, force-pushed. Required `ci` check went green
+  on the rebased commit.
+- PR #118 squash-merged and branch deleted; issue #109 auto-closed by the merge; GitHub Project
+  Status was already Done from the merge-linked close. No physical/live device acceptance was
+  required by this card's acceptance criteria (unlike W4) — Open-Meteo activation with a real
+  location is future work, not blocking this migration's Done state.
+- This closes the W5 lane. No further Weather kanban work is queued from this card; remaining
+  Weather backlog items (#114 wheel toggle, #115 real-outage stale/recovery verification) are
+  independent cards untouched by this migration.
