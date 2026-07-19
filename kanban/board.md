@@ -23,7 +23,7 @@ Status snapshot (2026-07-19, verified against remote project):
 | **In progress** | P8 #86 |
 | **In review** | - |
 | **Ready** | - |
-| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
+| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20; agent-instructions review #108 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -170,6 +170,15 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: gate only; actual eventual host required; interactive dev fixture is insufficient.
 - **Acceptance**: unattended host services; exact 800×480 cold boot; post-boot health; live screens,
   playlist/volume input, degraded/reconnect states, screenshots, green `ci`.
+
+### Chore [process] Agent-instructions review and reusable template · #108 · Backlog
+- **Goal**: make the repository's agent instructions coherent, reliable, and reusable.
+- **Scope**: audit instruction sources, resolve duplication/conflicts, and extract a future-project
+  template with explicit customization points.
+- **Constraints**: documentation/process only; preserve project safety boundaries and call out any
+  proposed workflow behavior changes for owner review.
+- **Acceptance**: precedence and ownership are explicit, expensive-cycle lessons are integrated,
+  the reusable template is scenario-reviewed, and required `ci` passes.
 
 ### W3-P1 [platform] Protocol v1.1 — freeze playlist channel · #43 ✅ Done
 - **Goal**: make `playlist` a first-class host-to-device channel rather than a now-playing fixture.
