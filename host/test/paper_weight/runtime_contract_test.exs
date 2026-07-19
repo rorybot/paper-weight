@@ -8,23 +8,22 @@ defmodule PaperWeight.RuntimeContractTest do
   end
 
   describe "missing_vars/2" do
-    test "weather: everything unset reports all three required vars, in order" do
+    test "weather: everything unset reports both required vars, in order" do
       assert RuntimeContract.missing_vars(:weather, getenv(%{})) ==
-               ~w(WEATHER_LAT WEATHER_LON OPENUV_API_KEY)
+               ~w(WEATHER_LAT WEATHER_LON)
     end
 
     test "weather: all required vars present (fake values) reports nothing missing" do
       values = %{
         "WEATHER_LAT" => "0.0",
-        "WEATHER_LON" => "0.0",
-        "OPENUV_API_KEY" => "fake-openuv-key"
+        "WEATHER_LON" => "0.0"
       }
 
       assert RuntimeContract.missing_vars(:weather, getenv(values)) == []
     end
 
     test "an empty string counts as missing, same as unset" do
-      values = %{"WEATHER_LAT" => "", "WEATHER_LON" => "0.0", "OPENUV_API_KEY" => "fake-key"}
+      values = %{"WEATHER_LAT" => "", "WEATHER_LON" => "0.0"}
 
       assert RuntimeContract.missing_vars(:weather, getenv(values)) == ["WEATHER_LAT"]
     end
@@ -33,7 +32,7 @@ defmodule PaperWeight.RuntimeContractTest do
       values = %{"WEATHER_LAT" => "1.0"}
 
       assert RuntimeContract.missing_vars(:weather, getenv(values)) ==
-               ~w(WEATHER_LON OPENUV_API_KEY)
+               ~w(WEATHER_LON)
     end
 
     test "spotify required vars" do

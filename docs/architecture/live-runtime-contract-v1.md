@@ -12,7 +12,7 @@ internals or the frozen host-device envelope.
 
 | Lane | Enable var | Required vars (live) | Default when unset |
 |---|---|---|---|
-| Weather | `PAPER_WEIGHT_WEATHER_ENABLED` | `WEATHER_LAT`, `WEATHER_LON`, `OPENUV_API_KEY` 🔒 | `:enabled` (compiled) |
+| Weather | `PAPER_WEIGHT_WEATHER_ENABLED` | `WEATHER_LAT`, `WEATHER_LON` | `:enabled` (compiled) |
 | Spotify | `PAPER_WEIGHT_SPOTIFY_ENABLED` | `SPOTIFY_CLIENT_ID` 🔒, `SPOTIFY_CLIENT_SECRET` 🔒, `SPOTIFY_REFRESH_TOKEN` 🔒 | `:disabled` (compiled) |
 | Feed | `PAPER_WEIGHT_FEED_ENABLED` | `PAPER_WEIGHT_FEED_HANDLES`, `PAPER_WEIGHT_FEED_LIST_ID`, `PAPER_WEIGHT_FEED_API_TOKEN` 🔒 | `:disabled` (compiled) |
 
@@ -51,7 +51,7 @@ On a missing/empty required var, `PaperWeight.Application.start/2` raises
 values — e.g.:
 
 ```
-weather enabled but missing required env vars: WEATHER_LAT, WEATHER_LON, OPENUV_API_KEY
+weather enabled but missing required env vars: WEATHER_LAT, WEATHER_LON
 ```
 
 This crashes application boot. Under the systemd unit (`Restart=always`),
