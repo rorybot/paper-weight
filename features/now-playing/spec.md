@@ -11,7 +11,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N1 | [#6](https://github.com/rorybot/paper-weight/issues/6) | Spotify data service | **Done** |
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
-| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Backlog** (blocked by P7) |
+| N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 
 ## Ownership (only these paths)
 
@@ -160,8 +160,47 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Covers always `cover_pbm_base64: nil` (no JPEG/PNG→grayscale path yet); device CSS hatch. No play/pause.
 - W3-F #50 Done (PR #77): stubs host + `dev:live` + wave-3-smoke.md.
 
+## N4 Next Session Context Chunk
+
+- Added `host/test/paper_weight/spotify/fetch_test.exs` (new): covers `Fetch.refresh_if_needed`
+  cached-token reuse, no-token/expired/near-buffer refresh, and `fetch_snapshot`/`fetch_playlists`
+  propagating both refresh failure and downstream API failure without a spurious client call.
+- Expanded `client_test.exs`: malformed/partial JSON on now-playing/queue/playlists, plus non-200
+  status on each read endpoint and on `set_volume`.
+- Expanded `service_test.exs`: stale→fresh recovery asserting `gen`/`playlist_gen` advance again
+  after a later successful poll (previously only failure-path stale-marking was covered).
+- `host/lib/paper_weight/spotify/**` untouched — this was gap-filling test coverage only, no
+  behavior change. `cd host && mix test test/paper_weight/spotify/` → 56 passed.
+- Branch `lane/spotify-n4-live-acceptance`, worktree `.worktrees/n4-spotify-live`, draft PR opened.
+  Resume after P7 lands: rebase, wire the EnvironmentFile contract, get out-of-band credentials, then
+  do physical Now Playing/playlist/volume/failure/reconnect acceptance and close out #89.
+
 ## Next Session Context Chunk — N4 (2026-07-18)
 
 - N4 #89 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
 - Own only Spotify paths; keep frozen `now_playing`/`playlist` envelopes and the no-play/pause rule.
 - Accept mocked token/failure recovery plus live metadata, playlists, and volume on the device.
+
+## Next Session Context Chunk — N4 (2026-07-19)
+
+- PR #96 rebased onto current `origin/master`; Spotify tests pass 56/56 and diff-check is clean.
+- P7 #85 remains open with Project Status Ready, so no live activation or physical acceptance ran.
+- N4 #89 remains open and In progress; board mirror and this card table now match GitHub.
+- Resume only after P7 is Done: wire its runtime contract, use out-of-band credentials, validate device/reconnect, then close out.
+
+## Next Session Context Chunk — N4 (2026-07-19, P7 unblocked)
+
+- Rebased onto master with P7 #85/PR #106; shared live-runtime wiring is inherited unchanged.
+- Spotify tests pass 56/56 and the full host suite passes 191/191; Car Thing `172.16.42.2` is reachable.
+- No ignored `.env` or exported Spotify credentials are present; the host user manager still loads the old P6-I unit.
+- Resume with out-of-band credentials and a host-native P7 unit install, then run physical live/failure/reconnect acceptance.
+
+## Next Session Context Chunk — N4 (2026-07-19, closed)
+
+- Physical acceptance passed: live metadata + 50 real playlists on device; scripted ethernet-outage
+  drill confirmed stale=true frozen snapshot then gen 1670→1688 fresh recovery (`.n4-drill.log`).
+- Waived/deferred: playlist *selection* (no shell-router path reaches PlaylistScreen — presets 1–4
+  only; needs a future shell card) and wheel volume (kiosk runs `bridge=0`; P8 owns input).
+- Known quirks: stale flag only reaches *new* WS connections (gen doesn't advance on failure);
+  `art_pbm_base64` stays nil; USB replug drops host `172.16.42.1` (re-add + kiosk restart —
+  see `.n4-failure-drill.py` preflight).
