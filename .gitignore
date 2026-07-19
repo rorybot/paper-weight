@@ -3,7 +3,8 @@ dist/
 coverage/
 .npm-cache/
 target/
+result
+result-*
 
 .env
 .env.local
-

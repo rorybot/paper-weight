@@ -25,6 +25,14 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Wave 1 = three host services in parallel (W1/F1/N1); **do not** edit `application.ex`, shell, or other lanes.
 - Each agent owns only its tree under `host/lib/paper_weight/{weather,feed,spotify}/` + matching tests + `src/device-ui/src/protocol/<channel>.ts`.
 
+## Host paths vs agent paths (mandatory)
+
+Agent sessions may see the machine through a Distrobox bind mount (`/run/host/...`). Rory's own
+shell does not have that prefix — his working tree sits at the equivalent path *without*
+`/run/host`. Before handing Rory any `cd` / command meant for his terminal (builds, deploys,
+anything outside the sandbox), strip the `/run/host` prefix first. A `/run/host/...` path handed
+to Rory points at a location that doesn't exist on his machine.
+
 ## Git / PR (mandatory)
 
 - **Never commit directly to `master`.** Branch → PR → wait for required check **`ci`** → merge.
