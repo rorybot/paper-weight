@@ -10,7 +10,9 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
 | W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
-| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **In progress** (P7 #85 Done; live acceptance pending) |
+| W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **Done** |
+| W4-1 | [#114](https://github.com/rorybot/paper-weight/issues/114) | Wheel does not toggle 5-day/7-day on physical device | **Backlog** |
+| W4-2 | [#115](https://github.com/rorybot/paper-weight/issues/115) | Verify stale/recovery on real physical-device network outage | **Backlog** |
 | W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | **Ready** (Priority P0) |
 
 ## Ownership (only these paths)
@@ -160,3 +162,23 @@ _(lane agents append here; do not edit mix.exs)_
 - Validation remains green: Weather 38/38 and full host 184/184.
 - This worktree has no untracked `.env`; live NWS/OpenUV activation has not started.
 - Resume with out-of-band Weather env values and the physical Car Thing available.
+
+## Next Session Context Chunk — W4 (2026-07-19, closed)
+
+- W4 #87 accepted and closed. PR #95 squash-merged after two rebases (past P8 #86, then N4
+  #89) onto `master`. Local validation: Weather 38/38, full host 201/201; required `ci` green.
+- Physical acceptance on the Car Thing (live NWS/OpenUV via P7's `.env` contract): kiosk loads,
+  live current conditions render, 5-day forecast displays, UV + walk verdict match the live
+  snapshot.
+- Two items did not survive genuine on-device verification and were split into their own
+  Backlog cards rather than blocking #87 or being marked passed on weak evidence:
+  - **#114** — wheel input does nothing on the physical Weather screen (5d/7d toggle never
+    fires), even though `WeatherScreen`/`ShellApp` unit tests for the toggle pass. Likely
+    input-bridge/shell wiring, not a Weather-service regression — needs triage before assuming
+    Weather-lane ownership.
+  - **#115** — stale/error and recovery behavior need a real ~15-minute network outage to
+    verify; the refresh interval is fixed (`@default_refresh_ms`, `config.ex`) with no env
+    override, so there's no shortcut. Not attempted for real this session.
+- W5 #109 (Open-Meteo migration, Ready/P0) would remove the `OPENUV_API_KEY` requirement
+  entirely — worth doing before re-attempting #115, since it changes what "stale/error" even
+  means for this lane.

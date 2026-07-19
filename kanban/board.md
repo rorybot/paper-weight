@@ -19,11 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89 |
-| **In progress** | W4 #87 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87 |
+| **In progress** | - |
 | **In review** | - |
 | **Ready** | W5 #109 |
-| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112 |
+| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -309,19 +309,39 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: fixture-driven `WeatherScreen` @ 800×480; pure `toggle-weather-range` 5d↔7d;
   UV bars/legend for extreme/high/low; no shell edits (wave 3 wires screen map).
 
-### W4 [weather] Live Weather acceptance · #87 · In progress
+### W4 [weather] Live Weather acceptance · #87 ✅ Done
 - **Goal**: accept live NWS/OpenUV Weather behavior on the physical device.
 - **Scope**: P7 activation plus Weather-owned gaps/tests and physical validation.
 - **Constraints**: P7 #85 Done; Weather-owned paths only; frozen envelope;
   credentials untracked.
-- **Acceptance**: mocked stale/recovery; live forecast/UV/verdict; network loss and reconnect pass.
-- **Pre-P7 preparation (WIP, lane-local)**: inspected existing
-  coverage; added mocked tests for OpenUV-specific failure, malformed/partial NWS + OpenUV
-  responses, and post-failure recovery/generation transitions
-  (`service_test.exs`/`fetch_test.exs`/`nws_test.exs`/`open_uv_test.exs`). Recovery test caught
-  and fixed a real bug: `Service.refresh_now/1` returned a malformed nested reply tuple on a
-  successful post-failure refresh instead of `{:ok, snap}`. `mix test test/paper_weight/weather`
-  — 38/38 green. Branch `lane/weather-w4-live-acceptance`, draft PR opened for resumption after P7.
+- **Acceptance**: mocked stale/recovery; live current conditions/UV/verdict on device; required `ci` green.
+- **Done**: added mocked coverage for OpenUV-specific failure, malformed/partial NWS + OpenUV
+  responses, post-failure recovery, and generation transitions
+  (`service_test.exs`/`fetch_test.exs`/`nws_test.exs`/`open_uv_test.exs`); fixed a real bug —
+  `Service.refresh_now/1` returned a malformed nested reply tuple on a successful post-failure
+  refresh instead of `{:ok, snap}`. `mix test test/paper_weight/weather` 38/38, full host
+  201/201. Physical Car Thing acceptance (`.env` via P7 contract): kiosk loads, live current
+  conditions render, 5-day forecast displays, UV + walk verdict consistent with live snapshot.
+  7-day wheel toggle does not respond on-device — split out to #114 (not a code regression;
+  `WeatherScreen`/`ShellApp` unit tests for the toggle still pass). Stale/error + recovery
+  behavior on a real ~15-min network outage was not genuinely re-observed this session
+  (refresh interval is fixed 15 min, no env override) — split out to #115. PR #95 squash-merged,
+  required `ci` green, issue #87 closed.
+
+### W4-1 [weather] Wheel does not toggle 5-day/7-day on physical device · #114 · Backlog
+- **Goal**: make the on-device wheel actually flip the Weather screen between 5-day and 7-day.
+- **Scope**: confirm whether wheel events reach the Weather screen's command handler at all
+  on-device (control-case check against now-playing volume); narrow to Weather lane vs
+  input-bridge/shell wiring before assuming ownership.
+- **Acceptance**: turning the wheel on the physical Weather screen visibly toggles 5-day ↔ 7-day.
+
+### W4-2 [weather] Verify stale/recovery on a real physical-device network outage · #115 · Backlog
+- **Goal**: actually observe (not mock) the accepted stale/error and recovery presentation on
+  the Car Thing across a real ~15-minute network outage.
+- **Scope**: cut host internet with the live Weather runtime active, wait for a failed refresh
+  tick, confirm on-device stale/error state, restore connectivity, confirm the next tick
+  refreshes to a fresh snapshot on-device.
+- **Acceptance**: both stale/error and recovery states are confirmed on-device against a real outage.
 
 ### W5 [weather] Migrate Weather from NWS/OpenUV to Open-Meteo · #109 · Ready · P0
 - **Goal**: remove the OpenUV credential requirement by using Open-Meteo as the live provider.
