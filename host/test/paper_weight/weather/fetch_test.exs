@@ -98,4 +98,72 @@ defmodule PaperWeight.Weather.FetchTest do
 
     assert {:error, _} = Fetch.fetch_snapshot(config, mock_http(fail_all: true))
   end
+
+  test "NWS forecast failure (after points succeeds) surfaces as error" do
+    config =
+      Config.new(
+        openuv_api_key: "k",
+        nws_points_url: "https://api.weather.gov/points/1,2"
+      )
+
+    assert {:error, _} = Fetch.fetch_snapshot(config, mock_http(fail_forecast: true))
+  end
+
+  test "OpenUV failure surfaces as error even when NWS succeeds" do
+    config =
+      Config.new(
+        openuv_api_key: "test-key",
+        nws_points_url: "https://api.weather.gov/points/0,0",
+        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
+        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
+      )
+
+    openuv_failing_http = fn url, headers ->
+      if String.contains?(url, "openuv") do
+        {:error, :econnrefused}
+      else
+        mock_http().(url, headers)
+      end
+    end
+
+    assert {:error, _} = Fetch.fetch_snapshot(config, openuv_failing_http)
+  end
+
+  test "malformed (non-JSON) NWS response surfaces as error, not a partial snapshot" do
+    config =
+      Config.new(
+        openuv_api_key: "k",
+        nws_points_url: "https://api.weather.gov/points/1,2"
+      )
+
+    malformed_http = fn url, _headers ->
+      if String.contains?(url, "/points/") do
+        {:ok, "not json"}
+      else
+        {:error, {:unexpected_url, url}}
+      end
+    end
+
+    assert {:error, _} = Fetch.fetch_snapshot(config, malformed_http)
+  end
+
+  test "malformed (non-JSON) OpenUV response surfaces as error, not a partial snapshot" do
+    config =
+      Config.new(
+        openuv_api_key: "test-key",
+        nws_points_url: "https://api.weather.gov/points/0,0",
+        openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=1&lng=2",
+        openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=1&lng=2"
+      )
+
+    malformed_uv_http = fn url, headers ->
+      if String.contains?(url, "openuv") and String.contains?(url, "/uv") do
+        {:ok, "not json"}
+      else
+        mock_http().(url, headers)
+      end
+    end
+
+    assert {:error, _} = Fetch.fetch_snapshot(config, malformed_uv_http)
+  end
 end

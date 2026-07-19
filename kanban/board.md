@@ -20,10 +20,10 @@ Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89 |
-| **In progress** | - |
+| **In progress** | W4 #87 |
 | **In review** | - |
-| **Ready** | - |
-| **Backlog** | W4 #87; F3 #88; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112 |
+| **Ready** | W5 #109 |
+| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -309,11 +309,28 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: fixture-driven `WeatherScreen` @ 800×480; pure `toggle-weather-range` 5d↔7d;
   UV bars/legend for extreme/high/low; no shell edits (wave 3 wires screen map).
 
-### W4 [weather] Live Weather acceptance · #87 · Backlog
+### W4 [weather] Live Weather acceptance · #87 · In progress
 - **Goal**: accept live NWS/OpenUV Weather behavior on the physical device.
 - **Scope**: P7 activation plus Weather-owned gaps/tests and physical validation.
-- **Constraints**: blocked by P7; Weather-owned paths only; frozen envelope; credentials untracked.
+- **Constraints**: P7 #85 Done; Weather-owned paths only; frozen envelope;
+  credentials untracked.
 - **Acceptance**: mocked stale/recovery; live forecast/UV/verdict; network loss and reconnect pass.
+- **Pre-P7 preparation (WIP, lane-local)**: inspected existing
+  coverage; added mocked tests for OpenUV-specific failure, malformed/partial NWS + OpenUV
+  responses, and post-failure recovery/generation transitions
+  (`service_test.exs`/`fetch_test.exs`/`nws_test.exs`/`open_uv_test.exs`). Recovery test caught
+  and fixed a real bug: `Service.refresh_now/1` returned a malformed nested reply tuple on a
+  successful post-failure refresh instead of `{:ok, snap}`. `mix test test/paper_weight/weather`
+  — 38/38 green. Branch `lane/weather-w4-live-acceptance`, draft PR opened for resumption after P7.
+
+### W5 [weather] Migrate Weather from NWS/OpenUV to Open-Meteo · #109 · Ready · P0
+- **Goal**: remove the OpenUV credential requirement by using Open-Meteo as the live provider.
+- **Scope**: replace NWS/OpenUV parsing/fetching; preserve the frozen Weather snapshot and UI;
+  remove `OPENUV_API_KEY` from the P7 runtime contract and docs.
+- **Constraints**: cross-lane `chore/*` branch or `cross-lane` label; no committed location values;
+  use the proven no-key request shape from local `newTab` where appropriate.
+- **Acceptance**: current conditions, 5/7-day forecast, UV/verdict, stale/reconnect behavior pass;
+  startup requires only latitude/longitude; required `ci` green.
 
 ## Epic: playlist (screen 4c)
 
