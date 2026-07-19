@@ -17,10 +17,8 @@ defmodule PaperWeight.ApplicationWeatherTest do
            auto_refresh: false,
            refresh_ms: :infinity,
            name: :weather_wire_test,
-           # Location not in repo defaults — tests must inject URLs or WEATHER_LAT/LON.
-           nws_points_url: "https://api.weather.gov/points/0,0",
-           openuv_uv_url: "https://api.openuv.io/api/v1/uv?lat=0&lng=0",
-           openuv_forecast_url: "https://api.openuv.io/api/v1/forecast?lat=0&lng=0"
+           # Location not in repo defaults — tests must inject a URL or WEATHER_LAT/LON.
+           open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0"
          ]}
       )
 
