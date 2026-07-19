@@ -145,3 +145,10 @@ _(lane agents append here; do not edit mix.exs)_
 - Branch `lane/weather-w4-live-acceptance`; draft PR opened. Resume: rebase after P7 merges, wire
   live activation, then run physical-device acceptance (live NWS/OpenUV render, network loss +
   reconnect on-device, required `ci` green, Done/closeout sync).
+
+## Next Session Context Chunk — W4 (2026-07-19)
+
+- PR #95 rebased onto current `master`; Weather tests remain green at 38/38.
+- P7 #85 is still open, so no live activation, credentials, or physical acceptance was attempted.
+- PR remains draft and W4 #87 remains In progress; rebase-only blocker comment is posted.
+- Resume only after P7 lands, using its EnvironmentFile/runtime contract for live acceptance.
