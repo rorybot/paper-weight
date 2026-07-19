@@ -51,6 +51,29 @@ Expected state:
 
 Do not replace the Nix-managed kiosk URL with an `/etc` symlink or a systemd override.
 
+## Temporary development-host verification
+
+The current Archbox development machine is not necessarily the machine that will ultimately host
+the production services. On this machine, `mix` may intentionally exist only inside the dev
+environment. Its native `systemd --user` manager will not see that toolchain, so installing the
+host unit there can fail with `error: required command not found: mix`.
+
+For physical Car Thing verification on such a temporary development host, run both services from
+inside the dev environment instead:
+
+```bash
+scripts/run-device-fixture.sh
+```
+
+Keep that terminal running and use another dev-environment terminal for
+`scripts/host-health-check.sh`. The command serves both the production UI on `:8080` and fixture
+gateway on `:9138`; it is sufficient for USB/device and physical-control checks, but it is not
+evidence of unattended host cold-boot persistence.
+
+Do not repair or bridge host/Distrobox runtime wiring merely to make a temporary development
+machine emulate the eventual production host. Before classifying missing native tooling as a
+P6-H defect, confirm whether the machine is actually intended to be the final service host.
+
 ## Operations
 
 | Action | Command | Verification |

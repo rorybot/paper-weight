@@ -234,5 +234,8 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   Chromium viewport; it is not cold-boot acceptance evidence.
 - `host-service.sh install` ran inside Distrobox, but normal start returned
   `Unit paper-weight-host.service not found`; do not repair runtime wiring.
+- Rory clarified that this Archbox is not the eventual service host and `mix` intentionally lives
+  in the dev environment. For present device checks, run `run-device-fixture.sh` there; do not
+  misclassify the native-host failure as a product defect without confirming the deployment host.
 - Finish with the documented host-native cold boot, preset 1–4, reboot/rollback checks, and
   committed `docs/evidence/p6-i-cold-boot.md` before moving #82 to Done.
