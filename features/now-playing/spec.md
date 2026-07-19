@@ -184,6 +184,6 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 ## Next Session Context Chunk — N4 (2026-07-19)
 
 - PR #96 rebased onto current `origin/master`; Spotify tests pass 56/56 and diff-check is clean.
-- P7 #85 remains open with Project Status Backlog, so no live activation or physical acceptance ran.
+- P7 #85 remains open with Project Status Ready, so no live activation or physical acceptance ran.
 - N4 #89 remains open and In progress; board mirror and this card table now match GitHub.
 - Resume only after P7 is Done: wire its runtime contract, use out-of-band credentials, validate device/reconnect, then close out.
