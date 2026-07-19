@@ -18,6 +18,17 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Functional style: pure functions, composition, immutability; small single-purpose modules.
 - Stack is decided in `docs/architecture/workflow-v1.md` (host Elixir + device Preact kiosk + evdev bridge).
 
+## Reuse check before implementation
+
+- Before designing a new module, provider, or integration, run a targeted search across sibling
+  repos under `/run/host/home/rory/repos` for an existing implementation that can inform the work.
+- This is a narrow exception to the token rules: inspect only the relevant module, its focused
+  tests, and directly related setup notes; never sweep an entire repo into context.
+- Exclude generated/vendor/data trees and secrets (`node_modules`, build outputs, caches, `.env`,
+  credentials). Reuse compatible patterns and interfaces, never secret values.
+- Card ownership and frozen contracts still win. Record the reused project/module in the active
+  card or feature spec, or note briefly why the existing implementation was not compatible.
+
 ## Parallel lanes (weather / feed / spotify)
 - Playbook: `docs/architecture/parallel-lanes-v1.md`
 - Envelope (frozen): `docs/architecture/host-device-protocol-v1.md`
