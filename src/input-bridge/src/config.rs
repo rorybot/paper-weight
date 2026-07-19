@@ -9,7 +9,7 @@ use crate::reducer::{Action, Bindings};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BridgeConfig {
-    pub device: PathBuf,
+    pub devices: Vec<PathBuf>,
     pub listen: SocketAddr,
     pub bindings: Bindings,
 }
@@ -25,7 +25,7 @@ impl BridgeConfig {
 
 pub fn parse_config(contents: &str) -> Result<BridgeConfig, String> {
     let values = parse_values(contents)?;
-    let device = required(&values, "device").map(PathBuf::from)?;
+    let devices = parse_devices(&values)?;
     let listen = values
         .get("listen")
         .map(String::as_str)
@@ -70,7 +70,7 @@ pub fn parse_config(contents: &str) -> Result<BridgeConfig, String> {
     };
 
     Ok(BridgeConfig {
-        device,
+        devices,
         listen,
         bindings: Bindings {
             wheel_relative_code,
@@ -80,6 +80,32 @@ pub fn parse_config(contents: &str) -> Result<BridgeConfig, String> {
             debounce_ms,
         },
     })
+}
+
+fn parse_devices(values: &BTreeMap<String, String>) -> Result<Vec<PathBuf>, String> {
+    match (values.get("device"), values.get("devices")) {
+        (Some(_), Some(_)) => Err("configure either device or devices, not both".into()),
+        (Some(device), None) => Ok(vec![PathBuf::from(device)]),
+        (None, Some(devices)) => {
+            let parsed = devices
+                .split(',')
+                .map(str::trim)
+                .map(|device| {
+                    if device.is_empty() {
+                        Err("devices contains an empty path".to_string())
+                    } else {
+                        Ok(PathBuf::from(device))
+                    }
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            let unique = parsed.iter().collect::<BTreeSet<_>>();
+            if unique.len() != parsed.len() {
+                return Err("devices contains a duplicate path".into());
+            }
+            Ok(parsed)
+        }
+        (None, None) => Err("missing required config key device or devices".into()),
+    }
 }
 
 fn parse_hold_codes(value: &str, keys: &BTreeMap<u16, Action>) -> Result<BTreeSet<u16>, String> {

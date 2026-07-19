@@ -40,6 +40,7 @@
           };
           modules = [
             nixos-superbird.nixosModules.superbird
+            ./input-bridge.nix
             (
               { ... }:
               {

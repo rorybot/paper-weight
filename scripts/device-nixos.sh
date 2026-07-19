@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-NIX_DIR="$ROOT_DIR/device/nix"
+FLAKE_REF="path:/workdir?dir=device/nix"
 BUILDER_IMAGE="${PAPER_WEIGHT_NIX_BUILDER:-ghcr.io/joeyeamigh/nixos-superbird/builder:latest}"
 DEVICE_TARGET="${PAPER_WEIGHT_DEVICE_TARGET:-root@172.16.42.2}"
 SYSTEM_PROFILE="/nix/var/nix/profiles/system"
@@ -13,12 +13,14 @@ NIXBUILD_HOST_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNry
 NIXBUILD_KEY_DEFAULT="${HOME}/.ssh/my-nixbuild-key"
 # PAPER_WEIGHT_NIXBUILD: auto | 1 | 0  (auto = use key if present)
 NIXBUILD_MODE="${PAPER_WEIGHT_NIXBUILD:-auto}"
+BUILDER_OUTPUT_DIR=""
 
 usage() {
   cat <<'EOF'
 Usage: scripts/device-nixos.sh <command> [generation]
 
   evaluate              Evaluate the flake, deploy schema, and kiosk URL
+  build-input-bridge    Build only the aarch64 bridge candidate outside the worktree
   build                 Build the NixOS system through the upstream builder
   deploy                Build and activate a new generation on the Car Thing
   status                Show current/available generations and kiosk service state
@@ -32,6 +34,7 @@ Environment:
   PAPER_WEIGHT_PODMAN          Podman binary override
   PAPER_WEIGHT_NIXBUILD        auto|1|0 — use nixbuild.net remote builders (default auto)
   PAPER_WEIGHT_NIXBUILD_KEY    Path to Ed25519 private key (default ~/.ssh/my-nixbuild-key)
+  PAPER_WEIGHT_ARTIFACT_DIR    Host directory for package-only build artifacts
 EOF
 }
 
@@ -69,16 +72,17 @@ resolve_nixbuild_key() {
 run_builder() {
   local -a podman
   local -a podman_args
-  local builder_workdir="$NIX_DIR"
+  local builder_workdir="$ROOT_DIR"
   local nixbuild_key=""
   local nixbuild_key_host=""
+  local builder_output_host=""
   local use_nixbuild=0
 
   if [[ -n "${PAPER_WEIGHT_PODMAN:-}" ]]; then
     podman=("$PAPER_WEIGHT_PODMAN")
   elif [[ -n "${CONTAINER_ID:-}" ]] && command -v distrobox-host-exec >/dev/null 2>&1; then
     podman=(distrobox-host-exec podman)
-    builder_workdir="$(host_bind_path "$NIX_DIR")"
+    builder_workdir="$(host_bind_path "$ROOT_DIR")"
   else
     require_command podman
     podman=(podman)
@@ -113,6 +117,12 @@ run_builder() {
     --network=host
     --volume "$builder_workdir:/workdir"
   )
+
+  if [[ -n "$BUILDER_OUTPUT_DIR" ]]; then
+    mkdir -p "$BUILDER_OUTPUT_DIR"
+    builder_output_host="$(host_bind_path "$BUILDER_OUTPUT_DIR")"
+    podman_args+=(--volume "$builder_output_host:/output")
+  fi
 
   if [[ "$use_nixbuild" -eq 1 ]]; then
     nixbuild_key_host="$(host_bind_path "$nixbuild_key")"
@@ -178,6 +188,10 @@ device_status() {
     systemctl is-active weston-tty1.service
     printf 'weston_enabled='
     systemctl is-enabled weston-tty1.service
+    printf 'input_bridge_active='
+    systemctl is-active input-bridge.service
+    printf 'input_bridge_enabled='
+    systemctl is-enabled input-bridge.service
     printf 'kiosk_url='
     cat /etc/kiosk_url
     printf 'uptime_seconds='
@@ -190,11 +204,12 @@ evaluate_flake() {
 
   actual_url="$(
     run_builder sh -eu -c '
-      nix flake check --show-trace 1>&2
+      flake_ref="$1"
+      nix flake check "$flake_ref" --show-trace 1>&2
       nix eval \
         --raw \
-        .#nixosConfigurations.superbird.config.environment.etc.kiosk_url.text
-    '
+        "$flake_ref#nixosConfigurations.superbird.config.environment.etc.kiosk_url.text"
+    ' sh "$FLAKE_REF"
   )"
   [[ "$actual_url" == "$EXPECTED_KIOSK_URL" ]] ||
     fail "evaluated kiosk URL does not match the production URL"
@@ -203,26 +218,68 @@ evaluate_flake() {
 
 build_system() {
   run_builder nix build \
-    .#nixosConfigurations.superbird.config.system.build.toplevel \
+    "$FLAKE_REF#nixosConfigurations.superbird.config.system.build.toplevel" \
     --no-link \
     --print-out-paths \
     --show-trace
+}
+
+build_input_bridge() {
+  local artifact_dir
+  local artifact_path
+  local git_dir
+
+  if [[ -n "${PAPER_WEIGHT_ARTIFACT_DIR:-}" ]]; then
+    artifact_dir="$PAPER_WEIGHT_ARTIFACT_DIR"
+  else
+    require_command git
+    git_dir="$(git -C "$ROOT_DIR" rev-parse --absolute-git-dir)"
+    artifact_dir="$git_dir/paper-weight-artifacts/input-bridge"
+  fi
+  mkdir -p "$artifact_dir"
+  artifact_dir="$(cd "$artifact_dir" && pwd)"
+  artifact_path="$artifact_dir/input_bridge"
+
+  BUILDER_OUTPUT_DIR="$artifact_dir" run_builder sh -eu -c '
+    flake_ref="$1"
+    output="$(
+      nix build \
+        "$flake_ref#nixosConfigurations.superbird.config.system.build.paperWeightInputBridge" \
+        --no-link \
+        --print-out-paths \
+        --show-trace
+    )"
+    install -Dm755 "$output/bin/input_bridge" /output/input_bridge
+  ' sh "$FLAKE_REF"
+  printf 'input_bridge=%s\n' "$(host_bind_path "$artifact_path")"
+}
+
+restore_kiosk_tty() {
+  # Current generations declare tty1 ownership. This also keeps activate and
+  # rollback safe when selecting an older generation without that declaration.
+  ssh_device "
+    set -eu
+    systemctl stop getty@tty1.service
+    systemctl start weston-tty1.service
+  "
 }
 
 deploy_system() {
   printf '%s\n' "Before deployment:"
   device_status
   run_builder sh -eu -c '
+    flake_ref="$1"
     deploy_source="$(
       nix eval \
         --impure \
         --raw \
-        --expr "(builtins.getFlake \"path:/workdir\").inputs.deploy-rs.outPath"
+        --expr "(builtins.getFlake \"$flake_ref\").inputs.deploy-rs.outPath"
     )"
     nix run "path:$deploy_source" -- \
-      .#superbird \
+      "$flake_ref#superbird" \
       --ssh-opts "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-  '
+  ' sh "$FLAKE_REF"
+  restore_kiosk_tty
   printf '%s\n' "After deployment:"
   device_status
 }
@@ -245,6 +302,7 @@ reboot_device() {
   ssh_device systemctl reboot || true
   sleep 2
   wait_for_device
+  restore_kiosk_tty
   device_status
 }
 
@@ -256,6 +314,7 @@ activate_profile() {
     nix-env --profile $SYSTEM_PROFILE --switch-generation '$selection'
     $SYSTEM_PROFILE/bin/switch-to-configuration switch
   "
+  restore_kiosk_tty
   device_status
 }
 
@@ -271,6 +330,7 @@ rollback_profile() {
   "
   after="$(ssh_device "readlink -f $SYSTEM_PROFILE")"
   [[ "$after" != "$before" ]] || fail "rollback did not select a different generation"
+  restore_kiosk_tty
   device_status
 }
 
@@ -283,6 +343,10 @@ case "$1" in
   evaluate)
     [[ $# -eq 1 ]] || fail "evaluate takes no arguments"
     evaluate_flake
+    ;;
+  build-input-bridge)
+    [[ $# -eq 1 ]] || fail "build-input-bridge takes no arguments"
+    build_input_bridge
     ;;
   build)
     [[ $# -eq 1 ]] || fail "build takes no arguments"

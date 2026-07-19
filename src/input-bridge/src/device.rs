@@ -6,10 +6,13 @@ use std::{
 
 use crate::{linux::read_raw_input, reducer::RawInput};
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct DeviceId(pub usize);
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum DeviceUpdate {
-    Input(RawInput),
-    Reset,
+    Input { device: DeviceId, raw: RawInput },
+    Reset { device: DeviceId },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -38,6 +41,7 @@ impl Default for ReconnectPolicy {
 }
 
 pub fn reconnecting_read_loop<Reader, Open, Clock, Sleep, Emit, Report>(
+    device: DeviceId,
     mut open: Open,
     mut at_ms: Clock,
     mut sleep: Sleep,
@@ -57,10 +61,10 @@ pub fn reconnecting_read_loop<Reader, Open, Clock, Sleep, Emit, Report>(
     loop {
         let error = match open() {
             Ok(mut reader) => loop {
-                match read_raw_input(&mut reader, at_ms()) {
+                match read_raw_input(&mut reader, &mut at_ms) {
                     Ok(Some(raw)) => {
                         consecutive_failures = 0;
-                        if emit(DeviceUpdate::Input(raw)).is_break() {
+                        if emit(DeviceUpdate::Input { device, raw }).is_break() {
                             return;
                         }
                     }
@@ -71,7 +75,7 @@ pub fn reconnecting_read_loop<Reader, Open, Clock, Sleep, Emit, Report>(
             Err(error) => error,
         };
 
-        if emit(DeviceUpdate::Reset).is_break() {
+        if emit(DeviceUpdate::Reset { device }).is_break() {
             return;
         }
 
@@ -94,7 +98,7 @@ mod tests {
         time::Duration,
     };
 
-    use super::{DeviceUpdate, ReconnectPolicy, reconnecting_read_loop};
+    use super::{reconnecting_read_loop, DeviceId, DeviceUpdate, ReconnectPolicy};
     use crate::reducer::{KeyState, RawInput};
 
     fn record(event_type: u16, code: u16, value: i32) -> Cursor<Vec<u8>> {
@@ -114,6 +118,7 @@ mod tests {
         let mut delays = Vec::new();
 
         reconnecting_read_loop(
+            DeviceId(7),
             || {
                 readers
                     .pop_front()
@@ -129,7 +134,7 @@ mod tests {
             },
             |update| {
                 updates.push(update);
-                if matches!(update, DeviceUpdate::Input(_)) {
+                if matches!(update, DeviceUpdate::Input { .. }) {
                     input_count += 1;
                 }
                 if input_count == 2 {
@@ -146,17 +151,25 @@ mod tests {
         assert_eq!(
             updates,
             [
-                DeviceUpdate::Input(RawInput::Key {
-                    code: 2,
-                    state: KeyState::Pressed,
-                    at_ms: 41,
-                }),
-                DeviceUpdate::Reset,
-                DeviceUpdate::Input(RawInput::Key {
-                    code: 2,
-                    state: KeyState::Released,
-                    at_ms: 43,
-                }),
+                DeviceUpdate::Input {
+                    device: DeviceId(7),
+                    raw: RawInput::Key {
+                        code: 2,
+                        state: KeyState::Pressed,
+                        at_ms: 41,
+                    },
+                },
+                DeviceUpdate::Reset {
+                    device: DeviceId(7),
+                },
+                DeviceUpdate::Input {
+                    device: DeviceId(7),
+                    raw: RawInput::Key {
+                        code: 2,
+                        state: KeyState::Released,
+                        at_ms: 42,
+                    },
+                },
             ]
         );
     }
@@ -171,6 +184,7 @@ mod tests {
         let mut resets = 0;
 
         reconnecting_read_loop(
+            DeviceId(11),
             || -> io::Result<Cursor<Vec<u8>>> {
                 Err(io::Error::new(io::ErrorKind::NotFound, "device absent"))
             },
@@ -184,7 +198,11 @@ mod tests {
                 }
             },
             |update| {
-                if update == DeviceUpdate::Reset {
+                if update
+                    == (DeviceUpdate::Reset {
+                        device: DeviceId(11),
+                    })
+                {
                     resets += 1;
                 }
                 ControlFlow::Continue(())

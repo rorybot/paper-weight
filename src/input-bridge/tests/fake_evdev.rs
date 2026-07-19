@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use paper_weight_input_bridge::{
     event::InputEvent,
-    reducer::{Action, Bindings, KeyState, RawInput, State, reduce_all},
+    reducer::{reduce_all, Action, Bindings, KeyState, RawInput, State},
 };
 
 const WHEEL_REL: u16 = 8;

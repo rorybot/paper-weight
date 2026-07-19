@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use paper_weight_input_bridge::config::parse_config;
 
 const CONFIG: &str = r#"
@@ -19,10 +21,49 @@ back=14
 fn parses_a_complete_loopback_config() {
     let config = parse_config(CONFIG).unwrap();
 
-    assert_eq!(config.device.to_string_lossy(), "/dev/input/event0");
+    assert_eq!(config.devices, [PathBuf::from("/dev/input/event0")]);
     assert!(config.listen.ip().is_loopback());
     assert_eq!(config.bindings.hold_ms, 650);
     assert_eq!(config.bindings.home_hold_codes.len(), 4);
+}
+
+#[test]
+fn parses_multiple_input_devices() {
+    let config = parse_config(&CONFIG.replace(
+        "device=/dev/input/event0",
+        "devices=/dev/input/event0,/dev/input/event1",
+    ))
+    .unwrap();
+
+    assert_eq!(
+        config.devices,
+        [
+            PathBuf::from("/dev/input/event0"),
+            PathBuf::from("/dev/input/event1")
+        ]
+    );
+}
+
+#[test]
+fn rejects_ambiguous_device_configuration() {
+    let error = parse_config(&CONFIG.replace(
+        "device=/dev/input/event0",
+        "device=/dev/input/event0\ndevices=/dev/input/event0,/dev/input/event1",
+    ))
+    .unwrap_err();
+
+    assert_eq!(error, "configure either device or devices, not both");
+}
+
+#[test]
+fn rejects_duplicate_input_devices() {
+    let error = parse_config(&CONFIG.replace(
+        "device=/dev/input/event0",
+        "devices=/dev/input/event0,/dev/input/event0",
+    ))
+    .unwrap_err();
+
+    assert_eq!(error, "devices contains a duplicate path");
 }
 
 #[test]

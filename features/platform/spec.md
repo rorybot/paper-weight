@@ -182,6 +182,13 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - P6-I unlocks P7 #85 and P8 #86; P7 unlocks parallel W4 #87, F3 #88, and N4 #89.
 - P9 #90 is the final gate. Nix builds use host Podman and preserve the previous generation.
 
+## Next Session Context Chunk (P8 — 2026-07-19)
+
+- Rebase onto merged P6-N is complete; local declarative Nix WIP packages/configures `input-bridge.service` for GPIO `event0` plus rotary `event1`.
+- Physical mapping is confirmed: wheel REL 6, press 28, presets 2–5, Back 1. Gen 4 SSE confirmed wheel/press/presets 2–4/Home/Back and exposed a pre-read timestamp bug.
+- The local candidate fixes post-read timing, per-device reconnect resets, and non-starvable hold deadlines; precise Nix source/artifact boundaries prevent needless rebuilds. All 23 tests + strict Clippy pass.
+- No final candidate is built yet; Weston and deployed bridge are active with `bridge=0`. Next: package-only physical/reconnect acceptance, remove the flag, then one final system deploy, CI, and closeout.
+
 ## Next Session Context Chunk (P8 — 2026-07-18)
 
 - `src/input-bridge/src/device.rs` now retries evdev with 250ms–5s bounded backoff and resets held-key state across disconnects.

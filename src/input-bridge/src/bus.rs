@@ -1,6 +1,6 @@
 use std::sync::{
-    Arc, Mutex,
     mpsc::{self, Receiver, Sender},
+    Arc, Mutex,
 };
 
 use crate::event::InputEvent;
