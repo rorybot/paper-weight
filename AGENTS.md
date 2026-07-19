@@ -122,6 +122,12 @@ host-native working directory or use absolute host-native paths. Never assume hi
 in the repository or the intended worktree. For worktree sessions, include the complete
 `.worktrees/<name>` path in the `cd`.
 
+Additionally, **verify the file exists at the exact handed path before sending it** (`ls` the
+agent-side `/run/host` equivalent). Never `~` or relative paths. A file merged to `master` is
+NOT reachable through a checkout sitting on another branch — if the session's worktree was
+removed after merge, materialize a fresh worktree of `origin/master` and hand that full
+`.worktrees/<name>/...` path; do not delete a worktree Rory still needs to run something from.
+
 ## Podman / Distrobox — preserve runtime wiring (mandatory)
 
 Normal use of the already-working container toolchain is allowed: repo build/test
