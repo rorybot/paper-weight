@@ -69,7 +69,8 @@ defmodule PaperWeight.Weather.OpenMeteoTest do
   end
 
   test "non-numeric uv_index defaults uv to 0.0" do
-    body = Map.update!(fixture("open_meteo_forecast.json"), "current", &Map.delete(&1, "uv_index"))
+    body =
+      Map.update!(fixture("open_meteo_forecast.json"), "current", &Map.delete(&1, "uv_index"))
 
     assert {:ok, parsed} = OpenMeteo.parse(body)
     assert parsed.uv_index == 0.0

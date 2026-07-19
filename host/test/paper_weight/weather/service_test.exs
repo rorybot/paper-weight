@@ -44,13 +44,13 @@ defmodule PaperWeight.Weather.ServiceTest do
 
   test "failure after success keeps last good with stale: true" do
     {:ok, pid} =
-      GenServer.start_link(Service, [
+      GenServer.start_link(Service,
         http_get: good_http(),
         auto_refresh: false,
         refresh_ms: :infinity,
         location_label: "Exampleville, EX",
         open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0"
-      ])
+      )
 
     assert {:ok, fresh} = Service.get_snapshot(pid)
     assert fresh["stale"] == false
