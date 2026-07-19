@@ -19,11 +19,12 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-18, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83 |
-| **In progress** | P6-N #84 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84 |
+| **In progress** | - |
 | **In review** | - |
 | **Ready** | - |
 | **Backlog** | P6-I #82; P7 #85; P8 #86; W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
+| **Backlog** | P7 #85; P8 #86; W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -120,12 +121,19 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   Real-device `systemctl --user start`/reboot survival not exercised in the dev sandbox
   (verified as a sandbox limitation, not a script defect) — spot-check on the USB-host machine.
 
-### P6-N [platform] Declarative NixOS kiosk · #84 · In progress
+### P6-N [platform] Declarative NixOS kiosk · #84 · Done (closed)
 - **Goal**: boot directly into the production kiosk through a rollback-safe NixOS generation.
 - **Scope**: pin `nixos-superbird` at `0d2b239683907c19583c51134c6795ded087437d`;
   set `superbird.gui.kiosk_url`; build/deploy through the privileged upstream builder.
 - **Constraints**: use host Podman; preserve the prior generation; no `/etc` symlink/systemd override.
 - **Acceptance**: evaluate/build, deploy to `172.16.42.2`, reboot fullscreen, and rollback pass.
+- **Done**: `device/nix/flake.nix` pins the upstream rev and sets the production kiosk URL;
+  `scripts/device-nixos.sh` (evaluate/build/deploy/status/reboot/rollback/activate, optional
+  nixbuild.net remote builder). Doc: `docs/architecture/device-nixos-kiosk.md`. Physically
+  verified on `172.16.42.2`: deploy landed generation 2, survived a real `systemctl reboot`
+  (Weston active, production URL, Home screen confirmed on-device), rollback to generation 1
+  and return to generation 2 both confirmed; generation 1 retained throughout. PR pending merge,
+  issue #84 closed.
 
 ### P6-I [platform] Cold-boot integration · #82 · Backlog
 - **Goal**: integrate P6-H and P6-N into the repeatable physical cold-boot path.

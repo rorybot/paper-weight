@@ -15,8 +15,8 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P4 | [#4](https://github.com/rorybot/paper-weight/issues/4) | BERG design system tokens + card component | **Done** (closed) |
 | P5 | [#5](https://github.com/rorybot/paper-weight/issues/5) | 1-bit Atkinson dither utility | **Done** (approved and closed) |
 | P6-H | [#83](https://github.com/rorybot/paper-weight/issues/83) | Host production service | **Done** (closed, PR #93) |
-| P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **In progress** |
-| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (blocked by P6-H, P6-N) |
+| P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
+| P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Backlog** (unblocked: P6-H and P6-N both Done) |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Backlog** (blocked by P6-I) |
 | P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **Backlog** (blocked by P6-I) |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
@@ -203,3 +203,25 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   off `master` (not off #82's in-progress checkout). PR #93 merged (squash), `ci` green
   (device-ui/host/input-bridge/screen-tests correctly skipped — no product-lane paths touched),
   issue #83 closed, project Status Done. Unblocks P6-I #82 alongside P6-N #84 (still Ready).
+
+## Next Session Context Chunk (P6-N — 2026-07-18)
+
+- `device/nix/flake.nix` pins `nixos-superbird@0d2b239...` and sets `superbird.gui.kiosk_url` to
+  the production URL; `scripts/device-nixos.sh` (evaluate/build/deploy/status/reboot/rollback/
+  activate) wraps the privileged `nixos-superbird/builder` image, with an optional nixbuild.net
+  remote-builder path for a faster aarch64 build than local QEMU emulation.
+- **Environment finding, not a repo defect**: the aarch64 cross-build cannot run from inside this
+  Distrobox — rootless Podman here gets a private `binfmt_misc` per container, so registering
+  qemu-aarch64 (even as real host root) never becomes visible to the nested build sandbox. The
+  build must run directly on the physical host, outside any container nesting; it then works with
+  no special handling. `AGENTS.md` now has a "Host paths vs agent paths" note so future sessions
+  hand Rory `/run/host`-stripped paths for anything he needs to run himself.
+- Fixed a bug in `deploy_system`'s deploy-rs invocation: `nix run "$deploy_source"` needs a
+  `path:` prefix (`nix run "path:$deploy_source"`) — a bare store path isn't a valid installable.
+- Physically verified on `172.16.42.2`: deploy landed generation 2 (production kiosk URL), a real
+  `systemctl reboot` preserved it (Weston active, Home screen confirmed on-device at 800×480
+  despite a benign "not bootable" warning — Superbird has no conventional `/boot`), then rollback
+  to generation 1 and return to generation 2 both confirmed live; generation 1 retained throughout.
+  `switch-to-configuration switch` does not restart Weston itself — restart it manually after any
+  generation change. Issue #84 closed, project Status Done. Unblocks P6-I #82 alongside P6-H #83
+  (both now Done).
