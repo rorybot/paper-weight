@@ -19,11 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84 |
-| **In progress** | P6-I #82 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82 |
+| **In progress** | P8 #86 |
 | **In review** | - |
-| **Ready** | - |
-| **Backlog** | P7 #85; P8 #86; W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
+| **Ready** | P7 #85 |
+| **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -134,27 +134,27 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   and return to generation 2 both confirmed; generation 1 retained throughout. PR #100 merged,
   issue #84 closed.
 
-### P6-I [platform] Cold-boot integration · #82 · In progress
+### P6-I [platform] Cold-boot integration · #82 ✅ Done
 - **Goal**: integrate P6-H and P6-N into one physically verified device-launch path.
 - **Scope**: finish `device-launch.md` operations; production-port checks; exact 800×480 evidence.
 - **Constraints**: integration/evidence only; fixture data only; eventual-host cold boot is P9.
 - **Acceptance**: device boot/fullscreen; presets 1–4; status/reboot/rollback; final-head `ci`.
 - **Evidence**: 2026-07-19 dev-environment fixture passed UI/gateway over USB, exact `800×480`,
   and owner-verified physical presets 1–4; device reboot/rollback/restore passed under P6-N.
-  Only final-head `ci` and closeout remain.
+  Required `ci` passed; #82 closed and project Status set to Done.
 
-### P7 [platform] Live-runtime contract · #85 · Backlog
+### P7 [platform] Live-runtime contract · #85 · Ready
 - **Goal**: one activation contract for live Weather, Feed, and Spotify.
 - **Scope**: documented EnvironmentFile variables, validation, and per-lane enablement only.
-- **Constraints**: blocked by #82; secrets stay untracked/out-of-band; frozen envelopes unchanged;
+- **Constraints**: #82 is Done; secrets stay untracked/out-of-band; frozen envelopes unchanged;
   Etymology stays fixture-backed and Photo stays outside the milestone.
 - **Acceptance**: zero-secret config tests and clear safe failure for missing/invalid variables.
 
-### P8 [platform] Device input-bridge deployment · #86 · Backlog
+### P8 [platform] Device input-bridge deployment · #86 · In progress
 - **Goal**: package/supervise the Rust bridge on aarch64 and feed physical input through loopback SSE.
 - **Scope**: device package/service at `127.0.0.1:9137/v1/events`, evdev access, reconnect;
   remove `bridge=0` after acceptance.
-- **Constraints**: blocked by #82; no live-lane or frozen-envelope edits.
+- **Constraints**: #82 is Done; no live-lane or frozen-envelope edits.
 - **Acceptance**: fmt/test/clippy, aarch64 build, physical events, boot service, and reconnect pass.
 
 ### P9 [platform] Demo-appliance acceptance · #90 · Backlog

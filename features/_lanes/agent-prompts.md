@@ -494,21 +494,20 @@ Full roadmap + dependency graph: `docs/architecture/parallel-lanes-v1.md` §Wave
 
 ## Resume prompts — P6-I / P7 / P8 / W4 / N4
 
-Snapshot as of 2026-07-19: #82 P6-I has completed physical integration and has only its
-final-head `ci`/closeout remaining. Once #82 reaches Done, #85 P7 and #86 P8 unblock; #87 W4
-and #89 N4 remain transitively blocked on #85. Unattended startup on the eventual service host
-and simultaneous host/Car Thing cold boot belong to final-appliance gate #90 P9, not #82.
+Snapshot as of 2026-07-19: #82 P6-I is Done/closed. #85 P7 is Ready and #86 P8 is In progress;
+they may resume independently. #87 W4 and #89 N4 remain transitively blocked on #85. Unattended
+startup on the eventual service host and simultaneous host/Car Thing cold boot belong to
+final-appliance gate #90 P9, not #82.
 
 ```
-#83 P6-H + #84 P6-N (Done) → #82 P6-I (final CI/closeout)
-                                  ├─→ #85 P7 → #87 W4 + #89 N4
-                                  └─→ #86 P8
+#83 P6-H + #84 P6-N → #82 P6-I (Done)
+                              ├─→ #85 P7 (Ready) → #87 W4 + #89 N4
+                              └─→ #86 P8 (In progress)
 #85 + #86 + #87 + #88 F3 + #89 → #90 P9 (eventual-host cold boot)
 ```
 
-Hand each agent its own letter below and point it at this section only — do not let one agent
-read another's block. **Finish D before starting E**, since E's real work is gated on D
-reaching Done; if E starts first it must self-report blocked and stop.
+Hand each active agent its own letter below and point it at this section only — do not let one
+agent read another's block. Agent D is complete; Agents A and E can now resume independently.
 
 ### Agent A — P8 #86 (input bridge deployment)
 
@@ -527,8 +526,7 @@ Read ONLY:
 - features/platform/spec.md — P8 section only
 - docs/architecture/parallel-lanes-v1.md (ownership section)
 
-First check whether #82 P6-I is Done. If it is still open/not Done, stop and report the block;
-do not rebase, implement, push, or change #86 status. Once #82 is Done, continue below.
+#82 P6-I is Done. Confirm that state once, then continue below.
 
 Status: evdev reconnect/backoff + held-key reset is done and tested (17 x86_64-musl tests,
 strict Clippy, aarch64 cross-compile check, all passing). #84 P6-N is now Done, so its Nix
@@ -607,46 +605,9 @@ mix.exs, other lanes, or shell/.
 ### Agent D — P6-I #82 (physical integration closeout)
 
 ```text
-ISOLATION (mandatory — do this FIRST, before any other git command):
-The worktree and PR already exist. Run:
-  cd /run/host/home/rory/repos/paper-weight/.worktrees/p6i-cold-boot-integration
-  git rev-parse --show-toplevel    → must be this worktree's path
-  git symbolic-ref --short HEAD    → must be chore/p6i-cold-boot-integration
-Re-verify both before every commit and push. Never switch or commit in the shared repo root.
-
-Card: P6-I #82 — Physical integration closeout. Draft PR #102.
-Read ONLY:
-- gh issue view 82 --repo rorybot/paper-weight (full card text)
-- docs/architecture/device-launch.md
-- docs/evidence/p6-i-cold-boot.md
-- features/platform/spec.md — P6 section and latest P6-I context chunk only
-
-Status: physical integration is complete. P6-H #83 and P6-N #84 are Done; the accepted
-generation booted the production kiosk URL, survived device reboot and rollback/restore,
-the dev-environment fixture passed UI :8080 and gateway :9138 over USB, Chromium reported
-exactly 800×480 at DPR 1, and Rory verified physical presets 1–4. The only #82 acceptance
-item still open is committed evidence plus required `ci` on the final PR head.
-
-Scope/closeout:
-  [x] P6-H #83 and P6-N #84 outputs exercised together where their runtimes are available
-  [x] Start/stop/status/reboot/generation rollback documented
-  [x] UI :8080 and gateway :9138 validated over USB
-  [x] Physical device integration evidence recorded at exactly 800×480
-  [x] Presets 1–4 and device reboot/rollback/restore physically verified
-  [ ] Required `ci` green on the exact final PR head
-  [ ] Immediately tick the final GitHub issue checkbox, set #82 Done, close it, then sync
-      kanban/board.md and features/platform/spec.md
-
-Acceptance boundary: the current Archbox is not the eventual service host and `mix`
-intentionally lives only in its dev environment. Do not install native tooling, bridge
-Distrobox/host execution, or treat absent native services as a defect. Unattended service
-startup on the eventual host plus simultaneous host/Car Thing cold boot were transferred
-to P9 #90; they are not waived and must not be pulled back into #82.
-
-Constraints: integration/evidence only. Accepted kiosk URL:
-http://172.16.42.1:8080/?bridge=0&gateway=ws://172.16.42.1:9138/. Preserve the prior NixOS
-generation as rollback; do not use /etc symlink or systemd overrides. No live credentials,
-Etymology host channel, or device input-bridge deployment.
+Card complete. #82 is Done/closed and PR #102 contains the accepted runbook/evidence.
+Do not resume implementation or reopen the card. Unattended eventual-host service startup,
+post-boot health, and simultaneous host/Car Thing cold boot remain P9 #90 acceptance.
 ```
 
 ### Agent E — P7 #85 (live-runtime contract)
@@ -665,12 +626,8 @@ Read ONLY:
 - features/platform/spec.md — P7 section only
 - docs/architecture/parallel-lanes-v1.md (ownership section)
 
-Step 1 (do this before anything else): check whether #82 P6-I has reached Done
-(gh issue view 82 --repo rorybot/paper-weight, or gh project item-list 1 --owner rorybot).
-  - Still open/not Done: this card is genuinely blocked. Do NOT start implementation.
-    Stop and report "blocked on #82" — this is the expected outcome if Agent D has not
-    finished yet. Do not create a PR or change issue status.
-  - Done: proceed with the scope below.
+#82 P6-I is Done and #85 is Ready. Confirm both once, set #85 In progress when real
+implementation resumes, and proceed with the scope below.
 
 Goal (once unblocked): one documented runtime activation contract for switching the host
 from fixtures to live Weather, Feed, and Spotify services.
