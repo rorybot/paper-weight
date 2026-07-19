@@ -18,7 +18,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P6-N | [#84](https://github.com/rorybot/paper-weight/issues/84) | Declarative NixOS kiosk | **Done** (closed) |
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Done** (closed, PR #102) |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Done** (closed, PR #106) |
-| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In progress** (P6-I Done, PR #98) |
+| P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **In review** (physical acceptance complete; PR #98) |
 | P6-N1 | [#111](https://github.com/rorybot/paper-weight/issues/111) | Hide kiosk pointer reliably | **Backlog** |
 | P6-N2 | [#112](https://github.com/rorybot/paper-weight/issues/112) | Recover when host UI starts after device | **Backlog** |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |

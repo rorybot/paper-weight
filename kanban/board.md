@@ -20,8 +20,8 @@ Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85 |
-| **In progress** | P8 #86 |
-| **In review** | - |
+| **In progress** | - |
+| **In review** | P8 #86 |
 | **Ready** | - |
 | **Backlog** | W4 #87; F3 #88; N4 #89; P9 #90; D3 #20; agent-instructions review #108; kiosk pointer #111; late-host kiosk recovery #112 |
 
@@ -157,7 +157,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   boot checks (fixture default, fail-fast, success path) all passed. PR #106 squash-merged,
   required `ci` green, issue #85 closed. Unblocks W4 #87, F3 #88, N4 #89.
 
-### P8 [platform] Device input-bridge deployment · #86 · In progress
+### P8 [platform] Device input-bridge deployment · #86 · In review
 - **Goal**: package/supervise the Rust bridge on aarch64 and feed physical input through loopback SSE.
 - **Scope**: device package/service at `127.0.0.1:9137/v1/events`, evdev access, reconnect;
   remove `bridge=0` after acceptance.
