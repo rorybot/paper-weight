@@ -97,6 +97,13 @@ fi
 [[ -f "$UI_DIR/dist/index.html" ]] ||
   fail "production UI missing: run without PAPER_WEIGHT_SKIP_BUILD=1"
 
+if ! (cd "$HOST_DIR" && mix deps.check >/dev/null 2>&1); then
+  (
+    cd "$HOST_DIR"
+    mix deps.get
+  )
+fi
+
 (
   cd "$HOST_DIR"
   # Fixture-safe by default, but doesn't clobber an inherited value — an
@@ -124,7 +131,7 @@ done
 printf 'Paper Weight fixture host ready\n'
 printf '  UI:      http://%s:%s/  (bound 0.0.0.0:%s)\n' "$UI_HOST" "$UI_PORT" "$UI_PORT"
 printf '  Gateway: ws://%s:%s/  (bound 0.0.0.0:%s)\n' "$UI_HOST" "$GATEWAY_PORT" "$GATEWAY_PORT"
-printf '  Kiosk:   http://%s:%s/?bridge=0&gateway=ws://%s:%s/\n' \
+printf '  Kiosk:   http://%s:%s/?gateway=ws://%s:%s/\n' \
   "$UI_HOST" "$UI_PORT" "$UI_HOST" "$GATEWAY_PORT"
 printf 'Press Ctrl-C to stop both processes (or "systemctl --user stop paper-weight-host").\n'
 

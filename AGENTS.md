@@ -85,6 +85,23 @@ LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTR
 - Card ownership and frozen contracts still win. Record the reused project/module in the active
   card or feature spec, or note briefly why the existing implementation was not compatible.
 
+## Launchers and dependency preflight (mandatory)
+
+- A canonical launcher must own dependency readiness for every stack it starts. Check/bootstrap
+  missing dependencies before starting any child process or opening any listener; do not expose a
+  briefly healthy UI port and then tear it down because a second process failed.
+- Run dependency commands from the directory containing their manifest (`host/mix.exs`,
+  `src/device-ui/package.json`, etc.). Before handing Rory a recovery command, inspect the launcher
+  and give the exact `cd` plus command instead of assuming the repository root is a project root.
+- A skip-build flag skips compilation only. It must not skip dependency checks, configuration
+  validation, required artifact checks, or other startup preconditions.
+- Prefer one idempotent launcher over a sequence of undocumented manual setup commands. A clean
+  checkout with toolchains installed should either become ready from that command or fail before
+  side effects with one precise corrective error.
+- When Rory identifies a valid intended recovery (for example `mix deps.get`), verify its required
+  context and help execute that path. Do not replace it with a different workflow merely because
+  another path could also work.
+
 ## Parallel lanes (weather / feed / spotify)
 - Playbook: `docs/architecture/parallel-lanes-v1.md`
 - Envelope (frozen): `docs/architecture/host-device-protocol-v1.md`
