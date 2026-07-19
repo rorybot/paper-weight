@@ -11,6 +11,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | W1 | [#9](https://github.com/rorybot/paper-weight/issues/9) | Weather data service — NWS + OpenUV | **Done** |
 | W2 | [#10](https://github.com/rorybot/paper-weight/issues/10) | Screen 4b UI | **Done** |
 | W4 | [#87](https://github.com/rorybot/paper-weight/issues/87) | Live Weather acceptance | **In progress** (P7 #85 Done; live acceptance pending) |
+| W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | **Ready** (Priority P0) |
 
 ## Ownership (only these paths)
 
