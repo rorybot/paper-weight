@@ -56,6 +56,8 @@ type WeatherSnapshotV1 = {
   /** 7-day when wheel toggles range — may equal days5 padded */
   days7: WeatherDayV1[];
   hourly_uv: { hour_local: string; index: number }[];
+  /** half-hourly scrub timeline, −12h…+24h (W6a) — FROZEN, see below */
+  timeline: WeatherTimelineV1;
 };
 
 type WeatherDayV1 = {
@@ -65,6 +67,35 @@ type WeatherDayV1 = {
   summary: string;
 };
 ```
+
+### Timeline envelope (W6a — FROZEN, device W6b builds against this)
+
+Half-hourly temperature / wind / precipitation across −12h…+24h for the wheel-scrub
+graph (W6c). Series is oldest → newest at a fixed 30-minute step; `now_index` points at
+the sample aligned to the current observation time. The shape is deliberately
+**fetch-mechanism-agnostic** — host currently derives it from Open-Meteo `minutely_15`
+(sampled at 15-min, downsampled to the 30-min grid), but the envelope does not encode that.
+
+```ts
+type WeatherTimelineV1 = {
+  step_minutes: 30;             // fixed 30-min grid
+  now_index: number;            // index into `series` nearest "now"; 0 if unknown
+  series: WeatherTimelinePointV1[];  // oldest → newest, 30-min spacing
+};
+
+type WeatherTimelinePointV1 = {
+  time_local: string;           // "YYYY-MM-DDTHH:MM", Open-Meteo local time (no offset)
+  temp_f: number | null;        // temperature, °F
+  wind_mph: number | null;      // wind speed, mph
+  precip_in: number | null;     // precipitation, inches
+};
+```
+
+Notes for W6b:
+- Full window = **73 points**, `now_index == 24` (12h back × 2). Partial upstream data
+  yields a shorter series and a smaller `now_index` — never assume 24; read `now_index`.
+- Any point value may be `null` (upstream gap) — render as a missing bar, keep the slot.
+- Frozen sample snapshot: `host/test/paper_weight/weather/fixtures/weather_snapshot_with_timeline.json`.
 
 ### UV grade rules (UI + service agree)
 
@@ -85,7 +116,8 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 | `fetch_snapshot(config) → {:ok, snapshot} \| {:error, reason}` | impure edge |
 | `grade_uv(index) → grade` | pure |
 | `walk_verdict(inputs) → String.t()` | pure |
-| Periodic refresh GenServer | cache last good; set `stale: true` on failure |
+| `Timeline.build(minutely_15, current_time) → timeline` | pure (W6a) |
+| Periodic refresh GenServer | cache last good; set `stale: true` on failure (timeline preserved) |
 
 ### Supervisor child (wave 3 — do not register yourself)
 
@@ -136,10 +168,11 @@ _(lane agents append here; do not edit mix.exs)_
 
 ## Next Session Context Chunk
 
+- **W6a done (host timeline)**: snapshot now carries `timeline` (`WeatherTimelineV1`, FROZEN above) — half-hourly temp_f/wind_mph/precip_in, −12h…+24h, `now_index`. New pure `PaperWeight.Weather.Timeline`; `Config` adds `minutely_15`+`past/forecast_minutely_15`+`wind_speed_unit=mph`+`precipitation_unit=inch`; `OpenMeteo.parse` + `Snapshot.assemble` thread it through; `mark_stale` preserves it.
+- **W6b builds against**: `fixtures/weather_snapshot_with_timeline.json` (73 pts, now_index 24). Read `now_index`, don't assume 24; values may be null.
+- **Known risk (physical check)**: minutely_15 carrying temp/wind at Rory's real location is unverified by mocks — confirm on-device before W6c.
 - **Weather fully wired (W1+W2+shell/host)**: `PaperWeight.Weather.Service` under Application (disabled in test via `config :paper_weight_host, weather_service: :disabled`); `:inets`/`:ssl` in `mix.exs`.
 - Device: `ShellApp` renders `WeatherScreen` with fixture snapshot; wheel → `toggle-weather-range` flips local `weatherRange` 5d↔7d (`data-weather-range` on root).
-- Still later: host WebSocket push of live snapshots (replace fixture); no more weather kanban cards.
-- Other lanes: F1 feed host, N2 now-playing UI, etc.
 
 ## Next Session Context Chunk — W4 (2026-07-18)
 

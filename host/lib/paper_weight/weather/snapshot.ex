@@ -34,6 +34,8 @@ defmodule PaperWeight.Weather.Snapshot do
         summary: current.summary
       })
 
+    timeline = Map.get(parts, :timeline) || empty_timeline()
+
     %{
       "location_label" => location,
       "as_of" => as_of,
@@ -49,7 +51,8 @@ defmodule PaperWeight.Weather.Snapshot do
       },
       "days5" => Enum.map(days5, &day_to_map/1),
       "days7" => Enum.map(days7, &day_to_map/1),
-      "hourly_uv" => Enum.map(hourly, &hourly_to_map/1)
+      "hourly_uv" => Enum.map(hourly, &hourly_to_map/1),
+      "timeline" => timeline_to_map(timeline)
     }
   end
 
@@ -70,7 +73,8 @@ defmodule PaperWeight.Weather.Snapshot do
       "uv",
       "days5",
       "days7",
-      "hourly_uv"
+      "hourly_uv",
+      "timeline"
     ]
   end
 
@@ -85,6 +89,30 @@ defmodule PaperWeight.Weather.Snapshot do
 
   defp hourly_to_map(%{hour_local: hour, index: index}) do
     %{"hour_local" => hour, "index" => index}
+  end
+
+  defp empty_timeline, do: %{step_minutes: 30, now_index: 0, series: []}
+
+  defp timeline_to_map(%{step_minutes: step, now_index: now_index, series: series}) do
+    %{
+      "step_minutes" => step,
+      "now_index" => now_index,
+      "series" => Enum.map(series, &timeline_point_to_map/1)
+    }
+  end
+
+  defp timeline_point_to_map(%{
+         time_local: time,
+         temp_f: temp,
+         wind_mph: wind,
+         precip_in: precip
+       }) do
+    %{
+      "time_local" => time,
+      "temp_f" => temp,
+      "wind_mph" => wind,
+      "precip_in" => precip
+    }
   end
 
   defp pad_days(days, n) when length(days) >= n, do: Enum.take(days, n)
