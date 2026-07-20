@@ -50,8 +50,8 @@ defmodule PaperWeight.Spotify.Snapshot do
     }
   end
 
-  defp queue_item_to_map(%{title: title, artist: artist}) do
-    %{"title" => title, "artist" => artist}
+  defp queue_item_to_map(%{id: id, title: title, artist: artist}) do
+    %{"id" => id, "title" => title, "artist" => artist}
   end
 
   defp iso_now do

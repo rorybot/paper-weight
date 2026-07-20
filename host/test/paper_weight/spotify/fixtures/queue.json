@@ -4,7 +4,7 @@
     "artists": [{"name": "Artist One"}]
   },
   "queue": [
-    {"name": "Next Track", "artists": [{"name": "Someone"}]},
-    {"name": "Another Track", "artists": [{"name": "Someone Else"}, {"name": "Third"}]}
+    {"id": "queueid000000next01", "name": "Next Track", "artists": [{"name": "Someone"}]},
+    {"id": "queueid000another002", "name": "Another Track", "artists": [{"name": "Someone Else"}, {"name": "Third"}]}
   ]
 }

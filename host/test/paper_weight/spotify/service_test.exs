@@ -72,8 +72,12 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert {:ok, queue} = Service.queue(server)
 
     assert queue == [
-             %{"title" => "Next Track", "artist" => "Someone"},
-             %{"title" => "Another Track", "artist" => "Someone Else, Third"}
+             %{"id" => "queueid000000next01", "title" => "Next Track", "artist" => "Someone"},
+             %{
+               "id" => "queueid000another002",
+               "title" => "Another Track",
+               "artist" => "Someone Else, Third"
+             }
            ]
   end
 

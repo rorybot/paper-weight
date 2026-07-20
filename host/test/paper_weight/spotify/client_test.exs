@@ -70,12 +70,12 @@ defmodule PaperWeight.Spotify.ClientTest do
     assert {:ok, :none} = Client.now_playing(config(), "tok", http)
   end
 
-  test "queue returns a display-only list of title/artist" do
+  test "queue returns a bounded list of id/title/artist" do
     assert {:ok, items} = Client.queue(config(), "tok", mock_http())
 
     assert items == [
-             %{title: "Next Track", artist: "Someone"},
-             %{title: "Another Track", artist: "Someone Else, Third"}
+             %{id: "queueid000000next01", title: "Next Track", artist: "Someone"},
+             %{id: "queueid000another002", title: "Another Track", artist: "Someone Else, Third"}
            ]
   end
 

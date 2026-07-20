@@ -12,6 +12,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N2 | [#7](https://github.com/rorybot/paper-weight/issues/7) | Screen 4a UI | **Done** (PR #39) |
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 | N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
+| N6 | [#129](https://github.com/rorybot/paper-weight/issues/129) | Host queue channel + play-selected intent | **In review** (envelope frozen) |
 
 ## Ownership (only these paths)
 
@@ -45,8 +46,8 @@ type NowPlayingSnapshotV1 = {
     duration_ms: number;
     progress_ms: number;
   };
-  /** display-only; wheel does NOT scroll this */
-  queue: { title: string; artist: string }[];
+  /** N6 froze `id` (v1.1): wheel scrolls this, press plays the selected item. Bounded to 20. */
+  queue: { id: string; title: string; artist: string }[];
   volume: {
     /** 0–100 */
     level: number;
@@ -71,9 +72,20 @@ type NowPlayingSnapshotV1 = {
 { "v": 1, "type": "intent", "name": "set_volume", "args": { "delta": 1 } }
 ```
 
+N6 adds one explicit, device-selected play intent (`id` = a `queue[].id`):
+
+```json
+{ "v": 1, "type": "intent", "name": "play_queue_item", "args": { "id": "<track id>" } }
+```
+
+Dispatch: `play_queue_item` → `Spotify.Service.play_track/2` →
+`PUT /me/player/play` with body `{"uris":["spotify:track:<id>"]}`. Still **no** generic
+play/pause/skip/previous — only the item the device chose.
+
 ### Constraints
-- **NO play/pause** API or UI.
-- Wheel = volume only (shell already emits `adjust-volume`).
+- **NO generic play/pause** API or UI. Only `play_playlist` (device grid) and
+  `play_queue_item` (device queue selection) are permitted.
+- Wheel: volume was N1's use; N6/N7 re-map wheel to queue scroll, press = `play_queue_item`.
 
 ### Supervisor child (wave 3)
 
