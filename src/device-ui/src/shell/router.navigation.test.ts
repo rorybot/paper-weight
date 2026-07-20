@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  etymologyFixtureSnapshot,
+  initialEtymologyUiState,
+  ladderOf,
+  reduceEtymologyUi,
+  uiDepth,
+  viewMode,
+  type EtymologyUiCommand,
+  type EtymologyUiState,
+} from "../screens/etymology";
+import {
   KONAMI_SEQUENCE,
   initialShellState,
   type ScreenId,
@@ -226,5 +236,118 @@ describe("interaction map — wheel / press per screen", () => {
   it("zero wheel delta is a no-op", () => {
     const base = initialShellState("now-playing");
     expect(route(base, { type: "wheel-turn", delta: 0 }).commands).toEqual([]);
+  });
+
+  it("Etymology: wheel = scroll, press = dig, back = surface (E3 #135)", () => {
+    const base = initialShellState("etymology");
+
+    expect(commandsAfter(base, { type: "wheel-turn", delta: 1 })).toEqual([
+      { type: "scroll-etymology", delta: 1 },
+    ]);
+    expect(commandsAfter(base, { type: "wheel-press" })).toEqual([
+      { type: "dig-etymology" },
+    ]);
+    expect(commandsAfter(base, { type: "back" })).toEqual([
+      { type: "back-etymology" },
+    ]);
+
+    // Shell stays put — the screen's state machine owns the drill depth.
+    expect(stateAfter(base, { type: "wheel-press" })).toBe(base);
+    expect(stateAfter(base, { type: "back" })).toBe(base);
+  });
+
+  it("Etymology: konami progress survives wheel and press intents", () => {
+    let state = initialShellState("etymology");
+    state = stateAfter(state, { type: "konami-key", key: "up" });
+    state = stateAfter(state, { type: "konami-key", key: "up" });
+    expect(state.konamiIndex).toBe(2);
+
+    expect(stateAfter(state, { type: "wheel-turn", delta: -1 }).konamiIndex).toBe(2);
+    expect(stateAfter(state, { type: "wheel-press" }).konamiIndex).toBe(2);
+    expect(stateAfter(state, { type: "back" }).konamiIndex).toBe(2);
+  });
+});
+
+describe("etymology drill-down — router commands drive the E2 machine (E3 #135)", () => {
+  const snapshot = etymologyFixtureSnapshot;
+  const ladder = ladderOf(snapshot.trace);
+
+  const isEtymologyCommand = (
+    command: ShellCommand,
+  ): command is EtymologyUiCommand =>
+    command.type === "scroll-etymology" ||
+    command.type === "dig-etymology" ||
+    command.type === "back-etymology";
+
+  /** ShellApp wiring in miniature: route the input, reduce emitted commands. */
+  const drive = (
+    shell: ShellState,
+    ui: EtymologyUiState,
+    input: ShellInput,
+  ): { shell: ShellState; ui: EtymologyUiState } => {
+    const transition = route(shell, input);
+    let nextUi = ui;
+    for (const command of transition.commands) {
+      if (isEtymologyCommand(command)) {
+        nextUi = reduceEtymologyUi(nextUi, command, ladder);
+      }
+    }
+    return { shell: transition.state, ui: nextUi };
+  };
+
+  it("wheel + press walk down through ladder → stage → root, back walks up", () => {
+    let step = {
+      shell: initialShellState("etymology"),
+      ui: initialEtymologyUiState(snapshot),
+    };
+    expect(viewMode(step.ui, ladder)).toBe("ladder");
+
+    // Press digs into the selected stage (2a → 2b).
+    step = drive(step.shell, step.ui, { type: "wheel-press" });
+    expect(viewMode(step.ui, ladder)).toBe("stage");
+    expect(uiDepth(step.ui)).toBe(1);
+
+    // Keep digging along the FROM spine until the terminal root (2c).
+    step = drive(step.shell, step.ui, { type: "wheel-press" });
+    step = drive(step.shell, step.ui, { type: "wheel-press" });
+    step = drive(step.shell, step.ui, { type: "wheel-press" });
+    expect(viewMode(step.ui, ladder)).toBe("root");
+    // First dig enters the selected stage itself, then one per FROM hop.
+    expect(uiDepth(step.ui)).toBe(ladder.length);
+
+    // Nothing deeper at bedrock.
+    const atRoot = step.ui;
+    step = drive(step.shell, step.ui, { type: "wheel-press" });
+    expect(step.ui).toBe(atRoot);
+
+    // Back surfaces one depth at a time, all the way to the ladder.
+    while (uiDepth(step.ui) > 0) {
+      const before = uiDepth(step.ui);
+      step = drive(step.shell, step.ui, { type: "back" });
+      expect(uiDepth(step.ui)).toBe(before - 1);
+    }
+    expect(viewMode(step.ui, ladder)).toBe("ladder");
+
+    // Back at depth 0: screen machine no-ops, shell stays on etymology.
+    const surfaced = step.ui;
+    step = drive(step.shell, step.ui, { type: "back" });
+    expect(step.ui).toBe(surfaced);
+    expect(step.shell.screen).toBe("etymology");
+  });
+
+  it("wheel selects the root stage on the ladder; one press reveals 2c", () => {
+    let step = {
+      shell: initialShellState("etymology"),
+      ui: initialEtymologyUiState(snapshot),
+    };
+
+    for (let i = 0; i < ladder.length - 1; i += 1) {
+      step = drive(step.shell, step.ui, { type: "wheel-turn", delta: 1 });
+    }
+    expect(step.ui.cursor).toBe(ladder.length - 1);
+
+    step = drive(step.shell, step.ui, { type: "wheel-press" });
+    expect(viewMode(step.ui, ladder)).toBe("root");
+    expect(uiDepth(step.ui)).toBe(1);
   });
 });

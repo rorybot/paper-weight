@@ -52,6 +52,12 @@ const back = (state: ShellState): ShellTransition => {
     };
   }
 
+  // Etymology drill-down: back surfaces one depth; the screen's state
+  // machine no-ops at depth 0 (E2 seam — shell stays on the screen).
+  if (state.screen === "etymology") {
+    return emit(state, { type: "back-etymology" });
+  }
+
   // Settings exit (interaction map: back = exit).
   if (state.screen === "settings") {
     const previous = state.history.at(-1);
@@ -120,7 +126,7 @@ const acceptKonamiKey = (
 
 /**
  * design spec §Interaction — wheel turn column.
- * home / etymology / unknown: no shell command.
+ * home / unknown: no shell command.
  */
 const turnWheel = (state: ShellState, delta: number): ShellTransition => {
   if (delta === 0) {
@@ -141,6 +147,8 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
       return emit(state, { type: "skip-photo", delta });
     case "settings":
       return emit(state, { type: "move-settings-field", delta });
+    case "etymology":
+      return emit(state, { type: "scroll-etymology", delta });
     default:
       return unchanged(state);
   }
@@ -159,8 +167,10 @@ const pressWheel = (state: ShellState): ShellTransition => {
       return emit(state, { type: "keep-photo-on-show" });
     case "settings":
       return emit(state, { type: "edit-settings-field" });
+    case "etymology":
+      return emit(state, { type: "dig-etymology" });
     default:
-      // Weather / home / etymology: press is "—".
+      // Weather / home: press is "—".
       return unchanged(state);
   }
 };
