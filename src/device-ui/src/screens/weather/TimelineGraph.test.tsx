@@ -23,7 +23,7 @@ describe("TimelineGraph", () => {
     const out = html();
     const bars = out.match(/class="wx-tl__bar"/g) ?? [];
     // 3 series × 73 points.
-    expect(bars.length).toBe(3 * weatherTimelineFixture.points.length);
+    expect(bars.length).toBe(3 * weatherTimelineFixture.series.length);
   });
 
   it("renders the now marker at the now_index position", () => {
@@ -54,6 +54,6 @@ describe("TimelineGraph", () => {
     expect(out).toContain("theme-gruvbox");
     // Fixed 800px width; height is bounded by CSS (3 × 62px rows + axis ≈ 230px).
     expect(out).toMatch(/width:\s*800px/);
-    expect(out).toContain(`data-point-count="${weatherTimelineFixture.points.length}"`);
+    expect(out).toContain(`data-point-count="${weatherTimelineFixture.series.length}"`);
   });
 });

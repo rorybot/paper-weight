@@ -60,14 +60,14 @@ describe("nowMarkerPct / fixture", () => {
     expect(pct).toBeCloseTo(
       barCenterPct(
         weatherTimelineFixture.now_index,
-        weatherTimelineFixture.points.length,
+        weatherTimelineFixture.series.length,
       ),
     );
   });
 
   it("covers −12h…+24h half-hourly (73 points, now at index 24)", () => {
-    expect(weatherTimelineFixture.interval_minutes).toBe(30);
-    expect(weatherTimelineFixture.points.length).toBe(73);
+    expect(weatherTimelineFixture.step_minutes).toBe(30);
+    expect(weatherTimelineFixture.series.length).toBe(73);
     expect(weatherTimelineFixture.now_index).toBe(24);
   });
 });

@@ -30,7 +30,7 @@ export const TimelineGraph = ({
   const series = timelineSeries(timeline);
   const nowPct = nowMarkerPct(timeline);
   const ticks = tickMarks(timeline, tickEveryHours);
-  const count = timeline.points.length;
+  const count = timeline.series.length;
 
   return (
     <section
@@ -61,7 +61,7 @@ export const TimelineGraph = ({
                     data-series={s.key}
                     data-past={String(i < timeline.now_index)}
                     style={{ height: `${heights[i]}%` }}
-                    title={`${Math.round(v)}${s.unit}`}
+                    title={v === null ? "no data" : s.format(v)}
                   />
                 </div>
               ))}
