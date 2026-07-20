@@ -451,6 +451,15 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: preset 4 renders `data-screen="etymology"` in tests and on the 800×480 device.
 - **Done**: PR #80 merged with required `ci` green; physical device capture verified 800×480.
 
+### E3 [etymology] BUG — wire drill-down interactivity · #135 — In review
+- **Goal**: make the E2 drill-down reachable — router mapped etymology wheel/press to "—".
+- **Scope**: route wheel-turn → `scroll-etymology`, wheel-press → `dig-etymology`,
+  back → `back-etymology` (surfaces one depth; screen machine no-ops at depth 0);
+  `ShellApp` feeds commands to `EtymologyScreen`. Device-side only, fixture-backed.
+- **Acceptance**: on-device drill down/up through all 3 depths; konami/presets unaffected; `ci` green.
+- **In review**: PR open from `agent/e3-etymology-drilldown-135`; 205 device-ui tests green.
+  Awaiting Rory's physical wheel/back validation before merge.
+
 ## Epic: design (remaining design work — can run anytime)
 
 ### D1 [design] Home screen — design + build · #18 ✅ Done
