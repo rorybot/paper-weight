@@ -22,11 +22,11 @@ defmodule PaperWeight.Gateway.Fixtures do
         "progress_ms" => 82_000
       },
       "queue" => [
-        %{"title" => "Last'en", "artist" => "Tenure"},
-        %{"title" => "Housebound", "artist" => "Tenure"},
-        %{"title" => "Natural Light", "artist" => "Sink"},
-        %{"title" => "Circuits", "artist" => "Tenure"},
-        %{"title" => "Soft Static", "artist" => "Night Bus"}
+        %{"id" => "q0000000000000000000001", "title" => "Last'en", "artist" => "Tenure"},
+        %{"id" => "q0000000000000000000002", "title" => "Housebound", "artist" => "Tenure"},
+        %{"id" => "q0000000000000000000003", "title" => "Natural Light", "artist" => "Sink"},
+        %{"id" => "q0000000000000000000004", "title" => "Circuits", "artist" => "Tenure"},
+        %{"id" => "q0000000000000000000005", "title" => "Soft Static", "artist" => "Night Bus"}
       ],
       "volume" => %{"level" => 70},
       "lyrics" => %{
