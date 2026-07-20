@@ -7,7 +7,7 @@ defmodule PaperWeight.Weather.OpenMeteo do
   (`PaperWeight.Weather.Config.open_meteo_url/1`).
   """
 
-  alias PaperWeight.Weather.WeatherCode
+  alias PaperWeight.Weather.{Timeline, WeatherCode}
 
   @type day :: %{date: String.t(), high_f: number(), low_f: number(), summary: String.t()}
   @type current :: %{temp_f: number(), summary: String.t()}
@@ -17,7 +17,8 @@ defmodule PaperWeight.Weather.OpenMeteo do
           current: current(),
           days: [day()],
           uv_index: number(),
-          hourly_uv: [hourly()]
+          hourly_uv: [hourly()],
+          timeline: Timeline.t()
         }
 
   @spec parse(map()) :: {:ok, parsed()} | {:error, term()}
@@ -27,8 +28,16 @@ defmodule PaperWeight.Weather.OpenMeteo do
          {:ok, days} <- parse_days(daily) do
       uv_index = numeric(current["uv_index"]) || 0.0
       hourly_uv = parse_hourly(Map.get(body, "hourly"))
+      timeline = Timeline.build(Map.get(body, "minutely_15"), current["time"])
 
-      {:ok, %{current: parsed_current, days: days, uv_index: uv_index, hourly_uv: hourly_uv}}
+      {:ok,
+       %{
+         current: parsed_current,
+         days: days,
+         uv_index: uv_index,
+         hourly_uv: hourly_uv,
+         timeline: timeline
+       }}
     end
   end
 
