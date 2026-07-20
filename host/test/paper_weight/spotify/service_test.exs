@@ -171,6 +171,25 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert String.ends_with?(url, "/me/player/play")
   end
 
+  test "play_track dispatches the selected queue item uri through the authenticated client" do
+    {:ok, ref} = Agent.start_link(fn -> nil end)
+
+    http = fn
+      :get, url, headers, body ->
+        ok_http().(:get, url, headers, body)
+
+      :put, url, _headers, body ->
+        Agent.update(ref, fn _ -> {url, body} end)
+        {:ok, 204, ""}
+    end
+
+    server = start_service(http: http)
+
+    assert :ok = Service.play_track(server, "trk123")
+    assert {url, ~s({"uris":["spotify:track:trk123"]})} = Agent.get(ref, & &1)
+    assert String.ends_with?(url, "/me/player/play")
+  end
+
   test "playlists returns a PlaylistSnapshotV1 and advances playlist gen on refresh" do
     server = start_service()
 

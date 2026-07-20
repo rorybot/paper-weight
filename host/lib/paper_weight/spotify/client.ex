@@ -108,6 +108,31 @@ defmodule PaperWeight.Spotify.Client do
   end
 
   @doc """
+  Play a single, device-selected track by id (a `queue[].id` from the snapshot).
+
+  Starts `spotify:track:<id>` via `PUT /me/player/play` — the explicit N6 counterpart to
+  `play_playlist/4`. Still no generic skip/next/previous.
+  """
+  @spec play_track(Config.t(), String.t(), String.t(), http()) :: :ok | {:error, term()}
+  def play_track(config, access_token, track_id, http)
+      when is_function(http, 4) and is_binary(track_id) do
+    with true <- valid_track_id?(track_id) do
+      url = config.api_base <> "/me/player/play"
+      body = ~s({"uris":["spotify:track:#{track_id}"]})
+
+      headers = auth_headers(access_token) ++ [{"Content-Type", "application/json"}]
+
+      case http.(:put, url, headers, body) do
+        {:ok, status, _body} when status in [200, 202, 204] -> :ok
+        {:ok, status, response_body} -> {:error, {:http_status, status, response_body}}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      false -> {:error, :invalid_track_id}
+    end
+  end
+
+  @doc """
   List the current user's playlists (first page).
 
   Covers ship as `cover_pbm_base64: nil` — JPEG/PNG download + grayscale decode is not
@@ -182,6 +207,8 @@ defmodule PaperWeight.Spotify.Client do
   end
 
   defp valid_playlist_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
+
+  defp valid_track_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
 
   defp parse_now_playing(body) do
     with {:ok, json} <- json_decode(body),

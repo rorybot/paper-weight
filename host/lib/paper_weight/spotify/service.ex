@@ -11,8 +11,9 @@ defmodule PaperWeight.Spotify.Service do
   can re-push only the `playlist` channel when the library list advances (W3-G).
 
   Wave 3 registers `{PaperWeight.Spotify.Service, []}` — do not add to
-  Application here. **No generic** `play`, `pause`, `skip`, or `previous`; W3-E permits only
-  starting the explicit playlist selected by the device.
+  Application here. **No generic** `play`, `pause`, `skip`, or `previous`; only explicit,
+  device-selected targets: `play_playlist/2` (W3-E playlist grid) and `play_track/2`
+  (N6 — the queue item chosen on Now Playing).
   """
 
   use GenServer
@@ -85,6 +86,12 @@ defmodule PaperWeight.Spotify.Service do
   @spec play_playlist(GenServer.server(), String.t()) :: :ok | {:error, term()}
   def play_playlist(server, playlist_id) when is_binary(playlist_id) do
     GenServer.call(server, {:play_playlist, playlist_id})
+  end
+
+  @doc "Play the device-selected queue item (a `queue[].id`). No generic skip/next exists."
+  @spec play_track(GenServer.server(), String.t()) :: :ok | {:error, term()}
+  def play_track(server, track_id) when is_binary(track_id) do
+    GenServer.call(server, {:play_track, track_id})
   end
 
   @impl true
@@ -163,6 +170,19 @@ defmodule PaperWeight.Spotify.Service do
       case state.token do
         %{access_token: access_token} ->
           Client.play_playlist(state.config, access_token, playlist_id, state.http)
+
+        nil ->
+          {:error, :no_token}
+      end
+
+    {:reply, reply, state}
+  end
+
+  def handle_call({:play_track, track_id}, _from, state) do
+    reply =
+      case state.token do
+        %{access_token: access_token} ->
+          Client.play_track(state.config, access_token, track_id, state.http)
 
         nil ->
           {:error, :no_token}

@@ -15,12 +15,14 @@ defmodule PaperWeight.Gateway.Intents do
   @type intent ::
           {:set_volume, integer()}
           | {:play_playlist, String.t()}
+          | {:play_queue_item, String.t()}
           | {:refresh_channel, String.t()}
 
   @type adapters :: map()
   @type handlers :: %{
           set_volume: (GenServer.server(), integer() -> term()),
           play_playlist: (GenServer.server(), String.t() -> term()),
+          play_queue_item: (GenServer.server(), String.t() -> term()),
           refresh_weather: (GenServer.server() -> term()),
           refresh_feed: (GenServer.server() -> term()),
           refresh_photo: (GenServer.server() -> term()),
@@ -44,6 +46,10 @@ defmodule PaperWeight.Gateway.Intents do
 
   def dispatch({:play_playlist, id}, adapters, handlers) do
     call(adapters[:spotify], fn server -> handlers.play_playlist.(server, id) end)
+  end
+
+  def dispatch({:play_queue_item, id}, adapters, handlers) do
+    call(adapters[:spotify], fn server -> handlers.play_queue_item.(server, id) end)
   end
 
   def dispatch({:refresh_channel, "now_playing"}, adapters, handlers) do
@@ -71,6 +77,7 @@ defmodule PaperWeight.Gateway.Intents do
     %{
       set_volume: &Spotify.Service.set_volume/2,
       play_playlist: &Spotify.Service.play_playlist/2,
+      play_queue_item: &Spotify.Service.play_track/2,
       refresh_weather: &Weather.Service.refresh_now/1,
       refresh_feed: &Feed.Service.refresh/1,
       refresh_photo: &Photo.Service.rescan/1,
@@ -95,6 +102,15 @@ defmodule PaperWeight.Gateway.Intents do
        })
        when is_binary(id) and id != "",
        do: {:ok, {:play_playlist, id}}
+
+  defp validate(%{
+         "v" => 1,
+         "type" => "intent",
+         "name" => "play_queue_item",
+         "args" => %{"id" => id}
+       })
+       when is_binary(id) and id != "",
+       do: {:ok, {:play_queue_item, id}}
 
   defp validate(%{
          "v" => 1,
