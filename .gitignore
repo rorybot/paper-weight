@@ -8,3 +8,8 @@ result-*
 
 .env
 .env.local
+
+device/flash-out/
+device/flash-keep/
+device/.flash-flake-stage/
+device/.installer-result
