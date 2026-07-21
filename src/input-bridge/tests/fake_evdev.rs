@@ -1,8 +1,8 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use paper_weight_input_bridge::{
     event::InputEvent,
-    reducer::{reduce_all, Action, Bindings, KeyState, RawInput, State},
+    reducer::{reduce_all, Action, Bindings, HoldAction, KeyState, RawInput, State},
 };
 
 const WHEEL_REL: u16 = 8;
@@ -12,8 +12,13 @@ const PRESET_2: u16 = 3;
 const PRESET_3: u16 = 4;
 const PRESET_4: u16 = 5;
 const BACK: u16 = 14;
+const WHEEL_HOLD_MS: u64 = 3000;
 
 fn bindings(hold_ms: u64) -> Bindings {
+    bindings_with_wheel_hold(hold_ms, WHEEL_HOLD_MS)
+}
+
+fn bindings_with_wheel_hold(hold_ms: u64, wheel_hold_ms: u64) -> Bindings {
     Bindings {
         wheel_relative_code: WHEEL_REL,
         keys: BTreeMap::from([
@@ -24,8 +29,43 @@ fn bindings(hold_ms: u64) -> Bindings {
             (PRESET_4, Action::Preset(4)),
             (BACK, Action::Back),
         ]),
-        home_hold_codes: BTreeSet::from([PRESET_1, PRESET_2, PRESET_3, PRESET_4]),
-        hold_ms,
+        hold_actions: BTreeMap::from([
+            (
+                PRESET_1,
+                HoldAction {
+                    hold_ms,
+                    event: InputEvent::Home,
+                },
+            ),
+            (
+                PRESET_2,
+                HoldAction {
+                    hold_ms,
+                    event: InputEvent::Home,
+                },
+            ),
+            (
+                PRESET_3,
+                HoldAction {
+                    hold_ms,
+                    event: InputEvent::Home,
+                },
+            ),
+            (
+                PRESET_4,
+                HoldAction {
+                    hold_ms,
+                    event: InputEvent::Home,
+                },
+            ),
+            (
+                WHEEL_PRESS,
+                HoldAction {
+                    hold_ms: wheel_hold_ms,
+                    event: InputEvent::WheelLongPress,
+                },
+            ),
+        ]),
         debounce_ms: 30,
     }
 }
@@ -112,6 +152,48 @@ fn every_preset_short_press_keeps_its_configured_number() {
             InputEvent::Preset { number: 4 },
         ]
     );
+}
+
+#[test]
+fn wheel_release_before_hold_threshold_fires_short_wheel_press() {
+    let feed = [
+        key(WHEEL_PRESS, KeyState::Pressed, 0),
+        RawInput::Tick { at_ms: 1000 },
+        key(WHEEL_PRESS, KeyState::Released, 1500),
+    ];
+
+    let output = reduce_all(State::default(), feed, &bindings(650));
+
+    assert_eq!(output.events, [InputEvent::WheelPress]);
+}
+
+#[test]
+fn wheel_held_past_threshold_fires_long_press_while_still_held() {
+    let feed = [
+        key(WHEEL_PRESS, KeyState::Pressed, 0),
+        RawInput::Tick {
+            at_ms: WHEEL_HOLD_MS,
+        },
+    ];
+
+    let output = reduce_all(State::default(), feed, &bindings(650));
+
+    assert_eq!(output.events, [InputEvent::WheelLongPress]);
+}
+
+#[test]
+fn wheel_long_press_release_does_not_also_fire_short_press() {
+    let feed = [
+        key(WHEEL_PRESS, KeyState::Pressed, 0),
+        RawInput::Tick {
+            at_ms: WHEEL_HOLD_MS,
+        },
+        key(WHEEL_PRESS, KeyState::Released, WHEEL_HOLD_MS + 100),
+    ];
+
+    let output = reduce_all(State::default(), feed, &bindings(650));
+
+    assert_eq!(output.events, [InputEvent::WheelLongPress]);
 }
 
 #[test]

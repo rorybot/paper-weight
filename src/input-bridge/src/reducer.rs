@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use crate::event::InputEvent;
 
@@ -53,20 +53,25 @@ impl RawInput {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub struct HoldAction {
+    pub hold_ms: u64,
+    pub event: InputEvent,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Bindings {
     pub wheel_relative_code: u16,
     pub keys: BTreeMap<u16, Action>,
-    pub home_hold_codes: BTreeSet<u16>,
-    pub hold_ms: u64,
+    pub hold_actions: BTreeMap<u16, HoldAction>,
     pub debounce_ms: u64,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 struct PressedKey {
     action: Action,
     started_ms: u64,
-    emits_on_release: bool,
-    home_emitted: bool,
+    hold: Option<HoldAction>,
+    long_emitted: bool,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -100,18 +105,19 @@ pub fn reduce(mut state: State, raw: RawInput, bindings: &Bindings) -> Transitio
             }
 
             if let Some(action) = bindings.keys.get(&code).copied() {
-                let emits_on_release = bindings.home_hold_codes.contains(&code);
+                let hold = bindings.hold_actions.get(&code).cloned();
+                let has_hold = hold.is_some();
                 state.pressed.insert(
                     code,
                     PressedKey {
                         action,
                         started_ms: at_ms,
-                        emits_on_release,
-                        home_emitted: false,
+                        hold,
+                        long_emitted: false,
                     },
                 );
 
-                if !emits_on_release {
+                if !has_hold {
                     events.push(action.into_event());
                 }
             }
@@ -124,11 +130,13 @@ pub fn reduce(mut state: State, raw: RawInput, bindings: &Bindings) -> Transitio
             if let Some(pressed) = state.pressed.remove(&code) {
                 let duration_ms = at_ms.saturating_sub(pressed.started_ms);
 
-                if pressed.emits_on_release && !pressed.home_emitted {
-                    if duration_ms >= bindings.hold_ms {
-                        events.push(InputEvent::Home);
-                    } else if duration_ms >= bindings.debounce_ms {
-                        events.push(pressed.action.into_event());
+                if let Some(hold) = &pressed.hold {
+                    if !pressed.long_emitted {
+                        if duration_ms >= hold.hold_ms {
+                            events.push(hold.event.clone());
+                        } else if duration_ms >= bindings.debounce_ms {
+                            events.push(pressed.action.into_event());
+                        }
                     }
                 }
             }
@@ -136,10 +144,11 @@ pub fn reduce(mut state: State, raw: RawInput, bindings: &Bindings) -> Transitio
         RawInput::Tick { at_ms } => {
             for pressed in state.pressed.values_mut() {
                 let held_ms = at_ms.saturating_sub(pressed.started_ms);
-                if pressed.emits_on_release && !pressed.home_emitted && held_ms >= bindings.hold_ms
-                {
-                    pressed.home_emitted = true;
-                    events.push(InputEvent::Home);
+                if let Some(hold) = pressed.hold.clone() {
+                    if !pressed.long_emitted && held_ms >= hold.hold_ms {
+                        pressed.long_emitted = true;
+                        events.push(hold.event);
+                    }
                 }
             }
         }

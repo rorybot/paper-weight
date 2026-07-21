@@ -46,6 +46,7 @@ export type ShellInput =
   | { readonly type: "navigate"; readonly screen: Exclude<ScreenId, "settings"> }
   | { readonly type: "wheel-turn"; readonly delta: number }
   | { readonly type: "wheel-press" }
+  | { readonly type: "wheel-long-press" }
   | { readonly type: "konami-key"; readonly key: KonamiKey };
 
 /**
@@ -53,7 +54,6 @@ export type ShellInput =
  * pure screens reduce these later. Router owns *when* they fire.
  */
 export type ShellCommand =
-  | { readonly type: "adjust-volume"; readonly delta: number }
   | { readonly type: "toggle-weather-range" }
   | { readonly type: "move-playlist-selection"; readonly delta: number }
   | { readonly type: "play-selected-playlist" }

@@ -7,6 +7,7 @@ import type { Preset, ShellInput } from "./model";
 export type BridgeEventV1 =
   | { readonly v: 1; readonly type: "wheel"; readonly ticks: number }
   | { readonly v: 1; readonly type: "wheel_press" }
+  | { readonly v: 1; readonly type: "wheel_long_press" }
   | { readonly v: 1; readonly type: "preset"; readonly number: Preset }
   | { readonly v: 1; readonly type: "home" }
   | { readonly v: 1; readonly type: "back" };
@@ -39,6 +40,8 @@ export const parseBridgeEvent = (raw: string): BridgeEventV1 | null => {
         : null;
     case "wheel_press":
       return { v: 1, type: "wheel_press" };
+    case "wheel_long_press":
+      return { v: 1, type: "wheel_long_press" };
     case "preset":
       return typeof parsed.number === "number" && isPresetNumber(parsed.number)
         ? { v: 1, type: "preset", number: parsed.number }
@@ -63,6 +66,8 @@ export const bridgeEventToShellInput = (
         : { type: "wheel-turn", delta: event.ticks };
     case "wheel_press":
       return { type: "wheel-press" };
+    case "wheel_long_press":
+      return { type: "wheel-long-press" };
     case "preset":
       return { type: "preset", preset: event.number };
     case "home":

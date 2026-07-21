@@ -45,12 +45,6 @@ describe("renderShellOverlay", () => {
 });
 
 describe("commandsToIntentRequests", () => {
-  it("maps adjust-volume to a set_volume request", () => {
-    expect(
-      commandsToIntentRequests([{ type: "adjust-volume", delta: -3 }]),
-    ).toEqual([{ name: "set_volume", args: { delta: -3 } }]);
-  });
-
   it("ignores commands with no intent mapping", () => {
     expect(
       commandsToIntentRequests([

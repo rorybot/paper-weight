@@ -4,7 +4,7 @@ import type { KonamiKey, Preset, ShellInput } from "./model";
  * Host/dev keyboard map (workflow-v1):
  * - wheel = ArrowUp / ArrowDown (delta ±1)
  * - left/right = konami only (no volume)
- * - press = Enter
+ * - press = Enter, long-press (≥3s wheel hold) = Shift+Enter
  * - presets = 1–4
  * - hold = H
  * - back = Escape
@@ -48,6 +48,7 @@ export const mapDevKeyboardEvent = (event: {
   readonly key: string;
   readonly code: string;
   readonly repeat?: boolean;
+  readonly shiftKey?: boolean;
 }): DevKeyboardResult => {
   if (event.repeat) {
     return null;
@@ -67,7 +68,9 @@ export const mapDevKeyboardEvent = (event: {
   }
 
   if (event.key === "Enter") {
-    return { inputs: [{ type: "wheel-press" }] };
+    return event.shiftKey
+      ? { inputs: [{ type: "wheel-long-press" }] }
+      : { inputs: [{ type: "wheel-press" }] };
   }
 
   const konami = konamiFromCode(event.code);

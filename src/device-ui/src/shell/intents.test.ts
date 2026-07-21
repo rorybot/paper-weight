@@ -37,12 +37,6 @@ describe("intent requests", () => {
 });
 
 describe("commandToIntentRequest", () => {
-  it("maps adjust-volume to set_volume", () => {
-    expect(commandToIntentRequest({ type: "adjust-volume", delta: 3 })).toEqual(
-      { name: "set_volume", args: { delta: 3 } },
-    );
-  });
-
   it("returns null for device-local commands (playlist id resolves at the screen edge)", () => {
     expect(
       commandToIntentRequest({ type: "play-selected-playlist" }),
@@ -56,19 +50,6 @@ describe("commandToIntentRequest", () => {
 });
 
 describe("commandsToIntentRequests", () => {
-  it("keeps only mapped commands, in order", () => {
-    expect(
-      commandsToIntentRequests([
-        { type: "adjust-volume", delta: -1 },
-        { type: "skip-photo", delta: 1 },
-        { type: "adjust-volume", delta: 2 },
-      ]),
-    ).toEqual([
-      { name: "set_volume", args: { delta: -1 } },
-      { name: "set_volume", args: { delta: 2 } },
-    ]);
-  });
-
   it("maps no commands to an empty list", () => {
     expect(
       commandsToIntentRequests([

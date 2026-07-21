@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use paper_weight_input_bridge::config::parse_config;
+use paper_weight_input_bridge::{config::parse_config, event::InputEvent};
 
 const CONFIG: &str = r#"
 device=/dev/input/event0
@@ -23,8 +23,20 @@ fn parses_a_complete_loopback_config() {
 
     assert_eq!(config.devices, [PathBuf::from("/dev/input/event0")]);
     assert!(config.listen.ip().is_loopback());
-    assert_eq!(config.bindings.hold_ms, 650);
-    assert_eq!(config.bindings.home_hold_codes.len(), 4);
+    let home_holds = config
+        .bindings
+        .hold_actions
+        .values()
+        .filter(|hold| hold.event == InputEvent::Home)
+        .count();
+    assert_eq!(home_holds, 4);
+    assert_eq!(config.bindings.hold_actions[&2].hold_ms, 650);
+    assert_eq!(config.bindings.hold_actions[&2].event, InputEvent::Home);
+    assert_eq!(config.bindings.hold_actions[&28].hold_ms, 3000);
+    assert_eq!(
+        config.bindings.hold_actions[&28].event,
+        InputEvent::WheelLongPress
+    );
 }
 
 #[test]
@@ -68,16 +80,25 @@ fn rejects_duplicate_input_devices() {
 
 #[test]
 fn permits_a_configured_hold_capable_button() {
-    let config = parse_config(&CONFIG.replace("home_hold=2,3,4,5", "home_hold=28")).unwrap();
+    let config = parse_config(&CONFIG.replace("home_hold=2,3,4,5", "home_hold=14")).unwrap();
 
     assert_eq!(
         config
             .bindings
-            .home_hold_codes
+            .hold_actions
             .into_iter()
+            .filter(|(_, hold)| hold.event == InputEvent::Home)
+            .map(|(code, _)| code)
             .collect::<Vec<_>>(),
-        [28]
+        [14]
     );
+}
+
+#[test]
+fn rejects_a_hold_code_colliding_with_the_wheel_press_button() {
+    let error = parse_config(&CONFIG.replace("home_hold=2,3,4,5", "home_hold=28")).unwrap_err();
+
+    assert_eq!(error, "key code 28 has conflicting hold bindings");
 }
 
 #[test]
