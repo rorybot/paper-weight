@@ -26,7 +26,7 @@ reconciling it is outside this session's card; flagged for a future chore pass):
 | **In progress** | N5 #128 |
 | **In review** | P6-N1 #111 |
 | **Ready** | Kiosk recover host-after-device #112; P10 wheel long-press #126; FS1 feed spike #127; N7 queue UI #130; N8 lyrics provider #131; P9a unattended cold boot #139; Kiosk hide pointer #111 |
-| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; F3a live feed client #136; F4a author-timeline channel #137; F4b author-timeline drill-in #138 |
+| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; F3a live feed client #136; F4a author-timeline channel #137; F4b author-timeline drill-in #138; P11 kiosk stale-WS indicator #149 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -300,9 +300,24 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **In progress**: root cause was that no JPEG/PNG decoder existed anywhere in the host.
   Added `{:stb_image, "~> 0.6"}` mix dep (discussed/approved with Rory — deps-list append,
   not an `application.ex`/shell edit) plus `Client` album-art-URL extraction, `Art.decode/1`,
-  and best-effort wiring in `Fetch.fetch_snapshot/4`. Mocked tests written; `mix test` and
-  physical-device confirmation still pending (mix only runs in Rory's dev env). Branch
-  `agent/n5-album-artwork-128`, worktree `.worktrees/n5-album-artwork-128`.
+  and best-effort wiring in `Fetch.fetch_snapshot/4`. Mocked tests green in CI (`ci`+`host`
+  checks). Physical acceptance passed: real dithered album art confirmed rendering on the
+  Car Thing for the current track via CDP screenshot (`scripts/device-cdp.py`). PR #148 open,
+  awaiting Rory's merge. Branch `agent/n5-album-artwork-128`, worktree
+  `.worktrees/n5-album-artwork-128`.
+- Spun off **P11 #149** (Backlog): on-screen kiosk indicator for a stuck/reconnecting gateway
+  WebSocket, found during this card's physical verification — see
+  `docs/resolutions/stale-kiosk-websocket-after-host-restart.md`.
+
+### P11 [platform] Kiosk: on-screen indicator when gateway WebSocket is reconnecting · #149 · Backlog
+- **Goal**: make a stuck/reconnecting gateway WebSocket visible on the kiosk screen itself.
+- **Scope**: `src/device-ui/src/shell/gateway.ts` already tracks connection state internally
+  (open/reconnect attempt/backoff) but never exposes it; surface a small on-screen indicator.
+- **Constraints**: shell-level, not lane-specific; no external notify/monitoring infra (deferred);
+  quiet/no layout shift.
+- **Background**: found during N5 #128 physical verification — a stuck reconnect loop rendered
+  the client-side fixture placeholder indefinitely, indistinguishable on-screen from "nothing
+  currently playing."
 
 ### W3-F [platform] End-to-end fixture host to desktop UI smoke · #50 ✅ Done
 - **Goal**: document and prove a repeatable fixture-host-to-desktop-UI smoke including volume
