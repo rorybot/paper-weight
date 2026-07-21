@@ -14,7 +14,7 @@ E1 is a **standalone, unwired** host service: no `application.ex` edit, no proto
 | E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **Done** (PR #60 merged; CI green) |
 | E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **Done** (PR #66 merged; CI green) |
 | E2-1 | [#79](https://github.com/rorybot/paper-weight/issues/79) | Wire preset 4 to Etymology screen | **Done** (PR #80 merged; CI green) |
-| E3 | [#135](https://github.com/rorybot/paper-weight/issues/135) | BUG — wire drill-down interactivity | **In review** (PR open; awaiting device validation) |
+| E3 | [#135](https://github.com/rorybot/paper-weight/issues/135) | BUG — wire drill-down interactivity | ✅ **Done** (PR #140 merged; device validation all-pass) |
 
 ## Ownership (only these paths)
 
@@ -186,5 +186,7 @@ _(none — pure in-memory corpus; no `mix.exs` edit)_
   the E2 machine no-ops at depth 0). `ShellApp` passes `command` to `EtymologyScreen`.
 - **Tests**: +4 in `shell/router.navigation.test.ts` incl. a router→reducer walk through
   ladder→stage→root and back; 205 device-ui tests + build green locally.
-- **Gate**: PR stays open until Rory's physical wheel/press/back run from the branch worktree
-  passes (validate-before-merge rule); then Status → Done + close #135.
+- **Gate**: PR stayed open until Rory's physical wheel/press/back run passed
+  (validate-before-merge rule). Blocked mid-validation by an unrelated on-device
+  `input-bridge` crash-loop (stale deploy); fixed and redeployed, then re-run: all pass.
+- **Closed out**: PR #140 merged, Status → Done, issue #135 closed.
