@@ -65,6 +65,21 @@ file merged to `master` is NOT reachable through a checkout sitting on another b
 session's worktree was removed after merge, materialize a fresh `origin/master` worktree and
 hand that path; do not delete a worktree Rory still needs to run something from.
 
+**Creating a worktree is not exempt.** `git worktree add` bakes the *absolute invocation-time
+path* into persistent pointer files (the new worktree's `.git` file, and the main repo's
+`.git/worktrees/<name>/gitdir`) — unlike most commands, that path outlives the command and is
+read later by whichever shell (agent or Rory's) next touches the worktree. Always run
+`git worktree add` from a cwd under `/home/rory/...` (host-native), never under
+`/run/host/home/rory/...`, even though both resolve to the same files from inside the
+container. Getting this wrong doesn't just mis-hand a command — it corrupts the worktree so
+`git` fails with a cryptic `fatal: not a git repository: (null)` from Rory's shell (and from
+any other agent that later inherits the same worktree). If you ever see that exact error,
+check the two pointer files above for a leaked `/run/host` path before assuming anything else
+is broken. The underlying rule is general, not just about `cd`/paths: respect workspaces and
+branches as shared, persistent state — every action that creates or touches one must work
+correctly for whichever context (container or host) next reads it, not just the one that
+created it.
+
 ## Parallel lanes (weather / feed / spotify)
 - Playbook: `docs/architecture/parallel-lanes-v1.md`
 - Envelope (frozen): `docs/architecture/host-device-protocol-v1.md`
