@@ -139,6 +139,38 @@ For the P9 record, summarize command results rather than pasting full logs, and 
 - fullscreen/no-DevTools observation and physical preset 1–4 results;
 - device reboot, rollback, and accepted-generation restore results.
 
+## Troubleshooting: device suddenly unreachable
+
+Symptom: the kiosk/browser shows it can't reach the UI/gateway URL (or `ping`/`ssh` to
+`root@172.16.42.2` time out) even though nothing in the app or host service changed.
+
+Run `scripts/try-kick-device.sh` first — it automates the known quick fixes below and reports
+what it tried.
+
+- **USB gadget interface lost its address.** The `172.16.42.1` address on the USB NCM gadget
+  interface (`enp0s20f0u*u*`, name varies per replug/port) is sometimes only a short-lived
+  dynamic/link-local lease (seen with a `valid_lft` of ~28s) rather than a stable static one.
+  When that lease expires, the host side of the link silently drops even though the interface
+  stays `UP`. Fix: `sudo ip addr replace 172.16.42.1/24 dev <iface>`, where `<iface>` is
+  whichever `enp0s20f0u*u*` interface `ip -4 -o link show up` reports as `UP`.
+- If `ping -c 1 172.16.42.2` fails even after reapplying the address, check the physical
+  USB-C cable at both ends and confirm the interface exists at all before assuming the device
+  itself crashed.
+- If ping still fails after a reseat/replug, treat it as a genuine device hang rather than a
+  host networking blip: power-cycle the Car Thing, then re-verify with `device-nixos.sh status`.
+- **Nothing is actually serving the UI/gateway.** Networking can be fine while the device still
+  can't connect, because no one is running `scripts/run-device-fixture.sh`. This happens easily
+  if it was started from `validate-e3.sh` — that script kills whatever fixture host it started
+  as soon as it exits, so the moment validation ends (or that terminal closes), the device is
+  left with nothing to talk to. Start it yourself in its own terminal you intend to leave open:
+  `cd <repo-or-worktree-root> && ./scripts/run-device-fixture.sh`. Don't rely on `validate-e3.sh`
+  to keep it alive across a session.
+- **Kiosk browser stuck on a stale error page.** Once ping/SSH and the UI/gateway are all
+  confirmed reachable, the on-device kiosk browser will not automatically retry a page it
+  already failed to load — it just sits on the cached error, and buttons/presets appear to do
+  nothing because the app never loaded. Force a reload with `scripts/device-kiosk.sh restart`,
+  then re-check the physical screen before assuming anything is still broken.
+
 ## Boundary
 
 - Fixture snapshots only; no live API credentials.
