@@ -158,6 +158,18 @@ what it tried.
   itself crashed.
 - If ping still fails after a reseat/replug, treat it as a genuine device hang rather than a
   host networking blip: power-cycle the Car Thing, then re-verify with `device-nixos.sh status`.
+- **Nothing is actually serving the UI/gateway.** Networking can be fine while the device still
+  can't connect, because no one is running `scripts/run-device-fixture.sh`. This happens easily
+  if it was started from `validate-e3.sh` — that script kills whatever fixture host it started
+  as soon as it exits, so the moment validation ends (or that terminal closes), the device is
+  left with nothing to talk to. Start it yourself in its own terminal you intend to leave open:
+  `cd <repo-or-worktree-root> && ./scripts/run-device-fixture.sh`. Don't rely on `validate-e3.sh`
+  to keep it alive across a session.
+- **Kiosk browser stuck on a stale error page.** Once ping/SSH and the UI/gateway are all
+  confirmed reachable, the on-device kiosk browser will not automatically retry a page it
+  already failed to load — it just sits on the cached error, and buttons/presets appear to do
+  nothing because the app never loaded. Force a reload with `scripts/device-kiosk.sh restart`,
+  then re-check the physical screen before assuming anything is still broken.
 
 ## Boundary
 
