@@ -294,7 +294,9 @@ defmodule PaperWeight.Spotify.Client do
           |> Enum.filter(&(Map.get(&1, "width", 0) >= @art_target_px))
           |> Enum.min_by(&Map.get(&1, "width", 0), fn -> nil end)
 
-        case smallest_big_enough || List.first(candidates) do
+        largest = Enum.max_by(candidates, &Map.get(&1, "width", 0), fn -> nil end)
+
+        case smallest_big_enough || largest do
           %{"url" => url} -> url
           nil -> nil
         end

@@ -30,6 +30,9 @@ defmodule PaperWeight.Spotify.ServiceTest do
           String.contains?(url, "/me/playlists") ->
             {:ok, 200, fixture("playlists.json")}
 
+          String.contains?(url, "i.scdn.co") ->
+            {:ok, 200, fixture("album_art.jpg")}
+
           String.contains?(url, "/me/player") ->
             {:ok, 200, fixture("player.json")}
         end
