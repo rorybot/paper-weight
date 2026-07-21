@@ -28,13 +28,18 @@ the unit (a manual `systemctl restart`, or a full reboot that re-triggers the
 same crash loop).
 
 # Fix
-Not yet fixed. Next step is finding why the Nix module generating
-`input-bridge.conf` omits `device` — check `device/nix/` for the input-bridge
-module/options and confirm what should be supplying that key (a per-device
-override, a missing default, or a regression from a related P8 change).
+Not a Nix module bug — the device's currently-installed generation had been
+built from a stale local branch (`agent/persistent-device-launch-82`) whose
+`config.rs` had regressed to only accepting a singular `device` key. `master`
+(commit `1acc234`) already supports both `device` and `devices` (plural,
+comma-separated), which is what `device/nix/input-bridge.conf` actually uses
+(`devices=/dev/input/event0,/dev/input/event1`). Redeploying from a clean
+`origin/master` worktree fixed it — see also
+[deploy-script-dies-on-failed-service-check](deploy-script-dies-on-failed-service-check.md)
+for a second bug that blocked the redeploy itself (the deploy script died in
+its own status check before ever reaching the build step, because the unit
+was already failed).
 
 # Status
-Open. Diagnosed 2026-07-21; blocks physical wheel/press/back validation for
-any card (including E3 #135) until fixed — those cards' *app-level* logic can
-still be validated via the dev-keyboard browser path, but on-device physical
-input cannot.
+Resolved 2026-07-21. Confirmed via `systemctl status input-bridge.service` on
+device: `active (running)`, new generation deployed.
