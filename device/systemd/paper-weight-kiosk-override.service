@@ -1,0 +1,12 @@
+[Unit]
+Description=Apply Paper Weight kiosk URL after NixOS activation
+After=local-fs.target
+Before=weston-tty1.service
+
+[Service]
+Type=oneshot
+ExecStart=/var/lib/paper-weight/apply-kiosk-url.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=graphical.target

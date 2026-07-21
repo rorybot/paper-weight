@@ -3,6 +3,30 @@
 Custom app for a reflashed Spotify Car Thing (800×480, wheel/buttons via evdev). UI direction is
 LOCKED — see `docs/design/carthing-context.md`. Workflow rules: `PROJECT_INSTRUCTIONS.md`.
 
+## Workspace / worktree discipline (mandatory — read first, applies to every rule below)
+
+This repo runs many parallel worktrees (`.worktrees/*`, `.claude/worktrees/*`) plus a shared
+checkout, often on different branches at different points relative to `master`. Treating "the
+checkout I happen to be in" as authoritative has repeatedly produced wrong diagnoses, wrong
+commands, and whole sessions of work built on instructions that were already stale on `master`.
+
+- **Before running or recommending ANY command**, state out loud which directory / worktree /
+  branch it targets, and confirm that's the one tied to the card actually being worked. Never
+  hand a bare command without the exact path attached — see "Host paths vs agent paths" below.
+- **Never assume a checkout is current — including this file.** `AGENTS.md`/`CLAUDE.md` in the
+  shared checkout have themselves been found stale (missing entire mandatory sections present on
+  `master`) mid-session, causing real downstream mistakes (a validation script that skipped a
+  mandatory launcher pattern because the rule requiring it wasn't in the copy being read). At the
+  start of any nontrivial session, `git fetch origin master` and diff `AGENTS.md`/`CLAUDE.md`
+  against `origin/master`'s copies before trusting the local working tree's rules.
+- Before asserting a card/PR/doc is "done," "current," or "buggy," run `git fetch origin master`
+  and diff against `origin/master:<path>` rather than trusting the working tree in front of you.
+- **When a command fails or behaves unexpectedly**, first ask "which workspace is this actually
+  running in, and is it the right one for this card?" before concluding it's a code or toolchain
+  bug. A surprising failure in the wrong worktree is not evidence of a real bug.
+- **One worktree = one card.** Do not reuse a worktree across unrelated cards, and do not let a
+  long-lived worktree sit unrefreshed while claiming it reflects current `master`.
+
 ## Token rules (mandatory, from PROJECT_INSTRUCTIONS.md)
 - Work **one kanban card per session**. Read only that card + its `features/<name>/spec.md`
   slice — do NOT re-read the whole design spec or other features' folders unless the card says to.
