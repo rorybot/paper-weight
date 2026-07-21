@@ -92,6 +92,16 @@ const isPhotoCommand = (
   { type: "skip-photo" | "keep-photo-on-show" }
 > => command.type === "skip-photo" || command.type === "keep-photo-on-show";
 
+const isEtymologyCommand = (
+  command: ShellCommand,
+): command is Extract<
+  ShellCommand,
+  { type: "scroll-etymology" | "dig-etymology" | "back-etymology" }
+> =>
+  command.type === "scroll-etymology" ||
+  command.type === "dig-etymology" ||
+  command.type === "back-etymology";
+
 const isSettingsCommand = (
   command: ShellCommand,
 ): command is Extract<
@@ -285,7 +295,12 @@ export const ShellApp = ({
     }
 
     if (screen === "etymology") {
-      return <EtymologyScreen snapshot={etymologyFixtureSnapshot} />;
+      return (
+        <EtymologyScreen
+          snapshot={etymologyFixtureSnapshot}
+          command={lastCommands.find(isEtymologyCommand) ?? null}
+        />
+      );
     }
 
     if (screen === "settings") {

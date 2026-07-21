@@ -61,7 +61,10 @@ export type ShellCommand =
   | { readonly type: "skip-photo"; readonly delta: number }
   | { readonly type: "keep-photo-on-show" }
   | { readonly type: "move-settings-field"; readonly delta: number }
-  | { readonly type: "edit-settings-field" };
+  | { readonly type: "edit-settings-field" }
+  | { readonly type: "scroll-etymology"; readonly delta: number }
+  | { readonly type: "dig-etymology" }
+  | { readonly type: "back-etymology" };
 
 export interface ShellTransition {
   readonly state: ShellState;

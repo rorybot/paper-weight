@@ -14,6 +14,7 @@ E1 is a **standalone, unwired** host service: no `application.ex` edit, no proto
 | E1 | [#16](https://github.com/rorybot/paper-weight/issues/16) | Word-origin data service | **Done** (PR #60 merged; CI green) |
 | E2 | [#17](https://github.com/rorybot/paper-weight/issues/17) | Drill-down screen (one state machine, 3 depths) | **Done** (PR #66 merged; CI green) |
 | E2-1 | [#79](https://github.com/rorybot/paper-weight/issues/79) | Wire preset 4 to Etymology screen | **Done** (PR #80 merged; CI green) |
+| E3 | [#135](https://github.com/rorybot/paper-weight/issues/135) | BUG — wire drill-down interactivity | **In review** (PR open; awaiting device validation) |
 
 ## Ownership (only these paths)
 
@@ -177,3 +178,13 @@ _(none — pure in-memory corpus; no `mix.exs` edit)_
 - **Validation**: `npm run check` green — 32 files / 201 tests plus production build.
 - **Device evidence**: 800×480 physical capture shows `data-screen="etymology"`, no placeholder.
 - **Boundary**: Etymology remains fixture-backed; live host channel and persistent kiosk are separate cards.
+
+## Next Session Context Chunk (E3)
+
+- **E3 built** on `agent/e3-etymology-drilldown-135`: router now emits `scroll-etymology` /
+  `dig-etymology` on the etymology screen and `back` emits `back-etymology` (shell stays put;
+  the E2 machine no-ops at depth 0). `ShellApp` passes `command` to `EtymologyScreen`.
+- **Tests**: +4 in `shell/router.navigation.test.ts` incl. a router→reducer walk through
+  ladder→stage→root and back; 205 device-ui tests + build green locally.
+- **Gate**: PR stays open until Rory's physical wheel/press/back run from the branch worktree
+  passes (validate-before-merge rule); then Status → Done + close #135.
