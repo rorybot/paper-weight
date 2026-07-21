@@ -13,7 +13,7 @@ defmodule PaperWeight.Spotify.SnapshotTest do
           duration_ms: 200_000,
           progress_ms: 45_000
         },
-        queue: [%{title: "Next Track", artist: "Someone"}],
+        queue: [%{id: "queueid000000next01", title: "Next Track", artist: "Someone"}],
         volume_level: 42,
         stale: false,
         art_pbm_base64: nil
@@ -26,7 +26,9 @@ defmodule PaperWeight.Spotify.SnapshotTest do
     assert snap["stale"] == false
     assert snap["track"]["title"] == "Track Title"
     assert snap["track"]["art_pbm_base64"] == nil
-    assert snap["queue"] == [%{"title" => "Next Track", "artist" => "Someone"}]
+    assert snap["queue"] == [
+             %{"id" => "queueid000000next01", "title" => "Next Track", "artist" => "Someone"}
+           ]
     assert snap["volume"] == %{"level" => 42}
     assert snap["lyrics"] == nil
     assert is_binary(snap["as_of"])

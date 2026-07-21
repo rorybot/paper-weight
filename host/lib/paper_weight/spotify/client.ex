@@ -5,8 +5,9 @@ defmodule PaperWeight.Spotify.Client do
   HTTP is injected as `http.(method, url, headers, body) -> {:ok, status, body} | {:error, reason}`
   so tests never hit the network.
 
-  **Explicit ban:** no generic `play`, `pause`, `skip`, or `previous`. W3-E adds only the
-  explicit `play_playlist/4` intent target selected by the device playlist screen.
+  **Explicit ban:** no generic `play`, `pause`, `skip`, or `previous`. Only explicit,
+  device-selected targets are allowed: `play_playlist/4` (W3-E, playlist screen) and
+  `play_track/4` (N6, the queue item the device chose on Now Playing).
   """
 
   alias PaperWeight.Spotify.{Config, JsonLite}
@@ -32,6 +33,9 @@ defmodule PaperWeight.Spotify.Client do
   # First page only — enough for the 2×3 playlist grid; pagination is out of scope.
   @playlists_limit 50
 
+  # Bounded queue snapshot — the device shows a scrollable Up-Next list, not the full backlog.
+  @queue_limit 20
+
   @spec now_playing(Config.t(), String.t(), http()) ::
           {:ok, track() | :none} | {:error, term()}
   def now_playing(config, access_token, http) when is_function(http, 4) do
@@ -47,7 +51,7 @@ defmodule PaperWeight.Spotify.Client do
   end
 
   @spec queue(Config.t(), String.t(), http()) ::
-          {:ok, [%{title: String.t(), artist: String.t()}]} | {:error, term()}
+          {:ok, [%{id: String.t(), title: String.t(), artist: String.t()}]} | {:error, term()}
   def queue(config, access_token, http) when is_function(http, 4) do
     url = config.api_base <> "/me/player/queue"
 
@@ -100,6 +104,31 @@ defmodule PaperWeight.Spotify.Client do
       end
     else
       false -> {:error, :invalid_playlist_id}
+    end
+  end
+
+  @doc """
+  Play a single, device-selected track by id (a `queue[].id` from the snapshot).
+
+  Starts `spotify:track:<id>` via `PUT /me/player/play` — the explicit N6 counterpart to
+  `play_playlist/4`. Still no generic skip/next/previous.
+  """
+  @spec play_track(Config.t(), String.t(), String.t(), http()) :: :ok | {:error, term()}
+  def play_track(config, access_token, track_id, http)
+      when is_function(http, 4) and is_binary(track_id) do
+    with true <- valid_track_id?(track_id) do
+      url = config.api_base <> "/me/player/play"
+      body = ~s({"uris":["spotify:track:#{track_id}"]})
+
+      headers = auth_headers(access_token) ++ [{"Content-Type", "application/json"}]
+
+      case http.(:put, url, headers, body) do
+        {:ok, status, _body} when status in [200, 202, 204] -> :ok
+        {:ok, status, response_body} -> {:error, {:http_status, status, response_body}}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      false -> {:error, :invalid_track_id}
     end
   end
 
@@ -179,6 +208,8 @@ defmodule PaperWeight.Spotify.Client do
 
   defp valid_playlist_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
 
+  defp valid_track_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
+
   defp parse_now_playing(body) do
     with {:ok, json} <- json_decode(body),
          %{"item" => item} when is_map(item) <- json do
@@ -199,8 +230,14 @@ defmodule PaperWeight.Spotify.Client do
   defp parse_queue(body) do
     with {:ok, %{"queue" => queue}} when is_list(queue) <- json_decode(body) do
       {:ok,
-       Enum.map(queue, fn item ->
-         %{title: Map.get(item, "name", ""), artist: artist_names(item)}
+       queue
+       |> Enum.take(@queue_limit)
+       |> Enum.map(fn item ->
+         %{
+           id: Map.get(item, "id", ""),
+           title: Map.get(item, "name", ""),
+           artist: artist_names(item)
+         }
        end)}
     else
       _ -> {:error, {:bad_queue_response, body}}

@@ -70,13 +70,19 @@ defmodule PaperWeight.Spotify.ClientTest do
     assert {:ok, :none} = Client.now_playing(config(), "tok", http)
   end
 
-  test "queue returns a display-only list of title/artist" do
+  test "queue returns a bounded list of id/title/artist" do
     assert {:ok, items} = Client.queue(config(), "tok", mock_http())
 
     assert items == [
-             %{title: "Next Track", artist: "Someone"},
-             %{title: "Another Track", artist: "Someone Else, Third"}
+             %{id: "queueid000000next01", title: "Next Track", artist: "Someone"},
+             %{id: "queueid000another002", title: "Another Track", artist: "Someone Else, Third"}
            ]
+  end
+
+  test "queue returns an empty list when nothing is queued" do
+    http = fn :get, _url, _headers, nil -> {:ok, 200, ~s({"queue":[]})} end
+
+    assert {:ok, []} = Client.queue(config(), "tok", http)
   end
 
   test "volume reads the device volume_percent" do
@@ -92,6 +98,19 @@ defmodule PaperWeight.Spotify.ClientTest do
 
     assert {:error, :invalid_playlist_id} =
              Client.play_playlist(config(), "tok", "bad/id", mock_http())
+  end
+
+  test "play_track PUTs only the selected track uri and rejects a malformed id" do
+    http = fn :put, url, _headers, body ->
+      assert String.ends_with?(url, "/me/player/play")
+      assert body == ~s({"uris":["spotify:track:trk123"]})
+      {:ok, 204, ""}
+    end
+
+    assert :ok = Client.play_track(config(), "tok", "trk123", http)
+
+    assert {:error, :invalid_track_id} =
+             Client.play_track(config(), "tok", "bad/id", http)
   end
 
   test "playlists returns id/name with null covers and skips invalid items" do

@@ -7,6 +7,7 @@ defmodule PaperWeight.Gateway.IntentsTest do
     %{
       set_volume: fn server, delta -> send(server, {:set_volume, delta}) end,
       play_playlist: fn server, id -> send(server, {:play_playlist, id}) end,
+      play_queue_item: fn server, id -> send(server, {:play_queue_item, id}) end,
       refresh_weather: fn server -> send(server, :refresh_weather) end,
       refresh_feed: fn server -> send(server, :refresh_feed) end,
       refresh_photo: fn server -> send(server, :refresh_photo) end,
@@ -25,9 +26,21 @@ defmodule PaperWeight.Gateway.IntentsTest do
                ~s({"v":1,"ts":1,"type":"intent","name":"play_playlist","args":{"id":"abc123"}})
              )
 
+    assert {:ok, {:play_queue_item, "trk123"}} =
+             Intents.decode(
+               ~s({"v":1,"ts":1,"type":"intent","name":"play_queue_item","args":{"id":"trk123"}})
+             )
+
     assert {:ok, {:refresh_channel, "weather"}} =
              Intents.decode(
                ~s({"v":1,"ts":1,"type":"intent","name":"refresh_channel","args":{"channel":"weather"}})
+             )
+  end
+
+  test "rejects a play_queue_item intent with an empty id" do
+    assert {:error, {:invalid_intent, "play_queue_item"}} =
+             Intents.decode(
+               ~s({"v":1,"type":"intent","name":"play_queue_item","args":{"id":""}})
              )
   end
 
@@ -52,6 +65,9 @@ defmodule PaperWeight.Gateway.IntentsTest do
 
     assert :ok = Intents.dispatch({:play_playlist, "abc123"}, adapters, handlers())
     assert_receive {:play_playlist, "abc123"}
+
+    assert :ok = Intents.dispatch({:play_queue_item, "trk123"}, adapters, handlers())
+    assert_receive {:play_queue_item, "trk123"}
 
     for {channel, message} <- [
           {"now_playing", :refresh_spotify},

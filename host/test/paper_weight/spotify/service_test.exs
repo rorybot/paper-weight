@@ -72,8 +72,12 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert {:ok, queue} = Service.queue(server)
 
     assert queue == [
-             %{"title" => "Next Track", "artist" => "Someone"},
-             %{"title" => "Another Track", "artist" => "Someone Else, Third"}
+             %{"id" => "queueid000000next01", "title" => "Next Track", "artist" => "Someone"},
+             %{
+               "id" => "queueid000another002",
+               "title" => "Another Track",
+               "artist" => "Someone Else, Third"
+             }
            ]
   end
 
@@ -164,6 +168,25 @@ defmodule PaperWeight.Spotify.ServiceTest do
 
     assert :ok = Service.play_playlist(server, "abc123")
     assert {url, ~s({"context_uri":"spotify:playlist:abc123"})} = Agent.get(ref, & &1)
+    assert String.ends_with?(url, "/me/player/play")
+  end
+
+  test "play_track dispatches the selected queue item uri through the authenticated client" do
+    {:ok, ref} = Agent.start_link(fn -> nil end)
+
+    http = fn
+      :get, url, headers, body ->
+        ok_http().(:get, url, headers, body)
+
+      :put, url, _headers, body ->
+        Agent.update(ref, fn _ -> {url, body} end)
+        {:ok, 204, ""}
+    end
+
+    server = start_service(http: http)
+
+    assert :ok = Service.play_track(server, "trk123")
+    assert {url, ~s({"uris":["spotify:track:trk123"]})} = Agent.get(ref, & &1)
     assert String.ends_with?(url, "/me/player/play")
   end
 
