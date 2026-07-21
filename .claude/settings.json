@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json; print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': open('PROJECT_INSTRUCTIONS.md').read()}}))\"",
+            "timeout": 10,
+            "statusMessage": "Loading PROJECT_INSTRUCTIONS.md"
+          }
+        ]
+      }
+    ]
+  }
+}
