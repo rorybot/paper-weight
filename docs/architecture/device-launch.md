@@ -139,6 +139,26 @@ For the P9 record, summarize command results rather than pasting full logs, and 
 - fullscreen/no-DevTools observation and physical preset 1–4 results;
 - device reboot, rollback, and accepted-generation restore results.
 
+## Troubleshooting: device suddenly unreachable
+
+Symptom: the kiosk/browser shows it can't reach the UI/gateway URL (or `ping`/`ssh` to
+`root@172.16.42.2` time out) even though nothing in the app or host service changed.
+
+Run `scripts/try-kick-device.sh` first — it automates the known quick fixes below and reports
+what it tried.
+
+- **USB gadget interface lost its address.** The `172.16.42.1` address on the USB NCM gadget
+  interface (`enp0s20f0u*u*`, name varies per replug/port) is sometimes only a short-lived
+  dynamic/link-local lease (seen with a `valid_lft` of ~28s) rather than a stable static one.
+  When that lease expires, the host side of the link silently drops even though the interface
+  stays `UP`. Fix: `sudo ip addr replace 172.16.42.1/24 dev <iface>`, where `<iface>` is
+  whichever `enp0s20f0u*u*` interface `ip -4 -o link show up` reports as `UP`.
+- If `ping -c 1 172.16.42.2` fails even after reapplying the address, check the physical
+  USB-C cable at both ends and confirm the interface exists at all before assuming the device
+  itself crashed.
+- If ping still fails after a reseat/replug, treat it as a genuine device hang rather than a
+  host networking blip: power-cycle the Car Thing, then re-verify with `device-nixos.sh status`.
+
 ## Boundary
 
 - Fixture snapshots only; no live API credentials.
