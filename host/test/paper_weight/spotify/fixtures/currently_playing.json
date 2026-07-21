@@ -4,6 +4,13 @@
     "name": "Track Title",
     "duration_ms": 200000,
     "artists": [{"name": "Artist One"}, {"name": "Artist Two"}],
-    "album": {"name": "Album Name"}
+    "album": {
+      "name": "Album Name",
+      "images": [
+        {"url": "https://i.scdn.co/image/large", "width": 640, "height": 640},
+        {"url": "https://i.scdn.co/image/medium", "width": 300, "height": 300},
+        {"url": "https://i.scdn.co/image/small", "width": 64, "height": 64}
+      ]
+    }
   }
 }

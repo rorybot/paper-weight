@@ -13,6 +13,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 | N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 | N6 | [#129](https://github.com/rorybot/paper-weight/issues/129) | Host queue channel + play-selected intent | **In review** (envelope frozen) |
+| N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **In progress** |
 
 ## Ownership (only these paths)
 
@@ -146,6 +147,13 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - For **live** (non-test) calls, wave-3 orchestrator needs to add `:inets` and `:ssl`
   to `extra_applications` in `host/mix.exs` — same requirement weather already has.
   Mocked tests do not need this.
+- N5 #128 adds `{:stb_image, "~> 0.6"}` to `host/mix.exs` deps — a JPEG/PNG decode
+  NIF, discussed and approved with Rory (2026-07-21) as the only way to close
+  `art_pbm_base64: nil`; nothing in the repo could decode a compressed image
+  into pixels for `PaperWeight.Dither` to consume. This is a **deps-list append
+  only**, not an `application.ex`/shell/other-lane edit, but flag for cross-lane
+  awareness since ownership says "do not touch mix.exs" — no other lane is
+  active on this dep right now.
 
 ## Next Session Context Chunk
 
@@ -216,3 +224,25 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Known quirks: stale flag only reaches *new* WS connections (gen doesn't advance on failure);
   `art_pbm_base64` stays nil; USB replug drops host `172.16.42.1` (re-add + kiosk restart —
   see `.n4-failure-drill.py` preflight).
+
+## Next Session Context Chunk — N5 #128 (2026-07-21)
+
+- Root cause: no JPEG/PNG decoder existed anywhere in the host — `fetch.ex` hardcoded
+  `art_pbm_base64: nil`; `Dither.render` only ever accepted an already-decoded `Image`.
+  Confirmed with Rory this needed an Elixir-side decode dep, not a client-side/URL approach
+  (device stays a dumb kiosk that paints pre-dithered PBM, per the locked BERG design).
+- Added `{:stb_image, "~> 0.6"}` to `host/mix.exs` (deps-list append; see Deps request above).
+  `Client.now_playing` now extracts `album.images`, picks the smallest ≥152px (device
+  `.np-art` size) falling back to the largest available or `nil`. `Art.decode/1` wraps
+  `StbImage.read_binary/1` → grayscale `Image`. `Fetch.fetch_snapshot/4` downloads the art
+  URL via the same injected `http` fn and best-effort dithers it; any failure (network,
+  bad bytes) ships `art_pbm_base64: nil` rather than failing the snapshot.
+  Tests: `client_test.exs` (art_url selection), `art_test.exs` (decode, using a handmade
+  tiny PNG fixture `fixtures/album_art.jpg`), `fetch_test.exs` (end-to-end art_pbm_base64
+  population + failure path).
+- **Not yet run**: `mix deps.get`/`mix compile`/`mix test` — mix only runs in Rory's dev
+  env, not the agent shell. `StbImage`'s exact API (`read_binary/1` return shape) is from
+  memory, not verified against hex docs from this session; if compile/test surfaces a
+  different shape, patch `Art.decode/1`'s `to_grayscale/1` accordingly.
+- Resume: run the mix commands above, fix any API mismatch, then physical-device check
+  (album art actually renders + updates on track change) before closing #128.

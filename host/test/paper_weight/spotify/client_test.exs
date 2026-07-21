@@ -62,6 +62,41 @@ defmodule PaperWeight.Spotify.ClientTest do
     assert track.progress_ms == 45_000
   end
 
+  test "now_playing picks the smallest album image at least as wide as the device art pane" do
+    assert {:ok, track} = Client.now_playing(config(), "tok", mock_http())
+
+    assert track.art_url == "https://i.scdn.co/image/medium"
+  end
+
+  test "now_playing falls back to the largest image when all are smaller than the art pane" do
+    http = fn :get, url, _headers, nil ->
+      if String.contains?(url, "currently-playing") do
+        {:ok, 200,
+         ~s({"progress_ms":0,"item":{"name":"T","duration_ms":1,"artists":[{"name":"A"}],
+            "album":{"name":"Al","images":[
+              {"url":"https://i.scdn.co/image/tiny","width":16,"height":16},
+              {"url":"https://i.scdn.co/image/small","width":64,"height":64}
+            ]}}})}
+      end
+    end
+
+    assert {:ok, track} = Client.now_playing(config(), "tok", http)
+    assert track.art_url == "https://i.scdn.co/image/small"
+  end
+
+  test "now_playing sets art_url to nil when the album has no images" do
+    http = fn :get, url, _headers, nil ->
+      if String.contains?(url, "currently-playing") do
+        {:ok, 200,
+         ~s({"progress_ms":0,"item":{"name":"T","duration_ms":1,"artists":[{"name":"A"}],
+            "album":{"name":"Al"}}})}
+      end
+    end
+
+    assert {:ok, track} = Client.now_playing(config(), "tok", http)
+    assert track.art_url == nil
+  end
+
   test "now_playing returns :none on empty body (nothing playing)" do
     http = fn :get, url, _headers, nil ->
       if String.contains?(url, "currently-playing"), do: {:ok, 204, ""}

@@ -38,6 +38,7 @@ defmodule PaperWeight.Spotify.FetchTest do
           String.contains?(url, "currently-playing") -> {:ok, 200, fixture("currently_playing.json")}
           String.contains?(url, "/me/player/queue") -> {:ok, 200, fixture("queue.json")}
           String.contains?(url, "/me/playlists") -> {:ok, 200, fixture("playlists.json")}
+          String.contains?(url, "i.scdn.co") -> {:ok, 200, fixture("album_art.jpg")}
           String.contains?(url, "/me/player") -> {:ok, 200, fixture("player.json")}
         end
     end
@@ -99,6 +100,36 @@ defmodule PaperWeight.Spotify.FetchTest do
 
     assert {:ok, snapshot, ^token} = Fetch.fetch_snapshot(config(), token, http_post, ok_http())
     assert snapshot["stale"] == false
+  end
+
+  test "fetch_snapshot downloads and dithers the track's album art into art_pbm_base64" do
+    token = fresh_token()
+    http_post = fn _url, _headers, _body -> flunk("should not refresh a fresh token") end
+
+    assert {:ok, snapshot, ^token} = Fetch.fetch_snapshot(config(), token, http_post, ok_http())
+
+    art = snapshot["track"]["art_pbm_base64"]
+    assert is_binary(art)
+    assert {:ok, pbm} = Base.decode64(art)
+    assert String.starts_with?(pbm, "P4\n152 152\n")
+  end
+
+  test "fetch_snapshot ships art_pbm_base64: nil when the art download fails" do
+    token = fresh_token()
+    http_post = fn _url, _headers, _body -> flunk("should not refresh a fresh token") end
+
+    http = fn
+      :get, url, _headers, nil ->
+        cond do
+          String.contains?(url, "currently-playing") -> {:ok, 200, fixture("currently_playing.json")}
+          String.contains?(url, "/me/player/queue") -> {:ok, 200, fixture("queue.json")}
+          String.contains?(url, "i.scdn.co") -> {:error, :econnrefused}
+          String.contains?(url, "/me/player") -> {:ok, 200, fixture("player.json")}
+        end
+    end
+
+    assert {:ok, snapshot, ^token} = Fetch.fetch_snapshot(config(), token, http_post, http)
+    assert snapshot["track"]["art_pbm_base64"] == nil
   end
 
   test "fetch_playlists surfaces a token refresh failure without calling the API client" do
