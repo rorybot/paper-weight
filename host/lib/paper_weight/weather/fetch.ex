@@ -14,7 +14,14 @@ defmodule PaperWeight.Weather.Fetch do
   def fetch_snapshot(config, http_get) when is_function(http_get, 2) do
     with {:ok, body} <- get_json(http_get, Config.open_meteo_url(config), headers(config)),
          {:ok, forecast} <- decode(body),
-         {:ok, %{current: current, days: days, uv_index: uv_index, hourly_uv: hourly_uv}} <-
+         {:ok,
+          %{
+            current: current,
+            days: days,
+            uv_index: uv_index,
+            hourly_uv: hourly_uv,
+            timeline: timeline
+          }} <-
            OpenMeteo.parse(forecast) do
       snapshot =
         Snapshot.assemble(%{
@@ -23,6 +30,7 @@ defmodule PaperWeight.Weather.Fetch do
           days: days,
           uv_index: uv_index,
           hourly_uv: hourly_uv,
+          timeline: timeline,
           stale: false
         })
 

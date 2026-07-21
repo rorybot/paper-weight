@@ -7,10 +7,10 @@ defmodule PaperWeight.Weather.ServiceTest do
 
   defp fixture(name), do: File.read!(Path.join(@fixture_dir, name))
 
-  defp good_http do
+  defp good_http(name \\ "open_meteo_forecast.json") do
     fn url, _headers ->
       if String.contains?(url, "api.open-meteo.com") do
-        {:ok, fixture("open_meteo_forecast.json")}
+        {:ok, fixture(name)}
       else
         {:error, {:unexpected_url, url}}
       end
@@ -65,6 +65,31 @@ defmodule PaperWeight.Weather.ServiceTest do
     assert stale_snap["current"] == fresh["current"]
     # gen only bumps on success
     assert Service.get_gen(pid) == gen_before
+
+    GenServer.stop(pid)
+  end
+
+  test "fetch failure leaves the prior timeline intact on the stale snapshot" do
+    {:ok, pid} =
+      GenServer.start_link(Service,
+        http_get: good_http("open_meteo_timeline.json"),
+        auto_refresh: false,
+        refresh_ms: :infinity,
+        location_label: "Exampleville, EX",
+        open_meteo_url: "https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0"
+      )
+
+    assert {:ok, fresh} = Service.get_snapshot(pid)
+    assert fresh["stale"] == false
+    assert length(fresh["timeline"]["series"]) == 73
+    assert fresh["timeline"]["now_index"] == 24
+
+    :sys.replace_state(pid, fn state -> %{state | http_get: failing_http()} end)
+    assert {:ok, stale_snap} = Service.refresh_now(pid)
+
+    assert stale_snap["stale"] == true
+    # timeline preserved verbatim from the last good snapshot
+    assert stale_snap["timeline"] == fresh["timeline"]
 
     GenServer.stop(pid)
   end

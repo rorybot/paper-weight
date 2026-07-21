@@ -20,6 +20,14 @@ defmodule PaperWeight.Weather.SnapshotTest do
         ],
         uv_index: 9.2,
         hourly_uv: [%{hour_local: "19:00", index: 9.2}],
+        timeline: %{
+          step_minutes: 30,
+          now_index: 1,
+          series: [
+            %{time_local: "2026-07-16T13:30", temp_f: 86, wind_mph: 7, precip_in: 0.0},
+            %{time_local: "2026-07-16T14:00", temp_f: 88, wind_mph: 8, precip_in: 0.0}
+          ]
+        },
         stale: false
       },
       overrides
@@ -43,6 +51,22 @@ defmodule PaperWeight.Weather.SnapshotTest do
     assert length(snap["days7"]) == 7
     assert hd(snap["days5"])["date"] == "2026-07-16"
     assert hd(snap["hourly_uv"]) == %{"hour_local" => "19:00", "index" => 9.2}
+
+    assert snap["timeline"]["step_minutes"] == 30
+    assert snap["timeline"]["now_index"] == 1
+    assert length(snap["timeline"]["series"]) == 2
+
+    assert Enum.at(snap["timeline"]["series"], 1) == %{
+             "time_local" => "2026-07-16T14:00",
+             "temp_f" => 88,
+             "wind_mph" => 8,
+             "precip_in" => 0.0
+           }
+  end
+
+  test "assemble emits an empty valid timeline when parts omit it" do
+    snap = Snapshot.assemble(sample_parts(%{timeline: nil}))
+    assert snap["timeline"] == %{"step_minutes" => 30, "now_index" => 0, "series" => []}
   end
 
   test "days5 is first five; days7 pads if needed" do

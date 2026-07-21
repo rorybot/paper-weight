@@ -54,7 +54,14 @@ defmodule PaperWeight.Weather.Config do
         "current" => "temperature_2m,weather_code,uv_index",
         "daily" => "weather_code,temperature_2m_max,temperature_2m_min",
         "hourly" => "uv_index",
+        # Half-hourly scrub timeline (W6a): sampled at 15-min, downsampled to
+        # the 30-min grid host-side. 12h back (48 steps) … 24h forward (96 steps).
+        "minutely_15" => "temperature_2m,wind_speed_10m,precipitation",
+        "past_minutely_15" => "48",
+        "forecast_minutely_15" => "96",
         "temperature_unit" => "fahrenheit",
+        "wind_speed_unit" => "mph",
+        "precipitation_unit" => "inch",
         "timezone" => "auto",
         "forecast_days" => "7"
       })
