@@ -23,9 +23,9 @@ reconciling it is outside this session's card; flagged for a future chore pass):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128 |
-| **In progress** | - |
+| **In progress** | N8 lyrics provider #131 |
 | **In review** | P6-N1 #111 |
-| **Ready** | Kiosk recover host-after-device #112; P10 wheel long-press #126; FS1 feed spike #127; N7 queue UI #130; N8 lyrics provider #131; P9a unattended cold boot #139; Kiosk hide pointer #111 |
+| **Ready** | Kiosk recover host-after-device #112; P10 wheel long-press #126; FS1 feed spike #127; N7 queue UI #130; P9a unattended cold boot #139; Kiosk hide pointer #111 |
 | **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; F3a live feed client #136; F4a author-timeline channel #137; F4b author-timeline drill-in #138; P11 kiosk stale-WS indicator #149 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
@@ -307,6 +307,19 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - Spun off **P11 #149** (Backlog): on-screen kiosk indicator for a stuck/reconnecting gateway
   WebSocket, found during this card's physical verification — see
   `docs/resolutions/stale-kiosk-websocket-after-host-restart.md`.
+
+### N8 [now-playing] Lyrics provider — lrclib.net · #131 · In progress
+- **Goal**: real synced lyrics on-device. The N3 overlay exists but is fixture-only.
+- **Scope**: host fetches synced LRC from lrclib.net (free, no-auth) keyed by artist + title +
+  duration; parses into the timed-lines payload the N3 overlay already consumes; cache per
+  track; graceful null payload when no match.
+- **Constraints**: size 3; now-playing lane, host-side only; frozen `lyrics` envelope field
+  unchanged.
+- **In progress**: added `host/lib/paper_weight/spotify/lyrics.ex` (`fetch/2` + pure
+  `parse_lrc/1`) and wired per-track-cached lookup into `Service.poll_now_playing/1`
+  (`Fetch`/`Snapshot`/envelope untouched). Mocked tests written (hit/miss/malformed/failure).
+  Not yet run: `mix test` (agent shell can't run mix); not yet physically verified. See
+  `features/now-playing/spec.md` N8 context chunk.
 
 ### P11 [platform] Kiosk: on-screen indicator when gateway WebSocket is reconnecting · #149 · Backlog
 - **Goal**: make a stuck/reconnecting gateway WebSocket visible on the kiosk screen itself.

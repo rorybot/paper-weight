@@ -33,6 +33,9 @@ defmodule PaperWeight.Spotify.ServiceTest do
           String.contains?(url, "i.scdn.co") ->
             {:ok, 200, fixture("album_art.jpg")}
 
+          String.contains?(url, "lrclib.net") ->
+            {:ok, 404, ""}
+
           String.contains?(url, "/me/player") ->
             {:ok, 200, fixture("player.json")}
         end
@@ -221,6 +224,42 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert stale_snap.playlists == snap.playlists
     # gen does not advance on failure
     assert Service.get_playlist_gen(server) == 1
+  end
+
+  test "now_playing populates lyrics from the provider and caches per track" do
+    {:ok, calls} = Agent.start_link(fn -> 0 end)
+
+    http = fn
+      :get, url, headers, body ->
+        if String.contains?(url, "lrclib.net") do
+          Agent.update(calls, &(&1 + 1))
+          {:ok, 200, ~s({"syncedLyrics": "[00:01.00]hello\\n[00:02.00]world"})}
+        else
+          ok_http().(:get, url, headers, body)
+        end
+
+      :put, url, headers, body ->
+        ok_http().(:put, url, headers, body)
+    end
+
+    server = start_service(http: http)
+
+    assert {:ok, snap} = Service.now_playing(server)
+
+    assert snap["lyrics"] == %{
+             lines: [%{t_ms: 1000, text: "hello"}, %{t_ms: 2000, text: "world"}]
+           }
+
+    assert {:ok, snap2} = Service.refresh_now(server)
+    assert snap2["lyrics"] == snap["lyrics"]
+    assert Agent.get(calls, & &1) == 1
+  end
+
+  test "now_playing ships lyrics: nil when the provider has no match" do
+    server = start_service()
+
+    assert {:ok, snap} = Service.now_playing(server)
+    assert snap["lyrics"] == nil
   end
 
   test "no generic play/pause/skip/previous public API exists on the service" do

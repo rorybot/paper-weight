@@ -117,6 +117,9 @@ defmodule PaperWeight.Gateway.SocketTest do
           String.contains?(url, "i.scdn.co") ->
             {:ok, 200, fixture.("album_art.jpg")}
 
+          String.contains?(url, "lrclib.net") ->
+            {:ok, 404, ""}
+
           String.contains?(url, "/me/player") ->
             {:ok, 200, fixture.("player.json")}
         end
