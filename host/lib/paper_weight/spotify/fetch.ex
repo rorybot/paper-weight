@@ -8,9 +8,12 @@ defmodule PaperWeight.Spotify.Fetch do
   so tests never hit the network or need real tokens.
   """
 
-  alias PaperWeight.Spotify.{Auth, Client, Config, PlaylistSnapshot, Snapshot}
+  alias PaperWeight.Spotify.{Art, Auth, Client, Config, PlaylistSnapshot, Snapshot}
 
   @token_refresh_buffer_s 30
+
+  # Matches the device's `.np-art` pane (now-playing.css).
+  @art_size {152, 152}
 
   @spec fetch_snapshot(Config.t(), Auth.token() | nil, Auth.http_post(), Client.http()) ::
           {:ok, Snapshot.t(), Auth.token()} | {:error, term()}
@@ -25,12 +28,25 @@ defmodule PaperWeight.Spotify.Fetch do
           queue: queue,
           volume_level: volume_level,
           stale: false,
-          art_pbm_base64: nil
+          art_pbm_base64: art_pbm_base64(track, http)
         })
 
       {:ok, snapshot, token}
     end
   end
+
+  # Best-effort: any fetch/decode failure ships `art_pbm_base64: null`, same as
+  # a track with no art at all, rather than failing the whole snapshot.
+  defp art_pbm_base64(%{art_url: url}, http) when is_binary(url) do
+    with {:ok, 200, bytes} <- http.(:get, url, [], nil),
+         {:ok, image} <- Art.decode(bytes) do
+      Art.dither_to_base64(image, @art_size)
+    else
+      _ -> nil
+    end
+  end
+
+  defp art_pbm_base64(_track, _http), do: nil
 
   @spec fetch_playlists(Config.t(), Auth.token() | nil, Auth.http_post(), Client.http()) ::
           {:ok, PlaylistSnapshot.t(), Auth.token()} | {:error, term()}

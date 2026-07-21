@@ -24,7 +24,8 @@ defmodule PaperWeightHost.MixProject do
     [
       {:bandit, "~> 1.5"},
       {:websock_adapter, "~> 0.5"},
-      {:plug, "~> 1.16"}
+      {:plug, "~> 1.16"},
+      {:stb_image, "~> 0.6"}
     ]
   end
 

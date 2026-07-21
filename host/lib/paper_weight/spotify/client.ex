@@ -20,6 +20,7 @@ defmodule PaperWeight.Spotify.Client do
           title: String.t(),
           artist: String.t(),
           album: String.t(),
+          art_url: String.t() | nil,
           duration_ms: non_neg_integer(),
           progress_ms: non_neg_integer()
         }
@@ -35,6 +36,10 @@ defmodule PaperWeight.Spotify.Client do
 
   # Bounded queue snapshot — the device shows a scrollable Up-Next list, not the full backlog.
   @queue_limit 20
+
+  # Device art pane is 152×152 (now-playing.css); pick the smallest Spotify-provided
+  # image at least this wide so we download the least data before downscaling.
+  @art_target_px 152
 
   @spec now_playing(Config.t(), String.t(), http()) ::
           {:ok, track() | :none} | {:error, term()}
@@ -135,8 +140,9 @@ defmodule PaperWeight.Spotify.Client do
   @doc """
   List the current user's playlists (first page).
 
-  Covers ship as `cover_pbm_base64: nil` — JPEG/PNG download + grayscale decode is not
-  available on the host yet (same as N1 album art). Device falls back to CSS hatch.
+  Covers ship as `cover_pbm_base64: nil` — playlist cover download/decode is a
+  separate lane from now-playing art (N5 #128) and stays out of scope here.
+  Device falls back to CSS hatch.
   """
   @spec playlists(Config.t(), String.t(), http()) ::
           {:ok, [playlist_item()]} | {:error, term()}
@@ -218,6 +224,7 @@ defmodule PaperWeight.Spotify.Client do
          title: Map.get(item, "name", ""),
          artist: artist_names(item),
          album: get_in(item, ["album", "name"]) || "",
+         art_url: album_art_url(item),
          duration_ms: Map.get(item, "duration_ms", 0),
          progress_ms: Map.get(json, "progress_ms", 0)
        }}
@@ -276,6 +283,28 @@ defmodule PaperWeight.Spotify.Client do
   end
 
   defp playlist_item(_), do: nil
+
+  defp album_art_url(item) do
+    case get_in(item, ["album", "images"]) do
+      images when is_list(images) and images != [] ->
+        candidates = Enum.filter(images, &(is_map(&1) and is_binary(&1["url"])))
+
+        smallest_big_enough =
+          candidates
+          |> Enum.filter(&(Map.get(&1, "width", 0) >= @art_target_px))
+          |> Enum.min_by(&Map.get(&1, "width", 0), fn -> nil end)
+
+        largest = Enum.max_by(candidates, &Map.get(&1, "width", 0), fn -> nil end)
+
+        case smallest_big_enough || largest do
+          %{"url" => url} -> url
+          nil -> nil
+        end
+
+      _ ->
+        nil
+    end
+  end
 
   defp artist_names(%{"artists" => artists}) when is_list(artists) do
     artists
