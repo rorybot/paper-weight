@@ -13,7 +13,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 | N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 | N6 | [#129](https://github.com/rorybot/paper-weight/issues/129) | Host queue channel + play-selected intent | **In review** (envelope frozen) |
-| N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **In progress** |
+| N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **Done** (PR #148) |
 
 ## Ownership (only these paths)
 
@@ -246,3 +246,17 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
   different shape, patch `Art.decode/1`'s `to_grayscale/1` accordingly.
 - Resume: run the mix commands above, fix any API mismatch, then physical-device check
   (album art actually renders + updates on track change) before closing #128.
+
+## Next Session Context Chunk — N5 #128 (2026-07-21, closed)
+
+- CI (`ci`/`host`) confirmed green: `StbImage`'s API matched what was written; no patch needed.
+  Two collateral test-mock gaps (`service_test.exs`, `gateway/socket_test.exs` — each has its
+  own injected `http` mock, missing a branch for the new art-URL request) fixed same session.
+- Physical acceptance passed: confirmed via `scripts/device-cdp.py` screenshot on the real Car
+  Thing — real dithered album art renders for the current track, plus real title/artist/queue.
+  Rory independently confirmed seeing the artwork too.
+- Found + spun off along the way: a stuck kiosk WebSocket reconnect loop rendered the client-side
+  fixture placeholder indefinitely after host restarts (see
+  `docs/resolutions/stale-kiosk-websocket-after-host-restart.md`; fixed by reloading the tab, no
+  power cycle needed) → **P11 #149** (Backlog) to add an on-screen indicator for this.
+- PR #148 merged, #128 closed.
