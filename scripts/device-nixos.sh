@@ -185,13 +185,13 @@ device_status() {
     printf 'profile_system=%s\\n' \"\$(readlink -f $SYSTEM_PROFILE)\"
     nix-env --profile $SYSTEM_PROFILE --list-generations
     printf 'weston_active='
-    systemctl is-active weston-tty1.service
+    systemctl is-active weston-tty1.service || true
     printf 'weston_enabled='
-    systemctl is-enabled weston-tty1.service
+    systemctl is-enabled weston-tty1.service || true
     printf 'input_bridge_active='
-    systemctl is-active input-bridge.service
+    systemctl is-active input-bridge.service || true
     printf 'input_bridge_enabled='
-    systemctl is-enabled input-bridge.service
+    systemctl is-enabled input-bridge.service || true
     printf 'kiosk_url='
     cat /etc/kiosk_url
     printf 'uptime_seconds='
