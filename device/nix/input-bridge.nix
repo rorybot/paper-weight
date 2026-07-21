@@ -52,6 +52,19 @@ in
     };
   };
 
+  # #111: libinput classifies the rotary encoder (relative wheel axis) as a
+  # pointer device, which gives the Weston seat pointer capability — turning
+  # the dial "moves" the pointer and Chromium draws a cursor over the kiosk
+  # (weston.ini cursor-size=0 only affects the shell's own sprite, not the one
+  # a client sets). The bridge reads event0/event1 raw via evdev, so libinput
+  # consumers never need these nodes; ignoring them removes pointer capability
+  # from the seat entirely, so no cursor can appear and the dial stops
+  # double-delivering as scroll into Chromium.
+  services.udev.extraRules = ''
+    ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event0", ENV{LIBINPUT_IGNORE_DEVICE}="1"
+    ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event1", ENV{LIBINPUT_IGNORE_DEVICE}="1"
+  '';
+
   # tty1 belongs to the kiosk compositor. The upstream getty definition can be
   # re-enabled during a switch, which conflicts with and stops Weston.
   systemd.services."autovt@tty1".wantedBy = lib.mkForce [ ];

@@ -20,8 +20,8 @@ Status snapshot (2026-07-19, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109 |
-| **In progress** | - |
-| **In review** | P6-N1 #111 |
+| **In progress** | P6-N1 #111 |
+| **In review** | - |
 | **Ready** | - |
 | **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; late-host kiosk recovery #112; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122 |
 
@@ -164,7 +164,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: #82 is Done; no live-lane or frozen-envelope edits.
 - **Acceptance**: fmt/test/clippy, aarch64 build, physical events, boot service, and reconnect pass.
 
-### P6-N1 [platform] Hide kiosk pointer reliably · #111 · In review
+### P6-N1 [platform] Hide kiosk pointer reliably · #111 · In progress
 - **Goal**: remove the visible Chromium/Weston pointer from the production 800×480 kiosk.
 - **Scope**: identify pointer ownership; apply the smallest declarative fix; validate restart and boot.
 - **Constraints**: preserve host/dev browser and keyboard workflows; do not reopen P8.

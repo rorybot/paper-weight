@@ -19,7 +19,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | P6-I | [#82](https://github.com/rorybot/paper-weight/issues/82) | Cold-boot integration | **Done** (closed, PR #102) |
 | P7 | [#85](https://github.com/rorybot/paper-weight/issues/85) | Live-runtime contract | **Done** (closed, PR #106) |
 | P8 | [#86](https://github.com/rorybot/paper-weight/issues/86) | Device input-bridge deployment | **Done** (closed, PR #98) |
-| P6-N1 | [#111](https://github.com/rorybot/paper-weight/issues/111) | Hide kiosk pointer reliably | **In review** |
+| P6-N1 | [#111](https://github.com/rorybot/paper-weight/issues/111) | Hide kiosk pointer reliably | **In progress** |
 | P6-N2 | [#112](https://github.com/rorybot/paper-weight/issues/112) | Recover when host UI starts after device | **Backlog** |
 | P9 | [#90](https://github.com/rorybot/paper-weight/issues/90) | Demo-appliance acceptance | **Backlog** (blocked by P8, W4, F3, N4) |
 | W3-P1 | [#43](https://github.com/rorybot/paper-weight/issues/43) | Protocol v1.1 — freeze playlist channel | **Done** (closed, PR #53) |
@@ -296,8 +296,10 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 
 - Pointer diagnosed as Weston's cursor sprite (rotary encoder = libinput pointer device);
   upstream `hide-cursor=true` is a no-op key in stock Weston 14.
-- Fix shipped: `device/nix/resources/weston.ini` (cursor-size=0) forced over the upstream ini
-  from `device/nix/flake.nix`; details in `docs/architecture/device-nixos-kiosk.md`.
-- Physical validation pending: Rory runs `scripts/verify-kiosk-pointer.sh` (deploy → Weston
-  restart → cold boot → rollback drill, logged); card stays In review until the log passes.
-- If the sprite survives, attempt B is a transparent cursor-theme package — new PR, same card.
+- Attempt A (weston.ini cursor-size=0, PR #120) hid the idle sprite but the cursor returned on
+  rotary interaction: over the fullscreen kiosk the cursor is set by Chromium, not the shell.
+- Attempt B shipped: udev `LIBINPUT_IGNORE_DEVICE=1` on `event0`/`event1` in
+  `device/nix/input-bridge.nix` — the bridge reads them raw, so libinput/Weston drop pointer
+  capability entirely and no client can draw a cursor. See `docs/architecture/device-nixos-kiosk.md`.
+- Physical validation pending: Rory reruns `scripts/verify-kiosk-pointer.sh` from a native host
+  shell (deploy → Weston restart → cold boot → rollback drill, logged); Done only when it passes.
