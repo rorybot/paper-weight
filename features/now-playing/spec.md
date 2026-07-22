@@ -14,6 +14,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 | N6 | [#129](https://github.com/rorybot/paper-weight/issues/129) | Host queue channel + play-selected intent | **In review** (envelope frozen) |
 | N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **Done** (PR #148) |
+| N8 | [#131](https://github.com/rorybot/paper-weight/issues/131) | Lyrics provider — lrclib.net | **In progress** |
 
 ## Ownership (only these paths)
 
@@ -260,3 +261,28 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
   `docs/resolutions/stale-kiosk-websocket-after-host-restart.md`; fixed by reloading the tab, no
   power cycle needed) → **P11 #149** (Backlog) to add an on-screen indicator for this.
 - PR #148 merged, #128 closed.
+
+## Next Session Context Chunk — N8 #131 (2026-07-21)
+
+- Added `host/lib/paper_weight/spotify/lyrics.ex`: `fetch/2` (injected `http`, same 4-arity
+  shape as `Client.http()`) queries `lrclib.net/api/get` by artist/track/album/duration-seconds;
+  200+`syncedLyrics` parses via pure `parse_lrc/1` (mm:ss(.cs) LRC lines) into
+  `%{lines: [%{t_ms, text}]}`; 404, malformed/unparseable LRC, non-200/404, and transport errors
+  all resolve to `nil` (best-effort, matches N3's existing empty state) — no new failure mode.
+- Wired into `Service.poll_now_playing/1` only (Fetch/Snapshot untouched, envelope shape
+  unchanged): new `state.lyrics_cache` map keyed by `Lyrics.cache_key(title, artist,
+  duration_ms)` (stable across progress_ms) so lrclib is called once per track, not once per
+  poll; `with_lyrics/3` overlays the real payload onto the snapshot's `"lyrics"` key after
+  `Fetch.fetch_snapshot` returns it.
+- Reused `Client.default_http/0` (httpc) rather than duplicating an HTTP client — no new deps.
+- Tests: `host/test/paper_weight/spotify/lyrics_test.exs` (parse_lrc ordering/blank/no-fraction;
+  fetch hit/miss/malformed/no-syncedLyrics-field/http-error/transport-error; cache_key stability;
+  request URL params). Extended `service_test.exs` (lyrics populated + cached across
+  `refresh_now`, and `lyrics: nil` on no-match) and added the missing `lrclib.net` branch to the
+  `cond` HTTP mocks in `service_test.exs` and `gateway/socket_test.exs` (both previously had no
+  fallback clause, which would now raise `CondClauseError` on any Spotify poll).
+- **Not yet run**: `mix compile`/`mix test` — mix only runs in Rory's dev env, not the agent
+  shell (see feedback memory). Hand-off command below.
+- Resume: run `mix test`, fix any compile/API mismatch, then physical acceptance (real synced
+  lyrics advance in time for a popular track; a track with no lrclib match shows the existing
+  "no lyrics" overlay state) before closing #131.

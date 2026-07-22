@@ -23,6 +23,7 @@ defmodule PaperWeight.Spotify.Service do
     Client,
     Config,
     Fetch,
+    Lyrics,
     PlaylistSnapshot,
     Snapshot,
     Volume
@@ -37,7 +38,8 @@ defmodule PaperWeight.Spotify.Service do
           token: Auth.token() | nil,
           http_post: Auth.http_post(),
           http: Client.http(),
-          poll_ms: pos_integer() | :infinity
+          poll_ms: pos_integer() | :infinity,
+          lyrics_cache: %{String.t() => Lyrics.payload() | nil}
         }
 
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -111,7 +113,8 @@ defmodule PaperWeight.Spotify.Service do
       token: nil,
       http_post: http_post,
       http: http,
-      poll_ms: poll_ms
+      poll_ms: poll_ms,
+      lyrics_cache: %{}
     }
 
     state = do_poll(state)
@@ -211,13 +214,45 @@ defmodule PaperWeight.Spotify.Service do
   defp poll_now_playing(state) do
     case Fetch.fetch_snapshot(state.config, state.token, state.http_post, state.http) do
       {:ok, snapshot, token} ->
-        %{state | snapshot: snapshot, token: token, gen: state.gen + 1}
+        {snapshot, lyrics_cache} = with_lyrics(snapshot, state.lyrics_cache, state.http)
+        %{state | snapshot: snapshot, token: token, gen: state.gen + 1, lyrics_cache: lyrics_cache}
 
       {:error, _reason} ->
         case state.snapshot do
           nil -> state
           snap -> %{state | snapshot: Snapshot.mark_stale(snap)}
         end
+    end
+  end
+
+  # Best-effort, cached-per-track lyrics lookup (N8): failure or no match ships
+  # `lyrics: nil`, same as the frozen envelope's existing default.
+  defp with_lyrics(%{"track" => nil} = snapshot, cache, _http), do: {snapshot, cache}
+
+  defp with_lyrics(%{"track" => track} = snapshot, cache, http) do
+    key = Lyrics.cache_key(track["title"], track["artist"], track["duration_ms"])
+
+    case Map.fetch(cache, key) do
+      {:ok, payload} ->
+        {Map.put(snapshot, "lyrics", payload), cache}
+
+      :error ->
+        payload = fetch_lyrics(track, http)
+        {Map.put(snapshot, "lyrics", payload), Map.put(cache, key, payload)}
+    end
+  end
+
+  defp fetch_lyrics(track, http) do
+    lyrics_track = %{
+      title: track["title"],
+      artist: track["artist"],
+      album: track["album"],
+      duration_ms: track["duration_ms"]
+    }
+
+    case Lyrics.fetch(lyrics_track, http) do
+      {:ok, payload} -> payload
+      {:error, _reason} -> nil
     end
   end
 
