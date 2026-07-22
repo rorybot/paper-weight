@@ -16,12 +16,12 @@ Launch/demo order: **P6-H #83** + **P6-N #84** → **P6-I #82** → parallel **P
 **Status = GitHub project Status field.** This file is a mirror only. Never mark a card
 In progress / Done here unless the same change succeeded on the remote project.
 
-Status snapshot (2026-07-21, verified against remote project):
+Status snapshot (2026-07-22, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126 |
 | **In progress** | - |
-| **In review** | P10 wheel long-press #126 |
+| **In review** | - |
 | **Ready** | Kiosk recover host-after-device #112; FS1 feed spike #127; N7 queue UI #130; P9a unattended cold boot #139; N9 lyrics clock #155; N10 adaptive host poll #156 |
 | **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; F3a live feed client #136; F4a author-timeline channel #137; F4b author-timeline drill-in #138; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111 |
 
@@ -164,21 +164,23 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Constraints**: #82 is Done; no live-lane or frozen-envelope edits.
 - **Acceptance**: fmt/test/clippy, aarch64 build, physical events, boot service, and reconnect pass.
 
-### P10 [platform] Wheel long-press input (≥3s) · #126 · In review
+### P10 [platform] Wheel long-press input (≥3s) · #126 ✅ Done
 - **Goal**: add a distinct wheel long-press (≥3s) input end-to-end; move Now Playing lyrics
   overlay from short press to long-press.
 - **Scope**: input-bridge emits `wheel_long_press` (generalized per-key `hold_actions`,
   `wheel_hold_ms` default 3000ms); shell `wheel-long-press` input + router case; Now Playing
   lyrics rebinds to long-press only, short press freed for queue select (N6/N7); dropped
   wheel-turn `adjust-volume` on Now Playing (frozen `set_volume` protocol intent untouched).
-- **Constraints**: cross-lane (input-bridge + device shell) — PR #153 carries the `cross-lane`
+- **Constraints**: cross-lane (input-bridge + device shell) — PR #153 carried the `cross-lane`
   label.
-- **Acceptance**: input-bridge fmt/test/clippy + device-ui typecheck/218 tests/build all green;
-  router/reducer tests cover short vs. long-press dispatch; on-device short-press-no-lyrics and
-  hold-≥3s-opens-lyrics still pending physical validation (`p10-acceptance.sh` in the branch
-  worktree, untracked).
+- **Done**: input-bridge fmt/test/clippy + device-ui typecheck/218 tests/build all green;
+  router/reducer tests cover short vs. long-press dispatch; physically validated on-device
+  (short press no longer opens lyrics, wheel hold ≥3s opens the overlay while held, second
+  long-press toggles it closed). PR #153 merged, issue closed 2026-07-22. Also produced
+  `resolutions/deploy-rollback-from-stray-manual-input-bridge.md` and a
+  `scripts/device-nixos.sh` hygiene fix (chore/device-deploy-hygiene-126).
 
-### P6-N1 [platform] Hide kiosk pointer reliably · #111 · In review
+### P6-N1 [platform] Hide kiosk pointer reliably · #111 · Backlog
 - **Goal**: remove the visible Chromium/Weston pointer from the production 800×480 kiosk.
 - **Scope**: identify pointer ownership; apply the smallest declarative fix; validate restart and boot.
 - **Constraints**: preserve host/dev browser and keyboard workflows; do not reopen P8.

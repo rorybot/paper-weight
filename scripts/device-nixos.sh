@@ -261,9 +261,31 @@ restore_kiosk_tty() {
   "
 }
 
+reap_stray_input_bridge() {
+  # A hand-started `input_bridge` (e.g. run manually outside systemd for a
+  # quick on-device proof-of-concept) can be left bound to the loopback SSE
+  # port indefinitely. That silently makes every future activation crash-loop
+  # on "Address already in use" and triggers deploy-rs's auto-rollback, which
+  # looks like a bad deploy even though the build was fine. See
+  # resolutions/deploy-rollback-from-stray-manual-input-bridge.md.
+  ssh_device "
+    set -eu
+    pid=\$(ss -tlnp 2>/dev/null | awk -F'pid=' '/127\\.0\\.0\\.1:9137/ { split(\$2, a, \",\"); print a[1] }')
+    if [[ -n \"\${pid:-}\" ]]; then
+      main_pid=\$(systemctl show input-bridge.service -p MainPID --value 2>/dev/null || printf '0')
+      if [[ \"\$pid\" != \"\$main_pid\" ]]; then
+        printf 'note: killing stray input_bridge pid %s on 127.0.0.1:9137 (not the systemd-managed instance)\\n' \"\$pid\" >&2
+        kill \"\$pid\" 2>/dev/null || true
+        sleep 1
+      fi
+    fi
+  "
+}
+
 deploy_system() {
   printf '%s\n' "Before deployment:"
   device_status
+  reap_stray_input_bridge
   run_builder sh -eu -c '
     flake_ref="$1"
     deploy_source="$(

@@ -29,7 +29,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | W3-D | [#47](https://github.com/rorybot/paper-weight/issues/47) | Device WebSocket client feeding channel store | **Done** (closed, PR #71) |
 | W3-E | [#48](https://github.com/rorybot/paper-weight/issues/48) | Host gateway intent handlers | **Done** (closed, PR #73) |
 | W3-F | [#50](https://github.com/rorybot/paper-weight/issues/50) | End-to-end fixture host → desktop UI smoke | **Done** (closed, PR #77) |
-| P10 | [#126](https://github.com/rorybot/paper-weight/issues/126) | Wheel long-press input (≥3s) | **In review** (PR #153) |
+| P10 | [#126](https://github.com/rorybot/paper-weight/issues/126) | Wheel long-press input (≥3s) | **Done** (PR #153 merged) |
 
 ## Stack slice (do not re-litigate)
 
@@ -302,7 +302,22 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Physical validation pending: Rory runs `scripts/verify-kiosk-pointer.sh` (deploy → Weston
   restart → cold boot → rollback drill, logged); card stays In review until the log passes.
 
-## Next Session Context Chunk (P10 — 2026-07-21)
+## Next Session Context Chunk (P10 — 2026-07-22, closed out)
+
+- Physically validated on-device: short press no longer opens lyrics, holding the wheel ≥3s
+  opens the overlay while held, a second long-press toggles it closed. PR #153 merged, issue
+  #126 closed, Status → Done.
+- Found mid-validation and fixed (separate `chore/device-deploy-hygiene-126` PR, not bundled
+  into #153): a manually-started `input_bridge` process from an earlier unrelated session was
+  squatting on `127.0.0.1:9137` outside systemd, causing every deploy attempt to crash-loop on
+  activation and get auto-rolled-back by deploy-rs. Added `reap_stray_input_bridge` to
+  `scripts/device-nixos.sh` (kills anything on that port that isn't the systemd-managed
+  instance, before every deploy) plus a new `CLAUDE.md` "Device deploy hygiene" section and
+  `resolutions/deploy-rollback-from-stray-manual-input-bridge.md`.
+- Still open, out of this card's scope: `NowPlayingScreen`'s "↻ wheel = volume" UI hint is now
+  stale copy (wheel-turn no longer does anything on Now Playing) — worth a small follow-up card.
+
+## Next Session Context Chunk (P10 — 2026-07-21, historical)
 
 - `input-bridge`: generalized the old preset-only `home_hold_codes`/`hold_ms` into a per-code
   `Bindings.hold_actions: BTreeMap<u16, HoldAction{hold_ms, event}>`; wheel-press's key code
