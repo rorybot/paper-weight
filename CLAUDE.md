@@ -73,6 +73,29 @@ qemu-aarch64, even as real host root, never becomes visible to a nested build sa
 needing aarch64 emulation must run directly on the physical host, outside any container nesting.
 See `docs/architecture/device-nixos-kiosk.md` for the full writeup.
 
+## Device deploy hygiene (mandatory)
+
+A device build/deploy costs real minutes-to-an-hour; a wasted build-and-rollback cycle from a
+foreseeable, checkable condition is not an acceptable cost of doing business.
+
+- Before telling Rory (or running yourself) `scripts/device-nixos.sh deploy` — or any command
+  that activates a service on a fixed port/socket on the physical device — **first check the
+  device's actual runtime state for that resource**: `ssh ... "ss -tlnp | grep <port>"` and
+  `ps aux | grep <daemon>`, confirming anything already holding it is the systemd-managed
+  instance. That check costs seconds; running it up front preserves a completed build instead of
+  losing it to an activation failure and deploy-rs auto-rollback. See
+  `resolutions/deploy-rollback-from-stray-manual-input-bridge.md`.
+- When asked how much of a build will be reused, cached, or fast on a retry, **answer only from
+  something you've actually verified** about deploy-rs/Nix behavior for this case. State
+  uncertainty plainly ("not sure how much this reuses") when you haven't checked — that costs
+  far less of Rory's time than a wrong confident guess.
+- When adding or touching a deploy path for a fixed-port/singleton service, **write its preflight
+  conflict check into the script in that same pass** — treat the check as part of the deploy
+  path's definition of done, not a follow-up.
+- When manually starting a daemon on-device for a quick proof-of-concept (e.g. `input_bridge`
+  outside systemd), **kill it before ending the session**. A live orphaned process is the kind of
+  device state a future session needs to be able to trust is clean.
+
 ## Host paths vs agent paths (mandatory)
 
 Agent sessions may see the machine through a Distrobox bind mount (`/run/host/...`). Rory's own
