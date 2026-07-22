@@ -80,21 +80,26 @@ impl InputProcessor {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{BTreeMap, BTreeSet};
+    use std::collections::BTreeMap;
 
     use super::InputProcessor;
     use crate::{
         device::{DeviceId, DeviceUpdate},
         event::InputEvent,
-        reducer::{Action, Bindings, KeyState, RawInput},
+        reducer::{Action, Bindings, HoldAction, KeyState, RawInput},
     };
 
     fn bindings() -> Bindings {
         Bindings {
             wheel_relative_code: 8,
             keys: BTreeMap::from([(2, Action::Preset(1)), (14, Action::Back)]),
-            home_hold_codes: BTreeSet::from([2]),
-            hold_ms: 650,
+            hold_actions: BTreeMap::from([(
+                2,
+                HoldAction {
+                    hold_ms: 650,
+                    event: InputEvent::Home,
+                },
+            )]),
             debounce_ms: 25,
         }
     }

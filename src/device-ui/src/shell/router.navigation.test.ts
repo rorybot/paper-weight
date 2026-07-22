@@ -144,7 +144,7 @@ describe("shell navigation — presets / hold / back / konami", () => {
     });
   });
 
-  it("konami progress survives wheel-turn (volume does not wipe sequence)", () => {
+  it("konami progress survives wheel-turn (now-playing wheel-turn is a no-op)", () => {
     let state = initialShellState("now-playing");
     state = stateAfter(state, { type: "konami-key", key: "up" });
     state = stateAfter(state, { type: "konami-key", key: "up" });
@@ -152,7 +152,7 @@ describe("shell navigation — presets / hold / back / konami", () => {
 
     const afterWheel = route(state, { type: "wheel-turn", delta: 1 });
     expect(afterWheel.state.konamiIndex).toBe(2);
-    expect(afterWheel.commands).toEqual([{ type: "adjust-volume", delta: 1 }]);
+    expect(afterWheel.commands).toEqual([]);
   });
 
   it("wrong konami key resets or restarts sequence", () => {
@@ -167,19 +167,34 @@ describe("shell navigation — presets / hold / back / konami", () => {
 });
 
 describe("interaction map — wheel / press per screen", () => {
-  it("Now Playing: wheel = volume, press = toggle lyrics", () => {
+  it("Now Playing: wheel = —, short press = —, long press = toggle lyrics (P10)", () => {
     const base = initialShellState("now-playing");
 
-    expect(commandsAfter(base, { type: "wheel-turn", delta: 3 })).toEqual([
-      { type: "adjust-volume", delta: 3 },
-    ]);
-    expect(commandsAfter(base, { type: "wheel-turn", delta: -2 })).toEqual([
-      { type: "adjust-volume", delta: -2 },
-    ]);
+    expect(commandsAfter(base, { type: "wheel-turn", delta: 3 })).toEqual([]);
+    expect(commandsAfter(base, { type: "wheel-turn", delta: -2 })).toEqual([]);
 
-    const open = stateAfter(base, { type: "wheel-press" });
+    expect(route(base, { type: "wheel-press" }).commands).toEqual([]);
+    expect(stateAfter(base, { type: "wheel-press" })).toBe(base);
+
+    const open = stateAfter(base, { type: "wheel-long-press" });
     expect(open.overlay).toBe("lyrics");
-    expect(stateAfter(open, { type: "wheel-press" }).overlay).toBeNull();
+    expect(stateAfter(open, { type: "wheel-long-press" }).overlay).toBeNull();
+  });
+
+  it("wheel-long-press is a no-op outside Now Playing", () => {
+    for (const screen of [
+      "home",
+      "weather",
+      "playlist",
+      "feed",
+      "photo",
+      "etymology",
+      "settings",
+    ] as const) {
+      const base = initialShellState(screen);
+      expect(route(base, { type: "wheel-long-press" }).commands).toEqual([]);
+      expect(stateAfter(base, { type: "wheel-long-press" })).toBe(base);
+    }
   });
 
   it("Weather: wheel = toggle range, press = —", () => {

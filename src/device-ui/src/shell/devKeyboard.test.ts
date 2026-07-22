@@ -19,6 +19,11 @@ describe("dev keyboard map", () => {
     expect(mapDevKeyboardEvent({ key: "Enter", code: "Enter" })).toEqual({
       inputs: [{ type: "wheel-press" }],
     });
+    expect(
+      mapDevKeyboardEvent({ key: "Enter", code: "Enter", shiftKey: true }),
+    ).toEqual({
+      inputs: [{ type: "wheel-long-press" }],
+    });
   });
 
   it("vertical arrows emit konami + wheel", () => {

@@ -29,6 +29,7 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | W3-D | [#47](https://github.com/rorybot/paper-weight/issues/47) | Device WebSocket client feeding channel store | **Done** (closed, PR #71) |
 | W3-E | [#48](https://github.com/rorybot/paper-weight/issues/48) | Host gateway intent handlers | **Done** (closed, PR #73) |
 | W3-F | [#50](https://github.com/rorybot/paper-weight/issues/50) | End-to-end fixture host → desktop UI smoke | **Done** (closed, PR #77) |
+| P10 | [#126](https://github.com/rorybot/paper-weight/issues/126) | Wheel long-press input (≥3s) | **In review** (PR #153) |
 
 ## Stack slice (do not re-litigate)
 
@@ -300,4 +301,28 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   from `device/nix/flake.nix`; details in `docs/architecture/device-nixos-kiosk.md`.
 - Physical validation pending: Rory runs `scripts/verify-kiosk-pointer.sh` (deploy → Weston
   restart → cold boot → rollback drill, logged); card stays In review until the log passes.
+
+## Next Session Context Chunk (P10 — 2026-07-21)
+
+- `input-bridge`: generalized the old preset-only `home_hold_codes`/`hold_ms` into a per-code
+  `Bindings.hold_actions: BTreeMap<u16, HoldAction{hold_ms, event}>`; wheel-press's key code
+  auto-gets a `wheel_hold_ms` (config key, default 3000ms) hold binding emitting the new
+  `InputEvent::WheelLongPress` (`wheel_long_press` on the wire). Config rejects a code bound to
+  both `home_hold` and wheel-press. `fmt`/`test`(17)/`clippy -D warnings` all green (musl/aarch64
+  cross targets aren't installable in this sandbox — required `ci` covers those).
+- Shell: new `wheel-long-press` `ShellInput` + router case (`bridge.ts`, `devKeyboard.ts`
+  Shift+Enter for dev). Now Playing lyrics overlay moved from short press to long-press only;
+  short press on Now Playing is now "—" (freed for N6/N7 queue select). Dropped `adjust-volume`
+  on Now Playing wheel-turn per the card's explicit decision — `set_volume`/`IntentV1` protocol
+  untouched, just unused from the shell; `NowPlayingScreen`'s "↻ wheel = volume" hint is now
+  stale copy (real UI bug, out of this card's scope — worth a follow-up card).
+  `npm run check` (typecheck + 218 tests + build) green.
+- PR #153 (`feat/p10-wheel-long-press`), label `cross-lane` (touches both lanes). Left **open**:
+  deploy-heavy, needs physical wheel short/long-press validation. `p10-acceptance.sh` sits
+  untracked at the worktree root (deploys this branch's input-bridge to the Car Thing via
+  `device-nixos.sh`, serves this branch's device-ui via the documented temporary dev-host
+  path, then CDP-verifies the lyrics overlay objectively instead of asking for an eyeball
+  check) — Rory runs it from `~/repos/paper-weight/.worktrees/p10-wheel-long-press`.
+- Issue #126 Status set to In review (not Done) — do not close until the acceptance script's
+  log shows the on-device checklist passing.
 - If the sprite survives, attempt B is a transparent cursor-theme package — new PR, same card.

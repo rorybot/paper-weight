@@ -5,7 +5,8 @@
 | Raw input | Published JSON |
 |---|---|
 | Wheel relative movement | `{"v":1,"type":"wheel","ticks":-2}` |
-| Wheel press | `{"v":1,"type":"wheel_press"}` |
+| Wheel short press | `{"v":1,"type":"wheel_press"}` |
+| Wheel held ≥ `wheel_hold_ms` | `{"v":1,"type":"wheel_long_press"}` |
 | Preset short press | `{"v":1,"type":"preset","number":1}` |
 | Configured preset hold | `{"v":1,"type":"home"}` |
 | Back press | `{"v":1,"type":"back"}` |
@@ -17,6 +18,8 @@
 - Evdev disconnects reset held-key state and retry with bounded backoff from 250ms to 5s.
 - `home_hold`, `hold_ms`, and `debounce_ms` are configuration values; any bound key can be hold-capable.
 - Preset actions emit on release; reaching `hold_ms` emits Home once and consumes the short press.
+- The wheel-press key is always hold-capable: `wheel_hold_ms` (default 3000ms) gates when a held
+  wheel press emits `wheel_long_press` once instead of, on release, the short `wheel_press`.
 - Linux key repeats and duplicate presses do not duplicate events.
 
 ## Device configuration

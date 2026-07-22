@@ -5,7 +5,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::reducer::{Action, Bindings};
+use crate::{
+    event::InputEvent,
+    reducer::{Action, Bindings, HoldAction},
+};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BridgeConfig {
@@ -42,6 +45,11 @@ pub fn parse_config(contents: &str) -> Result<BridgeConfig, String> {
         return Err("hold_ms must be greater than debounce_ms".into());
     }
 
+    let wheel_hold_ms = parse_optional_u64(&values, "wheel_hold_ms", 3000)?;
+    if wheel_hold_ms <= debounce_ms {
+        return Err("wheel_hold_ms must be greater than debounce_ms".into());
+    }
+
     let wheel_relative_code = parse_required_u16(&values, "wheel_relative")?;
     let key_specs = [
         ("wheel_press", Action::WheelPress),
@@ -69,14 +77,39 @@ pub fn parse_config(contents: &str) -> Result<BridgeConfig, String> {
         None => preset_codes,
     };
 
+    let mut hold_actions = BTreeMap::new();
+    for code in home_hold_codes {
+        hold_actions.insert(
+            code,
+            HoldAction {
+                hold_ms,
+                event: InputEvent::Home,
+            },
+        );
+    }
+    for (&code, action) in &keys {
+        if matches!(action, Action::WheelPress)
+            && hold_actions
+                .insert(
+                    code,
+                    HoldAction {
+                        hold_ms: wheel_hold_ms,
+                        event: InputEvent::WheelLongPress,
+                    },
+                )
+                .is_some()
+        {
+            return Err(format!("key code {code} has conflicting hold bindings"));
+        }
+    }
+
     Ok(BridgeConfig {
         devices,
         listen,
         bindings: Bindings {
             wheel_relative_code,
             keys,
-            home_hold_codes,
-            hold_ms,
+            hold_actions,
             debounce_ms,
         },
     })

@@ -17,6 +17,10 @@ describe("P2 bridge → shell input", () => {
       v: 1,
       type: "wheel_press",
     });
+    expect(parseBridgeEvent('{"v":1,"type":"wheel_long_press"}')).toEqual({
+      v: 1,
+      type: "wheel_long_press",
+    });
     expect(parseBridgeEvent('{"v":1,"type":"preset","number":3}')).toEqual({
       v: 1,
       type: "preset",
@@ -52,5 +56,8 @@ describe("P2 bridge → shell input", () => {
     expect(
       bridgePayloadToShellInput('{"v":1,"type":"preset","number":1}'),
     ).toEqual({ type: "preset", preset: 1 });
+    expect(
+      bridgeEventToShellInput({ v: 1, type: "wheel_long_press" }),
+    ).toEqual({ type: "wheel-long-press" });
   });
 });

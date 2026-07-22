@@ -30,14 +30,14 @@ export const refreshChannelRequest = (
 
 /**
  * Pure: one shell command → its host intent request, or null for
- * device-local commands. `play-selected-playlist` is not mapped here:
- * only PlaylistScreen knows the selected playlist id, so `play_playlist`
- * is built at the screen edge via `playPlaylistRequest`.
+ * device-local commands. No `ShellCommand` maps to an intent today
+ * (`play-selected-playlist` resolves at the screen edge via
+ * `playPlaylistRequest`; wheel volume was dropped in P10) — this stays the
+ * one seam future commands plug into.
  */
 export const commandToIntentRequest = (
-  command: ShellCommand,
-): ShellIntentRequest | null =>
-  command.type === "adjust-volume" ? setVolumeRequest(command.delta) : null;
+  _command: ShellCommand,
+): ShellIntentRequest | null => null;
 
 /** Pure: map just-emitted shell commands to host intent requests, in order. */
 export const commandsToIntentRequests = (

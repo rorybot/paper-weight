@@ -134,8 +134,6 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
   }
 
   switch (state.screen) {
-    case "now-playing":
-      return emit(state, { type: "adjust-volume", delta });
     case "weather":
       return emit(state, { type: "toggle-weather-range" });
     case "playlist":
@@ -154,11 +152,13 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
   }
 };
 
-/** design spec §Interaction — wheel press column. */
+/**
+ * design spec §Interaction — wheel press column. Now Playing short press is
+ * "—" here: lyrics moved to long-press (P10); queue select (N6/N7) will claim
+ * this slot next.
+ */
 const pressWheel = (state: ShellState): ShellTransition => {
   switch (state.screen) {
-    case "now-playing":
-      return toggleOverlay(state, "lyrics");
     case "playlist":
       return emit(state, { type: "play-selected-playlist" });
     case "feed":
@@ -170,7 +170,17 @@ const pressWheel = (state: ShellState): ShellTransition => {
     case "etymology":
       return emit(state, { type: "dig-etymology" });
     default:
-      // Weather / home: press is "—".
+      // Weather / home / now-playing: press is "—".
+      return unchanged(state);
+  }
+};
+
+/** Wheel long-press (≥3s, P10): Now Playing lyrics overlay; "—" elsewhere. */
+const longPressWheel = (state: ShellState): ShellTransition => {
+  switch (state.screen) {
+    case "now-playing":
+      return toggleOverlay(state, "lyrics");
+    default:
       return unchanged(state);
   }
 };
@@ -199,6 +209,8 @@ export const routeShellInput = (
       return turnWheel(state, input.delta);
     case "wheel-press":
       return pressWheel(state);
+    case "wheel-long-press":
+      return longPressWheel(state);
     case "konami-key":
       return acceptKonamiKey(state, input.key);
   }

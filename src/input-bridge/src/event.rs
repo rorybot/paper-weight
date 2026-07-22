@@ -2,6 +2,7 @@
 pub enum InputEvent {
     Wheel { ticks: i32 },
     WheelPress,
+    WheelLongPress,
     Preset { number: u8 },
     Home,
     Back,
@@ -21,6 +22,9 @@ impl InputEvent {
             }
             Self::WheelPress => {
                 format!(r#"{{"v":{},"type":"wheel_press"}}"#, Self::VERSION)
+            }
+            Self::WheelLongPress => {
+                format!(r#"{{"v":{},"type":"wheel_long_press"}}"#, Self::VERSION)
             }
             Self::Preset { number } => {
                 format!(
