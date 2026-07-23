@@ -19,14 +19,13 @@ defmodule PaperWeight.Gateway.Socket do
   require Logger
 
   alias PaperWeight.Gateway.{Intents, JsonEncoder, Publisher}
-  alias PaperWeight.{Feed, Photo, Spotify, Weather}
+  alias PaperWeight.{Photo, Spotify, Weather}
 
   @poll_ms 1_000
 
   @type adapters :: %{
           weather: GenServer.server() | nil,
           spotify: GenServer.server() | nil,
-          feed: GenServer.server() | nil,
           photo: GenServer.server() | nil
         }
 
@@ -94,7 +93,6 @@ defmodule PaperWeight.Gateway.Socket do
         fetch(adapters[:weather], &Weather.Service.get_snapshot/1, &Weather.Service.get_gen/1),
       spotify:
         fetch(adapters[:spotify], &Spotify.Service.now_playing/1, &Spotify.Service.get_gen/1),
-      feed: feed_input(adapters[:feed]),
       photo: fetch(adapters[:photo], &Photo.Service.get_snapshot/1, &Photo.Service.get_gen/1),
       playlist:
         fetch(
@@ -112,15 +110,6 @@ defmodule PaperWeight.Gateway.Socket do
       {:ok, snapshot} -> {:ok, snapshot, gen_fun.(server)}
       {:error, reason} -> {:error, reason}
     end
-  catch
-    :exit, _reason -> {:error, :service_unavailable}
-  end
-
-  defp feed_input(nil), do: :disabled
-
-  defp feed_input(server) do
-    %{gen: gen, snapshot: snapshot} = Feed.Service.current(server)
-    {:ok, snapshot, gen}
   catch
     :exit, _reason -> {:error, :service_unavailable}
   end

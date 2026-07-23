@@ -8,7 +8,6 @@ defmodule PaperWeight.Protocol.Envelope do
   @type channel ::
           :now_playing
           | :weather
-          | :feed
           | :photo
           | :etymology
           | :playlist

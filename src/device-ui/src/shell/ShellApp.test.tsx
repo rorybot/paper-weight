@@ -10,7 +10,6 @@ const REAL_SCREEN_MARKERS: Readonly<Record<ScreenId, string>> = {
   "now-playing": 'data-screen="now-playing"',
   weather: 'data-screen="weather"',
   playlist: 'data-screen="playlist"',
-  feed: 'data-screen="feed"',
   photo: 'data-screen="photo"',
   etymology: 'data-screen="etymology"',
   settings: 'data-screen="settings"',
@@ -35,20 +34,13 @@ describe("renderShellOverlay", () => {
     expect(html).toContain('data-overlay="lyrics"');
     expect(html).toContain('data-screen="lyrics-overlay"');
   });
-
-  it("renders nothing extra for feed-detail (FeedScreen owns `enlarged`)", () => {
-    const html = render(
-      <>{renderShellOverlay("feed-detail", nowPlayingFixtureSnapshot)}</>,
-    );
-    expect(html).toBe("");
-  });
 });
 
 describe("commandsToIntentRequests", () => {
   it("ignores commands with no intent mapping", () => {
     expect(
       commandsToIntentRequests([
-        { type: "scroll-feed", delta: 1 },
+        { type: "skip-photo", delta: 1 },
         { type: "toggle-weather-range" },
       ]),
     ).toEqual([]);

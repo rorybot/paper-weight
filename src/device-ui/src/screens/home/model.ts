@@ -20,13 +20,6 @@ export type HomeWeatherTile = Readonly<{
   uvGrade: "low" | "high" | "extreme";
 }>;
 
-export type HomeFeedTile = Readonly<{
-  kind: "feed";
-  quote: string;
-  handle: string;
-  newCount: number;
-}>;
-
 export type HomeEtymologyTile = Readonly<{
   kind: "etymology";
   chain: string;
@@ -46,7 +39,6 @@ export type HomeGlanceV1 = Readonly<{
   clockLabel: string;
   nowPlaying: HomeNowPlayingTile | null;
   weather: HomeWeatherTile | null;
-  feed: HomeFeedTile | null;
   etymology: HomeEtymologyTile | null;
   photo: HomePhotoTile | null;
 }>;

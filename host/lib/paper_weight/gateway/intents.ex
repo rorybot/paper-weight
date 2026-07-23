@@ -7,10 +7,10 @@ defmodule PaperWeight.Gateway.Intents do
   deterministic in tests and no malformed input can crash the WebSocket process.
   """
 
-  alias PaperWeight.{Feed, Photo, Spotify, Weather}
+  alias PaperWeight.{Photo, Spotify, Weather}
   alias PaperWeight.Spotify.JsonLite
 
-  @channels ~w(now_playing weather feed photo etymology playlist system)
+  @channels ~w(now_playing weather photo etymology playlist system)
 
   @type intent ::
           {:set_volume, integer()}
@@ -24,7 +24,6 @@ defmodule PaperWeight.Gateway.Intents do
           play_playlist: (GenServer.server(), String.t() -> term()),
           play_queue_item: (GenServer.server(), String.t() -> term()),
           refresh_weather: (GenServer.server() -> term()),
-          refresh_feed: (GenServer.server() -> term()),
           refresh_photo: (GenServer.server() -> term()),
           refresh_spotify: (GenServer.server() -> term())
         }
@@ -60,10 +59,6 @@ defmodule PaperWeight.Gateway.Intents do
     call(adapters[:weather], handlers.refresh_weather)
   end
 
-  def dispatch({:refresh_channel, "feed"}, adapters, handlers) do
-    call(adapters[:feed], handlers.refresh_feed)
-  end
-
   def dispatch({:refresh_channel, "photo"}, adapters, handlers) do
     call(adapters[:photo], handlers.refresh_photo)
   end
@@ -79,7 +74,6 @@ defmodule PaperWeight.Gateway.Intents do
       play_playlist: &Spotify.Service.play_playlist/2,
       play_queue_item: &Spotify.Service.play_track/2,
       refresh_weather: &Weather.Service.refresh_now/1,
-      refresh_feed: &Feed.Service.refresh/1,
       refresh_photo: &Photo.Service.rescan/1,
       refresh_spotify: &Spotify.Service.refresh_now/1
     }

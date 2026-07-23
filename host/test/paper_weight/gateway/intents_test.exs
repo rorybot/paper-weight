@@ -9,7 +9,6 @@ defmodule PaperWeight.Gateway.IntentsTest do
       play_playlist: fn server, id -> send(server, {:play_playlist, id}) end,
       play_queue_item: fn server, id -> send(server, {:play_queue_item, id}) end,
       refresh_weather: fn server -> send(server, :refresh_weather) end,
-      refresh_feed: fn server -> send(server, :refresh_feed) end,
       refresh_photo: fn server -> send(server, :refresh_photo) end,
       refresh_spotify: fn server -> send(server, :refresh_spotify) end
     }
@@ -58,7 +57,7 @@ defmodule PaperWeight.Gateway.IntentsTest do
   end
 
   test "dispatches valid intents to injected handlers with exact arguments" do
-    adapters = %{spotify: self(), weather: self(), feed: self(), photo: self()}
+    adapters = %{spotify: self(), weather: self(), photo: self()}
 
     assert :ok = Intents.dispatch({:set_volume, 3}, adapters, handlers())
     assert_receive {:set_volume, 3}
@@ -72,7 +71,6 @@ defmodule PaperWeight.Gateway.IntentsTest do
     for {channel, message} <- [
           {"now_playing", :refresh_spotify},
           {"weather", :refresh_weather},
-          {"feed", :refresh_feed},
           {"photo", :refresh_photo}
         ] do
       assert :ok = Intents.dispatch({:refresh_channel, channel}, adapters, handlers())

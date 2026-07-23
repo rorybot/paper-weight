@@ -21,9 +21,9 @@ Status snapshot (2026-07-22, verified against remote project):
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126 |
 | **In progress** | - |
-| **In review** | - |
-| **Ready** | Kiosk recover host-after-device #112; FS1 feed spike #127; N7 queue UI #130; P9a unattended cold boot #139; N9 lyrics clock #155; N10 adaptive host poll #156 |
-| **Backlog** | F3 #88; P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; F3a live feed client #136; F4a author-timeline channel #137; F4b author-timeline drill-in #138; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111 |
+| **In review** | drop Feed lane #161 (PR #163) |
+| **Ready** | Kiosk recover host-after-device #112; N7 queue UI #130; P9a unattended cold boot #139; N9 lyrics clock #155; N10 adaptive host poll #156 |
+| **Backlog** | P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111; P12 #158; P13 #159; P14 #160 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -255,6 +255,38 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   required check green (`host`/`lane-guard` pass, product-lane jobs correctly skipped); issue #45
   closed and Status set to Done.
 
+### P12 [platform] Spike — evaluate yocto-superbird as device OS · #158 · Backlog
+- **Goal**: decide go/no-go on replacing nixos-superbird with yocto-superbird.
+- **Scope**: pin SHA if go; cold-build/flash stock kiosk-dev (or document blocker); compare net,
+  SSH, kiosk URL, `/dev/input`, MemAvailable, input-bridge surface vs current baseline; write
+  verdict (`docs/architecture/device-os-yocto-spike.md` or workflow-v1 update).
+- **Constraints**: do not delete nixos last-good or rewrite reflash scripts; no host lanes;
+  keep nixos recovery. Prefer host Podman/kas in Distrobox.
+- **Acceptance**: written GO or NO-GO with evidence table; GO → pin + variant + risks for P13/P14;
+  NO-GO → cancel P13/P14, nixos stays authoritative.
+- **Unblocks**: P13, P14 only on GO. Upstream: https://github.com/JoeyEamigh/yocto-superbird
+
+### P13 [platform] Paper Weight Yocto layer + flashthing image · #159 · Backlog
+- **Goal**: own a kas-managed Paper Weight image layer on yocto-superbird.
+- **Scope**: kas include @ P12 pin; `meta-paper-weight` from kiosk-example; kiosk URL knobs;
+  input-bridge recipe or install path; flashthing zip + build docs.
+- **Constraints**: blocked by **P12 GO**; pin SHA only; no host/UI lane edits; do not remove
+  nixos path until P14.
+- **Acceptance**: reproducible build instructions; dev image boots shell/kiosk; pin + layer
+  layout committed (or staged for P14).
+- **Depends on**: P12 GO · Unblocks P14
+
+### P14 [platform] Cut over device baseline from nixos-superbird → yocto · #160 · Backlog
+- **Goal**: make yocto the authoritative device OS in docs, flash-keep, and reflash scripts.
+- **Scope**: last-good + reflash scripts for flashthing; rewrite workflow-v1 + device-smoke env
+  table; physical kiosk/input-bridge/WS acceptance; retire/quarantine nixos-only paths
+  (`device-nix-reconcile`) explicitly.
+- **Constraints**: blocked by **P13**; destructive flash only with recovery path; no product
+  feature expansion; cancel if P12 was NO-GO.
+- **Acceptance**: clean-checkout reflash works on hardware; docs no longer claim nixos as decided
+  runtime; smoke evidence + owner-visible GO before close.
+- **Depends on**: P13
+
 ## Epic: now-playing (screen 4a)
 
 ### N1 [now-playing] Spotify data service · #6 · Done (lane wave 1)
@@ -432,26 +464,40 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Done**: `screens/playlist/**` + `protocol/playlist.ts` (PR #34); pure reduce for wheel/play;
   fixture mockup names; play → `play_playlist` args; NP host/navigate remains wave 3.
 
-## Epic: feed (screen 4f)
+## Epic: feed (screen 4f) — DROPPED 2026-07-22
 
-### F1 [feed] X/Twitter snapshot service · #12 · Done
+**FS1 [feed] Spike — feed source without paid X API · #127 · Done.** Verdict: drop the Feed
+screen rather than accept either compromise (paid X API, or unofficial scraping). Preset 3
+repointed to Photo (already-built screen). Feed's host service and device screen code deleted;
+follow-ups F3 (#88), F3a (#136), F4a (#137), F4b (#138) closed as moot. Full reasoning in
+`features/feed/spec.md` ("FS1 Verdict").
+
+### Drop Feed lane · #161 · In review (PR #163)
+- **Goal**: land FS1 cleanup — delete Feed code paths; preset 3 → Photo.
+- **Scope**: host feed/**, device screens/feed + protocol/feed, shell/gateway/envelope, home
+  tile + settings, docs.
+- **Acceptance**: `mix test` / `npm run check` green; on-device preset 3 = Photo; docs five screens.
+- **Status**: In review — host 226 + device-ui 198 green; remaining physical preset-3 check.
+
+F1 (#12) and F2 (#13) below shipped the now-removed Feed lane; kept here as history only —
+none of this code exists in `src/device-ui/src` or `host/lib` anymore. Cleanup also touched
+`screens/home/**` (feed glance tile → photo tile, now on preset 3) and `screens/settings/**`
+(dropped the `feed_handles` field) since both referenced the removed feature.
+
+### F1 [feed] X/Twitter snapshot service · #12 · Done (code removed 2026-07-22)
 - **Goal**: periodic read-only feed snapshot.
 - **Scope**: fetch N recent posts from followed handles/list; strip to text+handle+time;
   per-handle accent color assignment; refresh on interval.
-  Own only `host/lib/paper_weight/feed/**` — see `features/feed/spec.md`.
 - **Constraints**: read-only; snapshot semantics (no live updates mid-view).
 - **Acceptance**: fixture snapshot renders ≥3 posts; refresh swaps atomically.
 
-### F2 [feed] Screen 4f UI · #13 ✅ Done
+### F2 [feed] Screen 4f UI · #13 · Done (code removed 2026-07-22)
 - **Goal**: build final pick 4f (BERG-pushed 3d renderer).
 - **Scope**: dark desk, ~3 posts visible, selected post on cream hard-outline+offset card, serif
   bodies, mono handles, dashed dividers, mustard footer, receipt-roll progress rail (right).
   Wheel scrolls, press enlarges, back collapses.
 - **Constraints**: "Grus Gazette" mini-newspaper concept is REJECTED — do not build.
 - **Acceptance**: matches `feed-4f.png`; big type readable on the 3.97" panel.
-- **Done**: `src/device-ui/src/screens/feed/**` pure `reduceFeedUi` + `FeedScreen` @ 800×480 BERG;
-  ~3-post window, cream selected card, mustard footer, receipt rail; enlarge/collapse; 12 tests;
-  no shell edits. Branch `lane/feed-f2`.
 
 ### F3 [feed] Live Feed acceptance · #88 · Backlog
 - **Goal**: accept live feed snapshots, interaction, failure, and reconnect on the physical device.

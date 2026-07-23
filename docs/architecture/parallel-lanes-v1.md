@@ -145,9 +145,10 @@ Each agent: **one GitHub issue** status → In progress while working; Done only
 
 | Screen | Wheel | Press | Lane handles command? |
 |--------|-------|-------|------------------------|
-| now-playing | `adjust-volume` | lyrics overlay (shell) | N1 volume intent; N2 UI |
+| now-playing | — (volume unbound post-P10) | long-press lyrics overlay (shell) | N1 data; N2 UI |
 | weather | `toggle-weather-range` | — | W2 local UI state; W1 data |
-| feed | `scroll-feed` | feed-detail overlay | F2 local UI; F1 data |
+| photo | `skip-photo` | `keep-photo-on-show` | photo service |
+| ~~feed~~ | ~~`scroll-feed`~~ | ~~feed-detail~~ | **dropped** FS1/#161 |
 
 ---
 

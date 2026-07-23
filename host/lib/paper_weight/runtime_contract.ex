@@ -3,18 +3,17 @@ defmodule PaperWeight.RuntimeContract do
   Pure presence/non-empty check for the env vars a live lane needs, per
   `docs/architecture/live-runtime-contract-v1.md`. Deliberately does not
   parse or format-validate values — that stays with each lane's own
-  `Config` module (`PaperWeight.Weather.Config`, `PaperWeight.Spotify.Config`,
-  `PaperWeight.Feed.Config`), which this list must be kept in sync with by
-  hand since P7 is not permitted to touch lane client internals.
+  `Config` module (`PaperWeight.Weather.Config`, `PaperWeight.Spotify.Config`),
+  which this list must be kept in sync with by hand since P7 is not permitted
+  to touch lane client internals.
   """
 
   @required_vars %{
     weather: ~w(WEATHER_LAT WEATHER_LON),
-    spotify: ~w(SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_SECRET SPOTIFY_REFRESH_TOKEN),
-    feed: ~w(PAPER_WEIGHT_FEED_HANDLES PAPER_WEIGHT_FEED_LIST_ID PAPER_WEIGHT_FEED_API_TOKEN)
+    spotify: ~w(SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_SECRET SPOTIFY_REFRESH_TOKEN)
   }
 
-  @type lane :: :weather | :spotify | :feed
+  @type lane :: :weather | :spotify
   @type getenv :: (String.t() -> String.t() | nil)
 
   @doc """

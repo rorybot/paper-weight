@@ -1,10 +1,8 @@
 /* D1 home screen 800×480 — gruvbox TUI, terminal-dashboard chrome (same idiom as
    weather.css: hairline dividers, flat panels, mono-only, topbar/footer bars).
 
-   Row heights are explicit px, not fr/auto: a grid item's default min-height:auto
-   makes it grow to fit its content even inside a 1fr track, which silently
-   overflowed past this screen's fixed 480px height when first built. 176+176+72
-   sums to the exact 424px available after the 30px topbar and 26px footer. */
+   Four tiles, one per preset (now-playing/weather/photo/etymology) — fits a
+   plain 2×2 grid now that Feed's tile is gone and Photo moved onto preset 3. */
 
 .hm-screen {
   display: grid;
@@ -44,13 +42,9 @@
 .hm-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 176px 176px 72px;
+  grid-template-rows: repeat(2, 1fr);
   min-height: 0;
   overflow: hidden;
-}
-
-.hm-tile--wide {
-  grid-column: 1 / -1;
 }
 
 .hm-tile {
@@ -94,9 +88,6 @@
 .hm-tile__title .hm-badge {
   color: var(--tile-accent, var(--pw-accent));
 }
-.hm-tile__title .hm-badge--dim {
-  color: color-mix(in srgb, var(--pw-paper) 55%, transparent);
-}
 
 .hm-tile__rule {
   position: absolute;
@@ -109,32 +100,6 @@
 }
 .hm-tile:last-child .hm-tile__rule {
   bottom: 0;
-}
-
-.hm-tile--wide {
-  flex-direction: row;
-  align-items: center;
-  gap: 26px;
-  padding: 14px 24px;
-}
-.hm-tile--wide .hm-hero {
-  flex: 0 0 auto;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 10px;
-}
-.hm-tile--wide .hm-hero-num {
-  font-size: 40px;
-}
-.hm-tile--wide .hm-hero-num small {
-  font-size: 16px;
-}
-.hm-tile--wide .hm-foot {
-  flex: 1 1 auto;
-  border-top: none;
-  padding-top: 0;
-  text-align: right;
-  font-size: 14px;
 }
 
 .hm-hero {

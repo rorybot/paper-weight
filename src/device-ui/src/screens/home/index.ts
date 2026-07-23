@@ -2,7 +2,6 @@ export { homeFixtureGlance } from "./fixture";
 export { barGlyphs, formatMs, uvRatio } from "./model";
 export type {
   HomeEtymologyTile,
-  HomeFeedTile,
   HomeGlanceV1,
   HomeNowPlayingTile,
   HomePhotoTile,

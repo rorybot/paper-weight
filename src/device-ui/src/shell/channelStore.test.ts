@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { EnvelopeV1 } from "../protocol/envelope";
-import { feedFixtureSnapshot } from "../screens/feed";
 import { playlistFixtureSnapshot } from "../screens/playlist";
 import { weatherFixtureSnapshot } from "../screens/weather";
 import {
@@ -26,11 +25,9 @@ describe("fixtureChannelStoreState", () => {
     expect(fixtureChannelStoreState.snapshots.weather).toBe(
       weatherFixtureSnapshot,
     );
-    expect(fixtureChannelStoreState.snapshots.feed).toBe(feedFixtureSnapshot);
     expect(fixtureChannelStoreState.gens).toEqual({
       now_playing: 0,
       weather: 0,
-      feed: 0,
       photo: 0,
       playlist: 0,
     });

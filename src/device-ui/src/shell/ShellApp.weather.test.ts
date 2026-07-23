@@ -15,8 +15,8 @@ describe("applyWeatherRangeToggles", () => {
   it("ignores unrelated shell commands", () => {
     expect(
       applyWeatherRangeToggles("5d", [
-        { type: "scroll-feed", delta: 1 },
-        { type: "skip-photo", delta: -2 },
+        { type: "skip-photo", delta: 1 },
+        { type: "move-playlist-selection", delta: -2 },
       ]),
     ).toBe("5d");
   });

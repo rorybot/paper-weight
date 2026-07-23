@@ -7,7 +7,6 @@ import {
   EtymologyScreen,
   etymologyFixtureSnapshot,
 } from "../screens/etymology";
-import { FeedScreen } from "../screens/feed";
 import { HomeScreen, homeFixtureGlance } from "../screens/home";
 import { LyricsOverlay, NowPlayingScreen } from "../screens/now-playing";
 import { PhotoScreen } from "../screens/photo";
@@ -71,11 +70,6 @@ export const applyWeatherRangeToggles = (
 export { commandsToIntentRequests } from "./intents";
 export type { ShellIntentRequest } from "./intents";
 
-const isFeedCommand = (
-  command: ShellCommand,
-): command is Extract<ShellCommand, { type: "scroll-feed" }> =>
-  command.type === "scroll-feed";
-
 const isPlaylistCommand = (
   command: ShellCommand,
 ): command is Extract<
@@ -112,9 +106,7 @@ const isSettingsCommand = (
   command.type === "edit-settings-field";
 
 /**
- * Pure: `lyrics` renders the real N3 overlay from the now-playing snapshot;
- * `feed-detail` has no separate chrome — `FeedScreen` reflects `enlarged`
- * itself, and `ScreenShell` already supplies the dim backdrop layer.
+ * Pure: `lyrics` renders the real N3 overlay from the now-playing snapshot.
  */
 export const renderShellOverlay = (
   overlay: OverlayId,
@@ -271,16 +263,6 @@ export const ShellApp = ({
               args,
             })
           }
-        />
-      );
-    }
-
-    if (screen === "feed") {
-      return (
-        <FeedScreen
-          snapshot={channelStore.snapshots.feed}
-          command={lastCommands.find(isFeedCommand) ?? null}
-          enlarged={state.overlay === "feed-detail"}
         />
       );
     }

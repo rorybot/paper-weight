@@ -211,7 +211,7 @@ describe("createGatewayClient", () => {
       createSocket: harness.createSocket,
       timers: harness.timers,
       now: () => 42,
-      refreshOnOpen: ["weather", "feed"],
+      refreshOnOpen: ["weather", "photo"],
     });
 
     expect(harness.sockets).toHaveLength(1);
@@ -231,7 +231,7 @@ describe("createGatewayClient", () => {
         ts: 42,
         type: "intent",
         name: "refresh_channel",
-        args: { channel: "feed" },
+        args: { channel: "photo" },
       },
     ]);
   });

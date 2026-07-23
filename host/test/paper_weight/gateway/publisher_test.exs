@@ -20,7 +20,6 @@ defmodule PaperWeight.Gateway.PublisherTest do
     inputs = %{
       weather: {:ok, %{"temp" => 70}, 3},
       spotify: {:ok, %{"track" => "a"}, 7},
-      feed: {:ok, %{posts: []}, 1},
       photo: {:ok, %{"caption" => "x"}, 2},
       playlist: {:ok, playlist_payload, 4}
     }
@@ -37,18 +36,16 @@ defmodule PaperWeight.Gateway.PublisherTest do
            }
 
     assert by_channel[:now_playing].gen == 7
-    assert by_channel[:feed].gen == 1
     assert by_channel[:photo].gen == 2
     assert by_channel[:playlist].gen == 4
     assert by_channel[:playlist].payload == playlist_payload
-    assert map_size(by_channel) == 5
+    assert map_size(by_channel) == 4
   end
 
   test "disabled channel is omitted" do
     inputs = %{
       weather: :disabled,
       spotify: :disabled,
-      feed: :disabled,
       photo: :disabled,
       playlist: :disabled
     }
@@ -60,7 +57,6 @@ defmodule PaperWeight.Gateway.PublisherTest do
     inputs = %{
       weather: {:error, :no_snapshot},
       spotify: {:ok, %{}, 1},
-      feed: :disabled,
       photo: {:error, :service_unavailable},
       playlist: {:error, :no_snapshot}
     }
