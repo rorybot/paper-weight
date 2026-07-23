@@ -13,18 +13,34 @@ This is not hypothetical — in Wave-3 Day-2 (2026-07-18) the E2 agent's commit 
 W3-C's branch because all three sessions shared the repo-root checkout, and it took ref
 surgery (`git push <sha>:refs/heads/…`, `branch -f`, `reset --hard`) to untangle.
 
-**Every future parallel wave MUST paste this block verbatim at the top of each agent's
-prompt** (fill in `<lane>` / `<branch>`):
+**Also not hypothetical (2026-07-22):** agents keep resuming a leftover root checkout on an
+old `agent/*` branch from a **closed** card and dumping new-card WIP there. The cwd/branch
+you inherit is **not** the job. Full rule: `AGENTS.md` / `CLAUDE.md` → **Session-start gate**.
+
+**Every future parallel wave (and every single-card agent) MUST paste this block verbatim
+at the top of each agent's prompt** (fill in `<lane-or-card>` / `<branch>` / `<issue-N>`):
 
 ```text
-ISOLATION (mandatory — do this FIRST, before any other git command):
+ISOLATION + SESSION-START GATE (mandatory — do this FIRST, before any other git command):
 You share this machine with other concurrent agents. The repo-root checkout is SHARED —
-never `git switch` it and never commit from it. Instead, from the repo root run:
-  git fetch && git worktree add .worktrees/<lane> -b <your-exact-branch> origin/master
-then do ALL work with cwd inside .worktrees/<lane> for the entire session.
+never `git switch` it and never commit from it.
+
+1) Name your issue: #<issue-N>.
+2) git fetch origin master
+3) Check:
+     git rev-parse --show-toplevel
+     git symbolic-ref --short HEAD 2>/dev/null || echo DETACHED
+4) If cwd is NOT .worktrees/<lane-or-card> OR branch is NOT exactly for #<issue-N>
+   (detached / master / some other agent/* or closed-card branch):
+     STOP working in place. From the repo root only:
+       git worktree add .worktrees/<lane-or-card> -b <your-exact-branch> origin/master
+       cd .worktrees/<lane-or-card>
+   Never resume a familiar leftover branch. Delete local zombie agent/* branches for
+   closed issues when you find them.
+5) Then do ALL work with cwd inside that worktree for the entire session.
 Before EVERY commit and push, re-verify in the same compound command:
-  git rev-parse --show-toplevel    → must be your .worktrees/<lane> path
-  git symbolic-ref --short HEAD    → must be your exact branch
+  git rev-parse --show-toplevel    → must be your .worktrees/<lane-or-card> path
+  git symbolic-ref --short HEAD    → must be your exact branch for #<issue-N>
 Stage only your own paths — other agents' WIP may be loose in a shared tree.
 If worktrees are not possible in your environment (cwd is pinned, toolchain or port
 conflicts with other lanes), isolate harder: run inside your own distrobox container with
@@ -33,7 +49,9 @@ a shared HEAD. If you cannot achieve isolation, STOP and report instead of proce
 ```
 
 Orchestrator side: launch each session with cwd already set to its worktree (or its
-container's clone) — do not rely on the agent to relocate itself.
+container's clone) — do not rely on the agent to relocate itself. Park the **repo-root**
+checkout at clean `origin/master` (or detached) between cards so the next session does not
+inherit a zombie branch.
 
 ---
 

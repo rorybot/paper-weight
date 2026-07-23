@@ -41,6 +41,9 @@ Operating framework: **Token-Optimized Multi-Agent Functional Development Framew
 3. Designer output (if UI work beyond the locked spec) → `features/<name>/design.md`.
 4. PM breaks spec into kanban cards → GitHub project + `features/<name>/cards.md`.
 5. Junior implements from the compressed card ONLY, in `features/<name>/impl/` → merged to `src/`.
+   **Before any card implementation:** pass the **Session-start gate** in `AGENTS.md` /
+   `CLAUDE.md` — dedicated worktree + branch for **this** issue, cut from `origin/master`.
+   Never resume a leftover repo-root branch (especially zombie `agent/*` for closed cards).
 6. Open a **PR** from a branch (`lane/*`, `chore/*`, `fix/*`, …); wait for **`ci`** green; merge to `master`.
 7. Senior reviews critical paths, security, and function purity only (selective).
 
@@ -63,3 +66,5 @@ then wave 2 screens then wave 3 wire-up). Prompts: `features/_lanes/agent-prompt
 ## Session rule
 End every major response / work session with a **3–5 line "Next Session Context Chunk"**
 appended to the relevant card or `features/<name>/spec.md`, so the next session resumes cheaply.
+Leave the **repo-root** checkout clean (not parked on the card branch); card WIP lives only in
+its worktree. Full gate: `AGENTS.md` / `CLAUDE.md` → Workspace / worktree discipline.

@@ -107,6 +107,13 @@ and each session must be launched with cwd inside its own worktree. If worktrees
 used (pinned cwd, toolchain/port conflicts between lanes), give each agent its own
 distrobox container with a full clone instead.
 
+**Session-start gate (all agents, not only parallel lanes):** if
+`git symbolic-ref --short HEAD` is not exactly the branch for **this** issue — or cwd is
+the shared repo root on some leftover `agent/*` / closed-card branch — **abort and
+relocate** (`git worktree add … origin/master`). Do not keep coding on the inherited
+checkout. Full rule: `AGENTS.md` / `CLAUDE.md` → **Session-start gate**. Park the
+repo-root checkout at clean `origin/master` between cards.
+
 | Lane | Branch | Worktree (required) |
 |------|--------|----------------------|
 | Weather | `lane/weather-w1` | `.worktrees/weather` |
@@ -114,10 +121,10 @@ distrobox container with a full clone instead.
 | Spotify | `lane/spotify-n1` | `.worktrees/spotify` |
 
 ```text
-git fetch
-git worktree add .worktrees/weather -b lane/weather-w1 master
-git worktree add .worktrees/feed    -b lane/feed-f1    master
-git worktree add .worktrees/spotify -b lane/spotify-n1 master
+git fetch origin
+git worktree add .worktrees/weather -b lane/weather-w1 origin/master
+git worktree add .worktrees/feed    -b lane/feed-f1    origin/master
+git worktree add .worktrees/spotify -b lane/spotify-n1 origin/master
 ```
 
 Merge order (wave 1): **any order** if ownership held. Prefer merge **weather → feed → spotify** only when `mix.exs` deps collide after orchestrator dep PR.
