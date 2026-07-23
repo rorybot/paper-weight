@@ -130,6 +130,8 @@ Researched during the spike (#127):
 ## Next Session Context Chunk
 
 - Feed lane is **closed** — do not resume F1/F2 work here. See "FS1 Verdict" above for why.
+- Cleanup card **#161** (`chore/drop-feed-lane-161`): host `mix test` 226 green; device-ui
+  `npm run check` 198 green. Remaining acceptance: **preset 3 → Photo on-device**, then merge.
 - If a future card wants a "what's happening" screen again, treat it as new scope: re-evaluate
   data sources from scratch rather than reviving this deleted code from git history blindly —
   the syndication/session-scrape tradeoffs above still apply.
