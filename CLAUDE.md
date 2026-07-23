@@ -10,6 +10,37 @@ checkout, often on different branches at different points relative to `master`. 
 checkout I happen to be in" as authoritative has repeatedly produced wrong diagnoses, wrong
 commands, and whole sessions of work built on instructions that were already stale on `master`.
 
+### Session-start gate (do this before any card work)
+
+**The branch/cwd you land in is not the job.** Agents have repeatedly resumed a leftover
+checkout (e.g. an old `agent/*` branch from a closed card) and piled unrelated WIP onto it.
+That is a process failure, not a convenience.
+
+1. Identify the **single issue number** for this session (e.g. `#161`).
+2. `git fetch origin master`.
+3. Run:
+   - `git rev-parse --show-toplevel`
+   - `git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD`
+4. **Abort and relocate** unless **both** are true:
+   - cwd is a **dedicated worktree** for this card (path under `.worktrees/<card-slug>/` or
+     equivalent — not the bare repo root unless this is a read-only status question); **and**
+   - branch name is for **this** issue (`lane/…`, `chore/…`, `fix/…` and includes the issue
+     number or an unambiguous card slug). Detached HEAD, `master`, or any branch for a
+     **different** / **closed** card → **not acceptable**.
+5. If the gate fails, do **not** `git switch` the shared root and do **not** keep working
+   there. From the **repo root** only:
+   ```text
+   git fetch origin
+   git worktree add .worktrees/<card-slug> -b <prefix>/<card-slug>-<N> origin/master
+   cd .worktrees/<card-slug>
+   ```
+   Then re-run step 3 until the gate passes. All implementation happens in that worktree.
+6. Never "return to" a branch because it was already checked out, had uncommitted files, or
+   looked familiar. Stale `agent/*` branches for closed issues are poison — delete them
+   locally when discovered; do not resume them.
+
+### Ongoing rules
+
 - **Before running or recommending ANY command**, state out loud which directory / worktree /
   branch it targets, and confirm that's the one tied to the card actually being worked. Never
   hand a bare command without the exact path attached — see "Host paths vs agent paths" below.
@@ -26,6 +57,9 @@ commands, and whole sessions of work built on instructions that were already sta
   bug. A surprising failure in the wrong worktree is not evidence of a real bug.
 - **One worktree = one card.** Do not reuse a worktree across unrelated cards, and do not let a
   long-lived worktree sit unrefreshed while claiming it reflects current `master`.
+- **Repo-root checkout stays clean.** Do not leave the shared root on a feature/`agent/*`
+  branch with WIP. Prefer detached `origin/master` or a clean `master` when nothing else owns
+  that ref. Card work lives only in `.worktrees/<card-slug>/`.
 
 ## Token rules (mandatory, from PROJECT_INSTRUCTIONS.md)
 - Work **one kanban card per session**. Read only that card + its `features/<name>/spec.md`
@@ -194,3 +228,6 @@ Mirror: `kanban/board.md` (update **after** GitHub succeeds, never instead of).
 3. `kanban/board.md` status line + card heading match GH.
 4. Feature `spec.md` card table matches.
 5. Uncommitted work for the card is either committed or explicitly noted as local-only WIP.
+6. Card work remains on its **own** branch/worktree; the **repo-root** checkout is not left on
+   that branch (park root at clean `origin/master` / detached master when possible).
+7. Do not leave the next agent a zombie `agent/*` branch for a closed card — delete or ignore it.

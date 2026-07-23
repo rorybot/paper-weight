@@ -16,12 +16,16 @@ Agent B: You are Task 2. Read features/_lanes/TASK-2-feed.md and only that lane.
 Agent C: You are Task 3. Read features/_lanes/TASK-3-spotify.md and only that lane.
 ```
 
-### Worktrees (optional)
+### Worktrees (required — not optional)
+
+Cut each lane from `origin/master`. Do not resume a leftover repo-root branch.
+Session-start gate: `AGENTS.md` / `features/_lanes/agent-prompts.md`.
 
 ```bash
-git worktree add .worktrees/weather -b lane/weather-w1 master
-git worktree add .worktrees/feed    -b lane/feed-f1    master
-git worktree add .worktrees/spotify -b lane/spotify-n1 master
+git fetch origin
+git worktree add .worktrees/weather -b lane/weather-w1 origin/master
+git worktree add .worktrees/feed    -b lane/feed-f1    origin/master
+git worktree add .worktrees/spotify -b lane/spotify-n1 origin/master
 ```
 
 ### After all three Done
