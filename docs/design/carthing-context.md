@@ -23,7 +23,7 @@ and the exact visual tokens used in the mockups (`CarThing Explorations.dc.html`
   - **4 preset buttons (1–4)** — hard-switch top-level screens.
   - **Button-hold** — return to home.
   - **Back button** — up one level / dismiss overlay.
-- App is **read-only / glanceable** for most surfaces (feed, weather, etymology are snapshots,
+- App is **read-only / glanceable** for most surfaces (weather, photo, etymology are snapshots,
   not live-interactive services). Music is the one truly interactive surface.
 
 ### Global feature flags / decisions
@@ -150,11 +150,10 @@ history.
    are full BERG.
 
 ## Data / integration notes for tickets
-- **Spotify**: Now Playing metadata + queue + volume (wheel). No transport UI (play/pause off).
-- **Weather**: current + 5-day + hourly UV. Intent: NWS forecast + OpenUV index.
-- **Feed**: read-only Twitter/X snapshot, refreshed periodically, ~3 posts on screen.
+- **Spotify**: Now Playing metadata + queue (+ volume intent path). No transport UI (play/pause off).
+- **Weather**: current + 5-day + hourly UV (Open-Meteo; see weather lane).
 - **Etymology**: day's word + nested origin trace (Wiktionary-style data).
-- **Photo**: local photo source, dithered to 1-bit on device.
+- **Photo**: local photo source, dithered to 1-bit on device. (Preset 3 — Feed slot was dropped.)
 
 ---
 

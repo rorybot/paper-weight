@@ -16,7 +16,7 @@ describe("applyWeatherRangeToggles", () => {
     expect(
       applyWeatherRangeToggles("5d", [
         { type: "skip-photo", delta: 1 },
-        { type: "adjust-volume", delta: -2 },
+        { type: "move-playlist-selection", delta: -2 },
       ]),
     ).toBe("5d");
   });

@@ -3,7 +3,7 @@
 ## Goal
 
 - **P3** pure screen shell: router, overlays, back stack, konami → Settings.
-- **P4** BERG tokens + `Card`; `FeedSample` acceptance fixture (also preset 4).
+- **P4** BERG tokens + `Card`. Presets: 1 Now Playing · 2 Weather · 3 Photo · 4 Etymology.
 
 ## Commands
 

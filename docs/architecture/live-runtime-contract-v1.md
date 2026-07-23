@@ -44,7 +44,7 @@ checks that lane's required vars are **present and non-empty** — nothing
 more. It does not parse or format-check values (e.g. it does not confirm
 `WEATHER_LAT` is a valid float); that stays where it already lives, inside
 each lane's own `Config` module (`PaperWeight.Weather.Config`,
-`PaperWeight.Spotify.Config`, `PaperWeight.Feed.Config`).
+`PaperWeight.Spotify.Config`).
 
 On a missing/empty required var, `PaperWeight.Application.start/2` raises
 `ArgumentError` naming the lane and the missing var **names only** — never
