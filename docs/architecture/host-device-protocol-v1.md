@@ -22,7 +22,6 @@ type EnvelopeV1 = {
 type ChannelV1 =
   | "now_playing"
   | "weather"
-  | "feed"
   | "photo"
   | "etymology"
   | "playlist"
@@ -71,7 +70,6 @@ Only **now-playing** lane handles `set_volume` in wave 1. Other lanes ignore unk
 |---------|------------|------|
 | `now_playing` | N1 | `features/now-playing/spec.md` |
 | `weather` | W1 | `features/weather/spec.md` |
-| `feed` | F1 | `features/feed/spec.md` |
 | `playlist` | L1 | `features/playlist/spec.md`; payload type `PlaylistSnapshotV1` in `src/device-ui/src/protocol/playlist.ts` |
 
 Payload schema changes require a **spec.md edit first**, same lane only — no cross-lane “drive-by” types.

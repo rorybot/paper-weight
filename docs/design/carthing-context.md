@@ -77,17 +77,22 @@ box-shadow:0 0 0 3px #17130f, 6px 7px 0 <accent>;   /* hard outline + hard offse
 
 ---
 
-## The six screens (FINAL PICKS — locked)
+## The five screens (FINAL PICKS — locked)
 
 Reference the mockup IDs in `CarThing Explorations.dc.html`; matching PNGs in the design
 project's `handoff/images/`.
+
+**Feed (Twitter/X, 4f) was dropped 2026-07-22** (FS1 spike, issue #127): every unofficial
+source needs either the personal X session or per-handle scraping, both too fragile/low-value
+for this device. Preset 3 now points at **Photo frame (4g)** instead. Feed's screen/service code
+was removed; `images/feed-4f.png` and the rejected "Grus Gazette" note are kept below only as
+history.
 
 | Screen | Pick | Image |
 |---|---|---|
 | Now Playing | **4a** | `images/now-playing-4a.png` |
 | Weather | **4b** | `images/weather-4b.png` |
 | Playlist | **4c** | `images/playlist-4c.png` |
-| Feed (Twitter/X) | **4f** | `images/feed-4f.png` |
 | Photo frame | **4g** | `images/photo-4g.png` |
 | Etymology | **2a → 2b → 2c** (one drill-down flow, 3 depths) | `images/etymology-2a-depth0.png`, `-2b-depth1.png`, `-2c-depth2.png` |
 
@@ -103,15 +108,10 @@ project's `handoff/images/`.
    - Wheel turns today ↔ 7-day. Data source intent: NWS + OpenUV.
 3. **Playlist** → **4c**. 2×3 (or 4-wide) **cover grid**, dithered/hatched tiles, fat labels,
    selected tile pops onto a paper card with ▶. Wheel walks the grid, press plays.
-4. **Feed (Twitter/X)** → **4f**. **3d's renderer** (dark desk, per-handle accent colors,
-   selected post on a cream paper card) pushed toward BERG: hard-outline+offset reading card,
-   serif post bodies, mono handles, dashed paper dividers, mustard footer, receipt-roll progress
-   rail on the right. **~3 posts visible**, big type, tuned for the tiny panel. Read-only
-   snapshot. Wheel scrolls, press enlarges. (The "mini-newspaper / Grus Gazette" concept was
-   **rejected** — do not build it.)
-5. **Photo frame** → **4g**. Cream frame, true **1-bit Atkinson-dither** look over a real dropped
+4. **Photo frame** → **4g**. Cream frame, true **1-bit Atkinson-dither** look over a real dropped
    photo, printed serif caption + "photo N/M · reprints in X min". Wheel skips, press keeps.
-6. **Etymology** → **2a / 2b / 2c are ONE flow, not three options** — the three depths of a
+   **Now on preset 3** (dropped Feed's slot).
+5. **Etymology** → **2a / 2b / 2c are ONE flow, not three options** — the three depths of a
    drill-down on the day's word:
    - **2a — depth 0**: root of the day + full trace ladder. Wheel scrolls the stages; press digs
      into the highlighted stage.
@@ -136,7 +136,6 @@ project's `handoff/images/`.
 | Now Playing | volume | toggle lyrics overlay | switch screen | home | — |
 | Weather | today ↔ 7-day | — | switch screen | home | — |
 | Playlist | move selection in grid | play selected | switch screen | home | — |
-| Feed | scroll posts | enlarge post | switch screen | home | collapse post |
 | Photo | skip photo | keep on show | switch screen | home | — |
 | Settings (konami) | move field | edit/confirm | — | home | exit |
 

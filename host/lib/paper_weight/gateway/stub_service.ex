@@ -3,7 +3,7 @@ defmodule PaperWeight.Gateway.StubService do
   Fixture-backed GenServer that answers the same call surface the gateway
   Socket/Intents use against real domain services.
 
-  Start one process per channel role (`:weather | :spotify | :feed | :photo`).
+  Start one process per channel role (`:weather | :spotify | :photo`).
   Intents on the Spotify stub log and succeed without network calls so volume
   and play-playlist round-trips are visible in the host console during smoke.
   """
@@ -15,7 +15,7 @@ defmodule PaperWeight.Gateway.StubService do
   alias PaperWeight.Gateway.Fixtures
   alias PaperWeight.Spotify.Volume
 
-  @type role :: :weather | :spotify | :feed | :photo
+  @type role :: :weather | :spotify | :photo
 
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
@@ -111,18 +111,6 @@ defmodule PaperWeight.Gateway.StubService do
     {:reply, :ok, state}
   end
 
-  # --- Feed ---
-
-  def handle_call(:current, _from, %{role: :feed} = state) do
-    {:reply, %{gen: state.gen, snapshot: state.snapshot, last_error: nil}, state}
-  end
-
-  def handle_call(:refresh, _from, %{role: :feed} = state) do
-    state = %{state | gen: state.gen + 1}
-    Logger.info("gateway stub: refresh_channel feed → gen=#{state.gen}")
-    {:reply, %{gen: state.gen, snapshot: state.snapshot, last_error: nil}, state}
-  end
-
   def handle_call(request, _from, state) do
     Logger.warning("gateway stub: unhandled call #{inspect(request)} role=#{state.role}")
     {:reply, {:error, :unsupported}, state}
@@ -140,10 +128,6 @@ defmodule PaperWeight.Gateway.StubService do
       gen: 1,
       playlist_gen: 1
     }
-  end
-
-  defp initial_state(:feed) do
-    %{role: :feed, snapshot: Fixtures.feed(), gen: 1}
   end
 
   defp initial_state(:photo) do

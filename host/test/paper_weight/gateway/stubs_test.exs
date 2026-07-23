@@ -2,7 +2,7 @@ defmodule PaperWeight.Gateway.StubsTest do
   use ExUnit.Case, async: false
 
   alias PaperWeight.Gateway.{Fixtures, Publisher, StubService, Stubs}
-  alias PaperWeight.{Feed, Photo, Spotify, Weather}
+  alias PaperWeight.{Photo, Spotify, Weather}
 
   setup do
     suffix = System.unique_integer([:positive])
@@ -10,13 +10,11 @@ defmodule PaperWeight.Gateway.StubsTest do
     names = %{
       weather: :"stub_weather_#{suffix}",
       spotify: :"stub_spotify_#{suffix}",
-      feed: :"stub_feed_#{suffix}",
       photo: :"stub_photo_#{suffix}"
     }
 
     start_supervised!({StubService, role: :weather, name: names.weather})
     start_supervised!({StubService, role: :spotify, name: names.spotify})
-    start_supervised!({StubService, role: :feed, name: names.feed})
     start_supervised!({StubService, role: :photo, name: names.photo})
 
     {:ok, names: names}
@@ -26,7 +24,6 @@ defmodule PaperWeight.Gateway.StubsTest do
     adapters = %{
       weather: names.weather,
       spotify: names.spotify,
-      feed: names.feed,
       photo: names.photo
     }
 
@@ -35,7 +32,7 @@ defmodule PaperWeight.Gateway.StubsTest do
 
     channels = envelopes |> Enum.map(& &1.channel) |> Enum.sort()
 
-    assert channels == [:feed, :now_playing, :photo, :playlist, :weather]
+    assert channels == [:now_playing, :photo, :playlist, :weather]
     assert Enum.all?(envelopes, &(&1.gen == 1))
     assert Enum.all?(envelopes, &is_map(&1.payload))
   end
@@ -50,9 +47,6 @@ defmodule PaperWeight.Gateway.StubsTest do
     assert {:ok, pl} = Spotify.Service.playlists(names.spotify)
     assert length(pl.playlists) == 8
     assert Spotify.Service.get_playlist_gen(names.spotify) == 1
-
-    %{gen: 1, snapshot: feed} = Feed.Service.current(names.feed)
-    assert length(feed.posts) >= 3
 
     assert {:ok, photo} = Photo.Service.get_snapshot(names.photo)
     assert photo["caption"] == "porch light, tuesday"
@@ -70,13 +64,12 @@ defmodule PaperWeight.Gateway.StubsTest do
 
   test "Stubs.children/0 and adapters/0 use registered names" do
     children = Stubs.children()
-    assert length(children) == 4
+    assert length(children) == 3
     adapters = Stubs.adapters()
 
     assert adapters == %{
              weather: PaperWeight.Gateway.Stubs.Weather,
              spotify: PaperWeight.Gateway.Stubs.Spotify,
-             feed: PaperWeight.Gateway.Stubs.Feed,
              photo: PaperWeight.Gateway.Stubs.Photo
            }
   end

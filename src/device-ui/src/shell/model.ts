@@ -1,7 +1,7 @@
 export const PRESET_SCREENS = {
   1: "now-playing",
   2: "weather",
-  3: "feed",
+  3: "photo",
   4: "etymology",
 } as const;
 
@@ -25,11 +25,10 @@ export type ScreenId =
   | "now-playing"
   | "weather"
   | "playlist"
-  | "feed"
   | "photo"
   | "etymology"
   | "settings";
-export type OverlayId = "lyrics" | "feed-detail";
+export type OverlayId = "lyrics";
 export type KonamiKey = (typeof KONAMI_SEQUENCE)[number];
 
 export interface ShellState {
@@ -57,7 +56,6 @@ export type ShellCommand =
   | { readonly type: "toggle-weather-range" }
   | { readonly type: "move-playlist-selection"; readonly delta: number }
   | { readonly type: "play-selected-playlist" }
-  | { readonly type: "scroll-feed"; readonly delta: number }
   | { readonly type: "skip-photo"; readonly delta: number }
   | { readonly type: "keep-photo-on-show" }
   | { readonly type: "move-settings-field"; readonly delta: number }

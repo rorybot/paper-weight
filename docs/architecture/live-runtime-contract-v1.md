@@ -3,7 +3,7 @@
 Ticket: [#85](https://github.com/rorybot/paper-weight/issues/85)
 
 One `EnvironmentFile` contract that switches the host from fixture/stub
-adapters to live Weather, Feed, and Spotify — with fail-clear startup
+adapters to live Weather and Spotify — with fail-clear startup
 validation and per-lane enable/disable. Builds on `PAPER_WEIGHT_GATEWAY_STUBS`
 (P6-H/W3-F) and the existing `.env.example`, without touching lane client
 internals or the frozen host-device envelope.
@@ -14,12 +14,12 @@ internals or the frozen host-device envelope.
 |---|---|---|---|
 | Weather | `PAPER_WEIGHT_WEATHER_ENABLED` | `WEATHER_LAT`, `WEATHER_LON` | `:enabled` (compiled) |
 | Spotify | `PAPER_WEIGHT_SPOTIFY_ENABLED` | `SPOTIFY_CLIENT_ID` 🔒, `SPOTIFY_CLIENT_SECRET` 🔒, `SPOTIFY_REFRESH_TOKEN` 🔒 | `:disabled` (compiled) |
-| Feed | `PAPER_WEIGHT_FEED_ENABLED` | `PAPER_WEIGHT_FEED_HANDLES`, `PAPER_WEIGHT_FEED_LIST_ID`, `PAPER_WEIGHT_FEED_API_TOKEN` 🔒 | `:disabled` (compiled) |
 
 🔒 = secret; never commit a value for these. Optional vars with their own
-defaults (`WEATHER_LOCATION_LABEL`, `WEATHER_USER_AGENT`,
-`PAPER_WEIGHT_FEED_LIMIT`, `PAPER_WEIGHT_FEED_REFRESH_MS`) are not part of
+defaults (`WEATHER_LOCATION_LABEL`, `WEATHER_USER_AGENT`) are not part of
 this contract's required set — see each lane's `Config` module below.
+
+The Feed lane was dropped (FS1 / #161); its enable/required vars are gone.
 
 Photo and Etymology are **out of scope** for this milestone (Etymology stays
 local fixture-backed; Photo's own env var, `PAPER_WEIGHT_PHOTO_LIBRARY_DIR`,
@@ -31,7 +31,7 @@ live; `false` / `0` / `disabled` → off; unset or unrecognized → the compiled
 
 ## Precedence
 
-`PAPER_WEIGHT_GATEWAY_STUBS=all` **always wins**: all three lanes are forced
+`PAPER_WEIGHT_GATEWAY_STUBS=all` **always wins**: both live lanes are forced
 `:disabled` and the gateway serves fixture-backed stub adapters, regardless
 of what the `*_ENABLED` vars say. Set it to `none` (or leave it unset) to let
 the per-lane enable vars take effect. See `PaperWeight.Application`

@@ -2,7 +2,7 @@ defmodule PaperWeight.Application do
   @moduledoc """
   Top-level supervisor. Each domain service is independently enabled/disabled
   via `:paper_weight_host, <service>_service:` config so a given deployment
-  (or the zero-env test suite) can run any subset of Weather/Spotify/Feed/Photo.
+  (or the zero-env test suite) can run any subset of Weather/Spotify/Photo.
 
   ## Smoke profile (`gateway: [stubs: :all]`)
 
@@ -13,11 +13,11 @@ defmodule PaperWeight.Application do
 
   ## Live-runtime contract (P7)
 
-  Weather/Spotify/Feed can each be switched between compiled default and
+  Weather/Spotify can each be switched between compiled default and
   live at runtime via `PAPER_WEIGHT_WEATHER_ENABLED` / `PAPER_WEIGHT_SPOTIFY_ENABLED`
-  / `PAPER_WEIGHT_FEED_ENABLED` (`true`/`1`/`enabled` or `false`/`0`/`disabled`,
+  (`true`/`1`/`enabled` or `false`/`0`/`disabled`,
   case-insensitive; unset falls back to the compiled `config.exs` default).
-  `PAPER_WEIGHT_GATEWAY_STUBS=all` still overrides all three to `:disabled`
+  `PAPER_WEIGHT_GATEWAY_STUBS=all` still overrides both to `:disabled`
   regardless of these vars. An enabled lane with missing/empty required env
   vars fails boot loudly (var *names* only, never values) rather than
   starting broken. Full contract: `docs/architecture/live-runtime-contract-v1.md`.
@@ -34,7 +34,6 @@ defmodule PaperWeight.Application do
   @type config :: %{
           weather: service_state(),
           spotify: service_state(),
-          feed: service_state(),
           photo: service_state(),
           photo_library_dir: String.t() | nil,
           gateway: service_state(),
@@ -67,7 +66,6 @@ defmodule PaperWeight.Application do
     [{PaperWeight.Dither.Cache, name: PaperWeight.Dither.Cache}]
     |> Kernel.++(service_child(config.weather, PaperWeight.Weather.Service))
     |> Kernel.++(service_child(config.spotify, PaperWeight.Spotify.Service))
-    |> Kernel.++(service_child(config.feed, PaperWeight.Feed.Service))
     |> Kernel.++(photo_child(config))
     |> Kernel.++(gateway_child(config))
   end
@@ -92,7 +90,6 @@ defmodule PaperWeight.Application do
     base = %{
       weather: lane_state(getenv, "PAPER_WEIGHT_WEATHER_ENABLED", :weather_service, :enabled),
       spotify: lane_state(getenv, "PAPER_WEIGHT_SPOTIFY_ENABLED", :spotify_service, :disabled),
-      feed: lane_state(getenv, "PAPER_WEIGHT_FEED_ENABLED", :feed_service, :disabled),
       photo: service_state(:photo_service, :disabled),
       photo_library_dir: getenv.("PAPER_WEIGHT_PHOTO_LIBRARY_DIR"),
       gateway: service_state(:gateway_service, :enabled),
@@ -108,7 +105,6 @@ defmodule PaperWeight.Application do
             base
             | weather: :disabled,
               spotify: :disabled,
-              feed: :disabled,
               photo: :disabled,
               gateway: :enabled
           }
@@ -147,7 +143,7 @@ defmodule PaperWeight.Application do
     end
   end
 
-  @live_lanes [:weather, :spotify, :feed]
+  @live_lanes [:weather, :spotify]
 
   # Raw env wins if it's a recognized literal; otherwise falls back to the
   # existing compiled-config resolution so zero-env behavior is unchanged.
@@ -196,7 +192,6 @@ defmodule PaperWeight.Application do
     adapters = %{
       weather: enabled_ref(config.weather, PaperWeight.Weather.Service),
       spotify: enabled_ref(config.spotify, PaperWeight.Spotify.Service),
-      feed: enabled_ref(config.feed, PaperWeight.Feed.Service),
       photo: enabled_ref(config.photo, PaperWeight.Photo.Service)
     }
 

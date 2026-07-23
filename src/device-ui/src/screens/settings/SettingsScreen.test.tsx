@@ -9,7 +9,7 @@ import {
 import { SettingsScreen } from "./SettingsScreen";
 
 describe("SettingsScreen", () => {
-  it("renders 800×480 BERG settings layout with all five fields", () => {
+  it("renders 800×480 BERG settings layout with all four fields", () => {
     const html = render(<SettingsScreen theme="berg" />);
 
     expect(html).toContain("st-screen");
@@ -20,10 +20,9 @@ describe("SettingsScreen", () => {
     expect(html).toContain("hidden");
     expect(html).toContain("settings");
     expect(html).toContain("konami only");
-    expect(html).toContain('data-field-count="5"');
+    expect(html).toContain('data-field-count="4"');
     expect(html).toContain('data-field-id="wifi"');
     expect(html).toContain('data-field-id="brightness"');
-    expect(html).toContain('data-field-id="feed_handles"');
     expect(html).toContain('data-field-id="photo_source"');
     expect(html).toContain('data-field-id="hold_threshold_ms"');
     expect(html).toContain("carthing-lan");

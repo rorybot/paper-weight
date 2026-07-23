@@ -19,12 +19,6 @@ export const homeFixtureGlance: HomeGlanceV1 = {
     uvIndex: 2,
     uvGrade: "low",
   },
-  feed: {
-    kind: "feed",
-    quote: "dithered desk setup",
-    handle: "@sundaybest",
-    newCount: 3,
-  },
   etymology: {
     kind: "etymology",
     chain: "travailler → trepālium",

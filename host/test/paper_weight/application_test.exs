@@ -6,7 +6,6 @@ defmodule PaperWeight.ApplicationTest do
   @all_disabled %{
     weather: :disabled,
     spotify: :disabled,
-    feed: :disabled,
     photo: :disabled,
     photo_library_dir: nil,
     gateway: :disabled,
@@ -25,22 +24,16 @@ defmodule PaperWeight.ApplicationTest do
     "SPOTIFY_CLIENT_SECRET" => "fake-client-secret",
     "SPOTIFY_REFRESH_TOKEN" => "fake-refresh-token"
   }
-  @fake_feed_vars %{
-    "PAPER_WEIGHT_FEED_HANDLES" => "fake-handle",
-    "PAPER_WEIGHT_FEED_LIST_ID" => "fake-list-id",
-    "PAPER_WEIGHT_FEED_API_TOKEN" => "fake-api-token"
-  }
 
   describe "children/1 (pure)" do
     test "zero-env: every service disabled yields only the shared Dither cache" do
       assert [{PaperWeight.Dither.Cache, _opts}] = App.children(@all_disabled)
     end
 
-    test "all-enabled config yields four service child specs plus the Dither cache" do
+    test "all-enabled config yields three service child specs plus the Dither cache" do
       config = %{
         weather: :enabled,
         spotify: :enabled,
-        feed: :enabled,
         photo: :enabled,
         photo_library_dir: "/tmp/photos",
         gateway: :disabled,
@@ -50,13 +43,12 @@ defmodule PaperWeight.ApplicationTest do
 
       modules = config |> App.children() |> Enum.map(&elem(&1, 0))
 
-      assert length(modules) == 5
+      assert length(modules) == 4
 
       assert modules == [
                PaperWeight.Dither.Cache,
                PaperWeight.Weather.Service,
                PaperWeight.Spotify.Service,
-               PaperWeight.Feed.Service,
                PaperWeight.Photo.Service
              ]
     end
@@ -85,7 +77,6 @@ defmodule PaperWeight.ApplicationTest do
     test "each service can be enabled independently of the others" do
       for {key, module} <- [
             spotify: PaperWeight.Spotify.Service,
-            feed: PaperWeight.Feed.Service,
             photo: PaperWeight.Photo.Service
           ] do
         config = Map.put(@all_disabled, key, :enabled)
@@ -101,7 +92,6 @@ defmodule PaperWeight.ApplicationTest do
       assert App.config_from_env() == %{
                weather: :disabled,
                spotify: :disabled,
-               feed: :disabled,
                photo: :disabled,
                photo_library_dir: nil,
                gateway: :disabled,
@@ -115,7 +105,6 @@ defmodule PaperWeight.ApplicationTest do
     test "no env: matches the compiled test-env default (all disabled)" do
       assert App.resolve_config(getenv(%{})).weather == :disabled
       assert App.resolve_config(getenv(%{})).spotify == :disabled
-      assert App.resolve_config(getenv(%{})).feed == :disabled
     end
 
     test "PAPER_WEIGHT_WEATHER_ENABLED=true with missing required vars raises naming them" do
@@ -146,17 +135,12 @@ defmodule PaperWeight.ApplicationTest do
       assert App.resolve_config(getenv(values)).weather == :disabled
     end
 
-    test "spotify and feed enable independently with their own fake vars, no cross-talk" do
-      values =
-        @fake_spotify_vars
-        |> Map.merge(@fake_feed_vars)
-        |> Map.put("PAPER_WEIGHT_SPOTIFY_ENABLED", "true")
-        |> Map.put("PAPER_WEIGHT_FEED_ENABLED", "true")
+    test "spotify enables independently with its own fake vars, no cross-talk" do
+      values = Map.put(@fake_spotify_vars, "PAPER_WEIGHT_SPOTIFY_ENABLED", "true")
 
       config = App.resolve_config(getenv(values))
 
       assert config.spotify == :enabled
-      assert config.feed == :enabled
       assert config.weather == :disabled
     end
 
@@ -164,21 +148,19 @@ defmodule PaperWeight.ApplicationTest do
       values = %{
         "PAPER_WEIGHT_GATEWAY_STUBS" => "all",
         "PAPER_WEIGHT_WEATHER_ENABLED" => "true",
-        "PAPER_WEIGHT_SPOTIFY_ENABLED" => "true",
-        "PAPER_WEIGHT_FEED_ENABLED" => "true"
+        "PAPER_WEIGHT_SPOTIFY_ENABLED" => "true"
       }
 
       config = App.resolve_config(getenv(values))
 
       assert config.weather == :disabled
       assert config.spotify == :disabled
-      assert config.feed == :disabled
       assert config.gateway_stubs == :all
     end
   end
 
   describe "gateway stubs profile (W3-F)" do
-    test "stubs: :all starts four stub services + Bandit, no real domain children" do
+    test "stubs: :all starts three stub services + Bandit, no real domain children" do
       config = %{
         @all_disabled
         | gateway: :enabled,
@@ -204,7 +186,6 @@ defmodule PaperWeight.ApplicationTest do
       assert Bandit in modules
       refute PaperWeight.Weather.Service in modules
       refute PaperWeight.Spotify.Service in modules
-      refute PaperWeight.Feed.Service in modules
       refute PaperWeight.Photo.Service in modules
 
       assert {Bandit, opts} = Enum.find(children, &match?({Bandit, _}, &1))
@@ -234,27 +215,24 @@ defmodule PaperWeight.ApplicationTest do
       assert Keyword.get(endpoint_opts, :adapters) == %{
                weather: nil,
                spotify: nil,
-               feed: nil,
                photo: nil
              }
     end
 
     test "gateway adapters only reference services that are themselves enabled" do
-      config = %{@all_disabled | gateway: :enabled, weather: :enabled, feed: :enabled}
+      config = %{@all_disabled | gateway: :enabled, weather: :enabled}
 
       assert [{Bandit, opts}] =
                config
                |> App.children()
                |> Enum.reject(&match?({PaperWeight.Dither.Cache, _}, &1))
                |> Enum.reject(&match?({PaperWeight.Weather.Service, _}, &1))
-               |> Enum.reject(&match?({PaperWeight.Feed.Service, _}, &1))
 
       assert {PaperWeight.Gateway.Endpoint, endpoint_opts} = Keyword.get(opts, :plug)
 
       assert Keyword.get(endpoint_opts, :adapters) == %{
                weather: PaperWeight.Weather.Service,
                spotify: nil,
-               feed: PaperWeight.Feed.Service,
                photo: nil
              }
     end

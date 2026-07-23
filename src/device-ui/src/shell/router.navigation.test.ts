@@ -46,14 +46,14 @@ describe("shell navigation — presets / hold / back / konami", () => {
   it.each([
     [1, "now-playing"],
     [2, "weather"],
-    [3, "feed"],
+    [3, "photo"],
     [4, "etymology"],
   ] as const)(
     "preset %s hard-switches to %s (clears overlay + history)",
     (preset, screen) => {
-      const state = layered("feed", {
+      const state = layered("playlist", {
         history: ["home"],
-        overlay: "feed-detail",
+        overlay: null,
         konamiIndex: 3,
       });
 
@@ -78,36 +78,17 @@ describe("shell navigation — presets / hold / back / konami", () => {
     "now-playing",
     "weather",
     "playlist",
-    "feed",
     "photo",
     "etymology",
     "settings",
   ])("hold returns home from %s", (screen) => {
     const state = layered(screen, {
-      history: ["feed"],
+      history: ["playlist"],
       overlay: screen === "now-playing" ? "lyrics" : null,
       konamiIndex: 4,
     });
 
     expect(stateAfter(state, { type: "hold" })).toEqual(initialShellState());
-  });
-
-  it("back dismisses overlay before history (feed collapse)", () => {
-    const withOverlay = layered("feed", {
-      history: ["home"],
-      overlay: "feed-detail",
-    });
-
-    const withoutOverlay = stateAfter(withOverlay, { type: "back" });
-    expect(withoutOverlay).toEqual({
-      ...withOverlay,
-      overlay: null,
-      konamiIndex: 0,
-    });
-
-    expect(stateAfter(withoutOverlay, { type: "back" })).toEqual(
-      initialShellState("home"),
-    );
   });
 
   it("back is a no-op on top-level now-playing (interaction map —)", () => {
@@ -156,7 +137,7 @@ describe("shell navigation — presets / hold / back / konami", () => {
   });
 
   it("wrong konami key resets or restarts sequence", () => {
-    let state = initialShellState("feed");
+    let state = initialShellState("playlist");
     state = stateAfter(state, { type: "konami-key", key: "up" });
     state = stateAfter(state, { type: "konami-key", key: "left" });
     expect(state.konamiIndex).toBe(0);
@@ -186,7 +167,6 @@ describe("interaction map — wheel / press per screen", () => {
       "home",
       "weather",
       "playlist",
-      "feed",
       "photo",
       "etymology",
       "settings",
@@ -214,17 +194,6 @@ describe("interaction map — wheel / press per screen", () => {
     expect(commandsAfter(base, { type: "wheel-press" })).toEqual([
       { type: "play-selected-playlist" },
     ]);
-  });
-
-  it("Feed: wheel = scroll, press = enlarge (overlay), back = collapse", () => {
-    const base = initialShellState("feed");
-    expect(commandsAfter(base, { type: "wheel-turn", delta: 1 })).toEqual([
-      { type: "scroll-feed", delta: 1 },
-    ]);
-
-    const enlarged = stateAfter(base, { type: "wheel-press" });
-    expect(enlarged.overlay).toBe("feed-detail");
-    expect(stateAfter(enlarged, { type: "back" }).overlay).toBeNull();
   });
 
   it("Photo: wheel = skip, press = keep on show", () => {

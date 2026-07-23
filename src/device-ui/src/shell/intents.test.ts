@@ -41,7 +41,6 @@ describe("commandToIntentRequest", () => {
     expect(
       commandToIntentRequest({ type: "play-selected-playlist" }),
     ).toBeNull();
-    expect(commandToIntentRequest({ type: "scroll-feed", delta: 1 })).toBeNull();
     expect(commandToIntentRequest({ type: "toggle-weather-range" })).toBeNull();
     expect(
       commandToIntentRequest({ type: "keep-photo-on-show" }),
@@ -72,13 +71,13 @@ describe("intent frames", () => {
   });
 
   it("encodeIntentFrame produces the protocol wire shape", () => {
-    const frame = encodeIntentFrame(buildIntent(refreshChannelRequest("feed"), 42));
+    const frame = encodeIntentFrame(buildIntent(refreshChannelRequest("photo"), 42));
     expect(JSON.parse(frame)).toEqual({
       v: 1,
       ts: 42,
       type: "intent",
       name: "refresh_channel",
-      args: { channel: "feed" },
+      args: { channel: "photo" },
     });
   });
 });

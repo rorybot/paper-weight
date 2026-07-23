@@ -103,51 +103,6 @@ defmodule PaperWeight.Gateway.Fixtures do
     }
   end
 
-  @spec feed() :: map()
-  def feed do
-    %{
-      as_of: "2026-07-15T14:20:00Z",
-      stale: false,
-      posts: [
-        %{
-          id: "p-nws",
-          handle: "@NWSBoulder",
-          body: "Severe t-storm watch for the metro until 9 PM. Hail possible south of town.",
-          time_label: "12m",
-          accent: "#ff6b35"
-        },
-        %{
-          id: "p-tenure",
-          handle: "@tenureband",
-          body: "\"new song out of the basement friday. it's about a dog. sort of.\"",
-          time_label: "41m",
-          accent: "#a0533e"
-        },
-        %{
-          id: "p-cth",
-          handle: "@carthinghacks",
-          body: "the wheel encoder is just evdev. everything is possible.",
-          time_label: "1h",
-          accent: "#f7c948"
-        },
-        %{
-          id: "p-archive",
-          handle: "@internetarchive",
-          body: "Preserving useful knowledge, one snapshot at a time.",
-          time_label: "2h",
-          accent: "#4ecdc4"
-        },
-        %{
-          id: "p-nasa",
-          handle: "@nasa",
-          body: "A new view of the night sky and the worlds beyond it.",
-          time_label: "3h",
-          accent: "#5b8def"
-        }
-      ]
-    }
-  end
-
   @spec photo() :: map()
   def photo do
     %{
