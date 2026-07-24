@@ -56,7 +56,10 @@ result="$(
     sh -eu -c '
       set -x
       cd /tmp
-      curl -L -o src.archive "$1"
+      # The bare builder image has no curl on PATH; pull it via nix itself
+      # (small, public-substituter package — not the flaky custom fetch path).
+      export FETCH_URL="$1"
+      nix-shell -p curl --run '"'"'curl -L -o /tmp/src.archive "$FETCH_URL"'"'"'
       rm -rf /tmp/unpack /tmp/out
       mkdir /tmp/unpack
       cd /tmp/unpack
