@@ -10,7 +10,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | F1 | [#12](https://github.com/rorybot/paper-weight/issues/12) | X/Twitter snapshot service | **Done** |
 | F2 | [#13](https://github.com/rorybot/paper-weight/issues/13) | Screen 4f UI | **Done** |
-| F3 | [#88](https://github.com/rorybot/paper-weight/issues/88) | Live Feed acceptance | **Backlog** (blocked by P7) |
+| F3 | [#88](https://github.com/rorybot/paper-weight/issues/88) | Live Feed acceptance | **Done** (closed moot) |
+| FS2 | [#161](https://github.com/rorybot/paper-weight/issues/161) | Drop Feed lane; preset 3 → Photo | **Done** |
 
 ## Ownership (only these paths)
 
@@ -141,4 +142,4 @@ Researched during the spike (#127):
 - #161 physical acceptance passed: real preset 3 opened Photo on the Car Thing.
 - Retained screen rails corrected from stale `3:fd` to `3:ph`; four regression tests added.
 - `npm run check` passes (198 tests) and Feed product-reference grep is clean.
-- Push the final fix to PR #163, wait for required `ci`, then merge and close board/spec status.
+- PR #163 required `ci` is green; merge and remote Done synchronization complete the closeout.
