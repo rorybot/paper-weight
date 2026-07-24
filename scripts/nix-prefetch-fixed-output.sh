@@ -31,6 +31,10 @@ NIX_STORE_VOLUME="${PAPER_WEIGHT_NIX_STORE_VOLUME:-paper-weight-nix-store}"
 
 url="${1:?usage: $0 <url> <expected-store-path>}"
 expected_path="${2:?usage: $0 <url> <expected-store-path>}"
+# Store paths are <hash>-<name>; nix-store --add-fixed needs the exact same
+# name to reproduce the same path, since name is part of the digest input.
+expected_base="$(basename "$expected_path")"
+name="${expected_base#*-}"
 
 if [[ -n "${PAPER_WEIGHT_PODMAN:-}" ]]; then
   podman=("$PAPER_WEIGHT_PODMAN")
@@ -46,6 +50,7 @@ fi
 
 printf 'url=%s\n' "$url"
 printf 'expected_path=%s\n' "$expected_path"
+printf 'derived_name=%s\n' "$name"
 printf 'nix_store_volume=%s\n' "$NIX_STORE_VOLUME"
 printf '\n'
 
@@ -60,20 +65,29 @@ result="$(
       # (small, public-substituter package — not the flaky custom fetch path).
       export FETCH_URL="$1"
       nix-shell -p curl --run '"'"'curl -L -o /tmp/src.archive "$FETCH_URL"'"'"'
-      rm -rf /tmp/unpack /tmp/out
+      rm -rf /tmp/unpack "/tmp/$2"
       mkdir /tmp/unpack
       cd /tmp/unpack
       tar xf /tmp/src.archive
+      # Mirror nixpkgs generic fetcher postFetch exactly: recursive +w during
+      # unpack, then a single non-recursive 755 on the final top-level output —
+      # permission bits are part of the NAR hash, so this must match precisely.
+      chmod -R +w /tmp/unpack
       entries="$(ls -A)"
       count="$(printf "%s\n" "$entries" | wc -l)"
       if [ "$count" -ne 1 ]; then
         echo "error: archive must contain exactly one top-level entry, found $count" >&2
         exit 1
       fi
-      mv "$entries" /tmp/out
-      chmod -R u+w,go+rX /tmp/out
-      nix-store --add-fixed --recursive sha256 /tmp/out
-    ' sh "$url"
+      if [ -f "$entries" ]; then
+        mkdir "/tmp/$2"
+        mv "$entries" "/tmp/$2"
+      else
+        mv "$entries" "/tmp/$2"
+      fi
+      chmod 755 "/tmp/$2"
+      nix-store --add-fixed --recursive sha256 "/tmp/$2"
+    ' sh "$url" "$name"
 )"
 
 printf '\nregistered store path: %s\n' "$result"
