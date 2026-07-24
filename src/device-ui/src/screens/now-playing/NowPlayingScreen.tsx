@@ -40,7 +40,7 @@ export const NowPlayingScreen = ({
         <nav class="np-presets" aria-label="Preset screens">
           <span data-active="true">1:np*</span>
           <span>2:wx</span>
-          <span>3:fd</span>
+          <span>3:ph</span>
           <span>4:et</span>
         </nav>
         <time dateTime={snapshot.as_of}>{view.clock}</time>

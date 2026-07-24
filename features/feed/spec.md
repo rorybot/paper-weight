@@ -135,3 +135,10 @@ Researched during the spike (#127):
 - If a future card wants a "what's happening" screen again, treat it as new scope: re-evaluate
   data sources from scratch rather than reviving this deleted code from git history blindly —
   the syndication/session-scrape tradeoffs above still apply.
+
+## Next Session Context Chunk (2026-07-24)
+
+- #161 physical acceptance passed: real preset 3 opened Photo on the Car Thing.
+- Retained screen rails corrected from stale `3:fd` to `3:ph`; four regression tests added.
+- `npm run check` passes (198 tests) and Feed product-reference grep is clean.
+- Push the final fix to PR #163, wait for required `ci`, then merge and close board/spec status.

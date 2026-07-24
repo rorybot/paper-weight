@@ -477,7 +477,8 @@ follow-ups F3 (#88), F3a (#136), F4a (#137), F4b (#138) closed as moot. Full rea
 - **Scope**: host feed/**, device screens/feed + protocol/feed, shell/gateway/envelope, home
   tile + settings, docs.
 - **Acceptance**: `mix test` / `npm run check` green; on-device preset 3 = Photo; docs five screens.
-- **Status**: In review — host 226 + device-ui 198 green; remaining physical preset-3 check.
+- **Status**: In review — host 226 + device-ui 198 green; physical preset 3 → Photo passed.
+  Final cleanup fixes retained-screen preset rails from `3:fd` to `3:ph`; fresh PR CI pending.
 
 F1 (#12) and F2 (#13) below shipped the now-removed Feed lane; kept here as history only —
 none of this code exists in `src/device-ui/src` or `host/lib` anymore. Cleanup also touched

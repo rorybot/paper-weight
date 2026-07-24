@@ -23,6 +23,7 @@ describe("PhotoScreen", () => {
     expect(html).toContain('data-screen="photo"');
     expect(html).toMatch(/800px/);
     expect(html).toMatch(/480px/);
+    expect(html).toContain("3:ph");
     expect(html).toContain("reprints for the desk");
     expect(html).toContain("ph-frame");
     expect(html).toContain("porch light, tuesday");

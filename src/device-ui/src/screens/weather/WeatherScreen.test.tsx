@@ -20,6 +20,7 @@ describe("WeatherScreen", () => {
     expect(html).toContain('data-range="5d"');
     expect(html).toMatch(/800px/);
     expect(html).toMatch(/480px/);
+    expect(html).toContain("3:ph");
     expect(html).toContain("exampleville, ex");
     expect(html).toContain("92°");
     expect(html).toContain("sunny");
