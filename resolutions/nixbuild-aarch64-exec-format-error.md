@@ -85,8 +85,12 @@ ever reaching a derivation big enough to dispatch remotely.
 # Status
 
 Fix applied 2026-07-23 (`scripts/device-nixos.sh` — `max-jobs = 0` added to nixbuild
-`NIX_CONFIG`). **Not yet re-run / confirmed** — next session should retry
-`PAPER_WEIGHT_NIXBUILD=1 ./device-nixos.sh deploy` from the host-native
-`~/repos/paper-weight/scripts` and confirm it builds via nixbuild.net (or surfaces a
-clean `required system 'aarch64-linux' ... but no machine` if the plan genuinely lacks
-aarch64 capacity, which would be a different, real gap).
+`NIX_CONFIG`). **Confirmed 2026-07-24**: `PAPER_WEIGHT_NIXBUILD=1 ./device-nixos.sh deploy`
+completed successfully end-to-end (combined with the persistent-volume and
+download-buffer-size fixes in
+[nixbuild-retries-restart-from-zero](nixbuild-retries-restart-from-zero.md), and one manually
+pre-supplied fixed-output derivation — see
+[nix-prefetch-fixed-output-derivations](nix-prefetch-fixed-output-derivations.md)). Device moved
+off generation 1 for the first time in about a week. This fix (and its two companions) is
+currently only on branch `chore/nixbuild-agent-rules` (PR #170) — merge to `master` before
+relying on the shared checkout having it.

@@ -73,12 +73,17 @@ the flaky-link lottery from scratch each time.
 
 # Status
 
-Fix applied 2026-07-24 (`scripts/device-nixos.sh`). Not yet confirmed by a full successful
-`deploy` — next session should retry and confirm retries visibly progress further / faster than
-before. If the SSH connection itself still drops on a near-empty remaining transfer, consider
-tightening `ServerAliveInterval`/`ServerAliveCountMax` in the SSH config block inside
-`run_builder()`, or investigating whether `eu.nixbuild.net` enforces a hard session duration/idle
-limit on this account tier.
+Fix applied 2026-07-24 (`scripts/device-nixos.sh`). **Confirmed 2026-07-24**: full `deploy` run
+succeeded end-to-end from the `chore/nixbuild-agent-rules` worktree with the persistent volume +
+`max-jobs = 0` + `download-buffer-size = 1073741824` + the manually pre-supplied spotify-kernel
+`source.drv` output (see `nix-prefetch-fixed-output-derivations.md`) all in place together. This
+was the fix that ended the week-long stuck-on-generation-1 blocker.
+
+If a future session hits `unexpected end-of-file` again despite this fix already being on
+`master`, don't re-diagnose from scratch — check whether the deploy is actually running from a
+checkout that has these `device-nixos.sh` changes (`git log -- scripts/device-nixos.sh`) before
+assuming the fix regressed. A stale/reverted checkout silently missing this fix was an active
+risk during this debugging session (see `[[Host paths vs agent paths]]` discipline in CLAUDE.md).
 
 Unrelated noise seen in the same output, not the cause of this failure: `device/nix/flake.nix`'s
 `nixConfig.extra-substituters` lists `https://superbird.attic.claiborne.soy/superbird`, which is
