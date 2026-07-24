@@ -1,10 +1,8 @@
 import type { ChannelV1, EnvelopeV1 } from "../protocol/envelope";
-import type { FeedSnapshotV1 } from "../protocol/feed";
 import type { NowPlayingSnapshotV1 } from "../protocol/now_playing";
 import type { PhotoSnapshotV1 } from "../protocol/photo";
 import type { PlaylistSnapshotV1 } from "../protocol/playlist";
 import type { WeatherSnapshotV1 } from "../protocol/weather";
-import { feedFixtureSnapshot } from "../screens/feed";
 import { nowPlayingFixtureSnapshot } from "../screens/now-playing";
 import { photoFixtureSnapshot } from "../screens/photo";
 import { playlistFixtureSnapshot } from "../screens/playlist";
@@ -15,17 +13,11 @@ import { weatherFixtureSnapshot } from "../screens/weather";
  * `ChannelV1` members but have no wired screen yet — envelopes for them
  * are ignored here (etymology stays a shell placeholder until E2).
  */
-export type ManagedChannel =
-  | "now_playing"
-  | "weather"
-  | "feed"
-  | "photo"
-  | "playlist";
+export type ManagedChannel = "now_playing" | "weather" | "photo" | "playlist";
 
 export type ChannelSnapshots = {
   readonly now_playing: NowPlayingSnapshotV1;
   readonly weather: WeatherSnapshotV1;
-  readonly feed: FeedSnapshotV1;
   readonly photo: PhotoSnapshotV1;
   readonly playlist: PlaylistSnapshotV1;
 };
@@ -39,7 +31,6 @@ export type ChannelStoreState = {
 export const MANAGED_CHANNEL_LIST: readonly ManagedChannel[] = Object.freeze([
   "now_playing",
   "weather",
-  "feed",
   "photo",
   "playlist",
 ]);
@@ -56,14 +47,12 @@ export const fixtureChannelStoreState: ChannelStoreState = Object.freeze({
   snapshots: Object.freeze({
     now_playing: nowPlayingFixtureSnapshot,
     weather: weatherFixtureSnapshot,
-    feed: feedFixtureSnapshot,
     photo: photoFixtureSnapshot,
     playlist: playlistFixtureSnapshot,
   }),
   gens: Object.freeze({
     now_playing: 0,
     weather: 0,
-    feed: 0,
     photo: 0,
     playlist: 0,
   }),

@@ -16,7 +16,6 @@ defmodule PaperWeight.Gateway.Publisher do
   @type inputs :: %{
           optional(:weather) => channel_input(),
           optional(:spotify) => channel_input(),
-          optional(:feed) => channel_input(),
           optional(:photo) => channel_input(),
           optional(:playlist) => channel_input()
         }
@@ -26,7 +25,6 @@ defmodule PaperWeight.Gateway.Publisher do
     [
       channel_envelope(:weather, Map.get(inputs, :weather, :disabled), ts),
       channel_envelope(:now_playing, Map.get(inputs, :spotify, :disabled), ts),
-      channel_envelope(:feed, Map.get(inputs, :feed, :disabled), ts),
       channel_envelope(:photo, Map.get(inputs, :photo, :disabled), ts),
       channel_envelope(:playlist, Map.get(inputs, :playlist, :disabled), ts)
     ]

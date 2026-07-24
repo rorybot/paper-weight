@@ -39,10 +39,5 @@ defmodule PaperWeight.RuntimeContractTest do
       assert RuntimeContract.missing_vars(:spotify, getenv(%{})) ==
                ~w(SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_SECRET SPOTIFY_REFRESH_TOKEN)
     end
-
-    test "feed required vars" do
-      assert RuntimeContract.missing_vars(:feed, getenv(%{})) ==
-               ~w(PAPER_WEIGHT_FEED_HANDLES PAPER_WEIGHT_FEED_LIST_ID PAPER_WEIGHT_FEED_API_TOKEN)
-    end
   end
 end

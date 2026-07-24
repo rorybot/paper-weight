@@ -10,6 +10,7 @@ describe("NowPlayingScreen", () => {
 
     expect(html).toContain('data-screen="now-playing"');
     expect(html).toContain('data-viewport="800x480"');
+    expect(html).toContain("3:ph");
     expect(html).toContain("Galactic");
     expect(html).toContain("Tenure");
     expect(html).toContain("Sink · 2020");

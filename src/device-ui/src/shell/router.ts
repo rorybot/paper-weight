@@ -138,9 +138,6 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
       return emit(state, { type: "toggle-weather-range" });
     case "playlist":
       return emit(state, { type: "move-playlist-selection", delta });
-    case "feed":
-      // Enlarge overlay: wheel still scrolls the list under it.
-      return emit(state, { type: "scroll-feed", delta });
     case "photo":
       return emit(state, { type: "skip-photo", delta });
     case "settings":
@@ -161,8 +158,6 @@ const pressWheel = (state: ShellState): ShellTransition => {
   switch (state.screen) {
     case "playlist":
       return emit(state, { type: "play-selected-playlist" });
-    case "feed":
-      return toggleOverlay(state, "feed-detail");
     case "photo":
       return emit(state, { type: "keep-photo-on-show" });
     case "settings":

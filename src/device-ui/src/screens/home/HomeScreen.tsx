@@ -18,7 +18,7 @@ export const HomeScreen = ({
   glance,
   theme = "gruvbox",
 }: HomeScreenProps): JSX.Element => {
-  const { nowPlaying, weather, feed, etymology, photo } = glance;
+  const { nowPlaying, weather, etymology, photo } = glance;
 
   return (
     <main
@@ -32,7 +32,7 @@ export const HomeScreen = ({
         <nav class="hm-topbar__presets" aria-label="Presets">
           <span>1:np</span>
           <span>2:wx</span>
-          <span>3:fd</span>
+          <span>3:ph</span>
           <span>4:et</span>
         </nav>
         <span class="hm-topbar__clock">{glance.clockLabel}</span>
@@ -100,24 +100,24 @@ export const HomeScreen = ({
           )}
         </div>
 
-        <div class="hm-tile" data-tile="feed" style={{ "--tile-accent": "var(--pw-accent-alt)" }}>
+        <div class="hm-tile" data-tile="photo" style={{ "--tile-accent": "var(--pw-accent-alt)" }}>
           <div class="hm-tile__rule" />
           <p class="hm-tile__title">
             <span class="hm-bracket">[</span>
             <span class="hm-badge">3</span>
-            <span class="hm-bracket">]</span> feed
+            <span class="hm-bracket">]</span> photo
           </p>
-          {feed ? (
+          {photo ? (
             <>
               <div class="hm-hero">
-                <p class="hm-hero-line">&ldquo;{feed.quote}&rdquo;</p>
-                <p class="hm-hero-sub">{feed.handle}</p>
+                <p class="hm-hero-num">
+                  {photo.index}
+                  <small>/{photo.total}</small>
+                </p>
               </div>
               <p class="hm-foot">
-                <span style={{ color: "var(--pw-accent)", fontWeight: 700 }}>
-                  +{feed.newCount}
-                </span>{" "}
-                new since last look
+                reprint <span class="hm-bar__fill">{barGlyphs(photo.reprintRatio)}</span>{" "}
+                {photo.reprintLabel}
               </p>
             </>
           ) : (
@@ -151,37 +151,6 @@ export const HomeScreen = ({
                 </div>
               </div>
               <p class="hm-foot">word of the day</p>
-            </>
-          ) : (
-            <div class="hm-hero">
-              <p class="hm-hero-sub">no data</p>
-            </div>
-          )}
-        </div>
-
-        <div
-          class="hm-tile hm-tile--wide"
-          data-tile="photo"
-          style={{ "--tile-accent": "color-mix(in srgb, var(--pw-paper) 55%, transparent)" }}
-        >
-          <div class="hm-tile__rule" />
-          <p class="hm-tile__title">
-            <span class="hm-bracket">[</span>
-            <span class="hm-badge hm-badge--dim">&middot;</span>
-            <span class="hm-bracket">]</span> photo
-          </p>
-          {photo ? (
-            <>
-              <div class="hm-hero">
-                <p class="hm-hero-num">
-                  {photo.index}
-                  <small>/{photo.total}</small>
-                </p>
-              </div>
-              <p class="hm-foot">
-                reprint <span class="hm-bar__fill">{barGlyphs(photo.reprintRatio)}</span>{" "}
-                {photo.reprintLabel} &middot; not on presets
-              </p>
             </>
           ) : (
             <div class="hm-hero">

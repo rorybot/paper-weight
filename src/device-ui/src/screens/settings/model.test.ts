@@ -70,7 +70,6 @@ describe("labels", () => {
     expect(SETTINGS_FIELDS.map((f) => f.id)).toEqual([
       "wifi",
       "brightness",
-      "feed_handles",
       "photo_source",
       "hold_threshold_ms",
     ]);

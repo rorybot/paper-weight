@@ -64,7 +64,7 @@ export const PhotoScreen = ({
         <nav class="ph-topbar__presets" aria-label="Presets">
           <span>1:np</span>
           <span>2:wx</span>
-          <span>3:fd</span>
+          <span>3:ph</span>
           <span>4:et</span>
         </nav>
         <span class="ph-topbar__quote">reprints for the desk</span>

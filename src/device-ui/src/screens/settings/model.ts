@@ -6,7 +6,6 @@
 export type SettingsFieldId =
   | "wifi"
   | "brightness"
-  | "feed_handles"
   | "photo_source"
   | "hold_threshold_ms";
 
@@ -15,8 +14,6 @@ export type SettingsValues = Readonly<{
   wifi: string;
   /** 0–100 */
   brightness: number;
-  /** Comma-separated @handles */
-  feed_handles: string;
   /** Local library path / label */
   photo_source: string;
   /** Button-hold ms to home */
@@ -57,12 +54,6 @@ export const SETTINGS_FIELDS: readonly SettingsFieldMeta[] = Object.freeze([
     kind: "number" as const,
   }),
   Object.freeze({
-    id: "feed_handles" as const,
-    label: "feed handles",
-    hint: "read-only list snapshot",
-    kind: "text-cycle" as const,
-  }),
-  Object.freeze({
     id: "photo_source" as const,
     label: "photo source",
     hint: "library folder",
@@ -83,12 +74,6 @@ const WIFI_OPTIONS = Object.freeze([
   "guest",
 ] as const);
 
-const FEED_OPTIONS = Object.freeze([
-  "@NWSBoulder,@tenureband",
-  "@carthinghacks,@nasa",
-  "@paperweight",
-] as const);
-
 const PHOTO_OPTIONS = Object.freeze([
   "local library",
   "/photos",
@@ -104,7 +89,6 @@ export const defaultSettingsValues = (): SettingsValues =>
   Object.freeze({
     wifi: "carthing-lan",
     brightness: 70,
-    feed_handles: FEED_OPTIONS[0]!,
     photo_source: PHOTO_OPTIONS[0]!,
     hold_threshold_ms: 600,
   });
@@ -164,8 +148,6 @@ export const fieldValueLabel = (
       return values.wifi;
     case "brightness":
       return `${values.brightness}%`;
-    case "feed_handles":
-      return values.feed_handles;
     case "photo_source":
       return values.photo_source;
     case "hold_threshold_ms":
@@ -201,15 +183,6 @@ const adjustSelectedValue = (
           values.brightness + steps * BRIGHTNESS_STEP,
           0,
           100,
-        ),
-      });
-    case "feed_handles":
-      return Object.freeze({
-        ...values,
-        feed_handles: cycleOption(
-          FEED_OPTIONS,
-          values.feed_handles,
-          steps || Math.sign(delta),
         ),
       });
     case "photo_source":

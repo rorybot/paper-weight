@@ -16,14 +16,6 @@ config :paper_weight_host, weather_service: :enabled
 # Defaults :disabled until a deployment has those secrets configured.
 config :paper_weight_host, spotify_service: :disabled
 
-# Feed GenServer. Source + auth come from env, read directly by
-# PaperWeight.Feed.Config.from_env/1 at service start:
-#   PAPER_WEIGHT_FEED_HANDLES / PAPER_WEIGHT_FEED_LIST_ID /
-#   PAPER_WEIGHT_FEED_LIMIT / PAPER_WEIGHT_FEED_REFRESH_MS /
-#   PAPER_WEIGHT_FEED_API_TOKEN
-# Defaults :disabled until a deployment has handles/list + token configured.
-config :paper_weight_host, feed_service: :disabled
-
 # Photo GenServer. PaperWeight.Photo.Config has no env fallback of its own, so
 # PaperWeight.Application reads PAPER_WEIGHT_PHOTO_LIBRARY_DIR directly and
 # passes it as the :library_dir start option.
@@ -45,7 +37,6 @@ config :paper_weight_host, gateway_stubs: :none
 if config_env() == :test do
   config :paper_weight_host, weather_service: :disabled
   config :paper_weight_host, spotify_service: :disabled
-  config :paper_weight_host, feed_service: :disabled
   config :paper_weight_host, photo_service: :disabled
   config :paper_weight_host, gateway_service: :disabled
   config :paper_weight_host, gateway_stubs: :none

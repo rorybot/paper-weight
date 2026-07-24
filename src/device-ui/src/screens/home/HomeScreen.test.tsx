@@ -5,7 +5,7 @@ import { homeFixtureGlance } from "./fixture";
 import { HomeScreen } from "./HomeScreen";
 
 describe("HomeScreen", () => {
-  it("renders the 800×480 fixture layout with all five tiles", () => {
+  it("renders the 800×480 fixture layout with all four tiles", () => {
     const html = render(<HomeScreen glance={homeFixtureGlance} theme="gruvbox" />);
 
     expect(html).toContain('data-screen="home"');
@@ -13,10 +13,10 @@ describe("HomeScreen", () => {
     expect(html).toMatch(/800px/);
     expect(html).toMatch(/480px/);
 
-    // preset badges match the shell's PRESET_SCREENS mapping (1:np 2:wx 3:fd 4:et)
+    // preset badges match the shell's PRESET_SCREENS mapping (1:np 2:wx 3:ph 4:et)
     expect(html).toContain("1:np");
     expect(html).toContain("2:wx");
-    expect(html).toContain("3:fd");
+    expect(html).toContain("3:ph");
     expect(html).toContain("4:et");
 
     expect(html).toContain("now playing");
@@ -27,10 +27,6 @@ describe("HomeScreen", () => {
     expect(html).toContain("72");
     expect(html).toContain("clear");
 
-    expect(html).toContain("feed");
-    expect(html).toContain("dithered desk setup");
-    expect(html).toContain("+3");
-
     expect(html).toContain("etymology");
     // HTML escapes → as &#8594;
     expect(html).toContain("travailler");
@@ -38,13 +34,7 @@ describe("HomeScreen", () => {
     expect(html).toContain("depth 2/3");
 
     expect(html).toContain("photo");
-    expect(html).toContain("not on presets");
-  });
-
-  it("photo tile has no preset badge — matches the dim '·' placeholder", () => {
-    const html = render(<HomeScreen glance={homeFixtureGlance} theme="gruvbox" />);
-
-    expect(html).toContain("hm-badge--dim");
+    expect(html).toContain('<p class="hm-hero-num">3<small>/48</small></p>');
   });
 
   it("falls back gracefully when a tile has no data", () => {

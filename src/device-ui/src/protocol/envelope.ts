@@ -7,7 +7,6 @@
 export type ChannelV1 =
   | "now_playing"
   | "weather"
-  | "feed"
   | "photo"
   | "etymology"
   | "playlist"

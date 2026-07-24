@@ -10,7 +10,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 |----|-------|-------|--------|
 | F1 | [#12](https://github.com/rorybot/paper-weight/issues/12) | X/Twitter snapshot service | **Done** |
 | F2 | [#13](https://github.com/rorybot/paper-weight/issues/13) | Screen 4f UI | **Done** |
-| F3 | [#88](https://github.com/rorybot/paper-weight/issues/88) | Live Feed acceptance | **Backlog** (blocked by P7) |
+| F3 | [#88](https://github.com/rorybot/paper-weight/issues/88) | Live Feed acceptance | **Done** (closed moot) |
+| FS2 | [#161](https://github.com/rorybot/paper-weight/issues/161) | Drop Feed lane; preset 3 → Photo | **Done** |
 
 ## Ownership (only these paths)
 
@@ -94,16 +95,51 @@ type FeedPostV1 = {
 
 _(lane agents append here)_
 
+## FS1 Verdict — Feed lane dropped (2026-07-22)
+
+**Decision: drop the Feed screen. Preset 3 now points at Photo (already built) instead.**
+
+Researched during the spike (#127):
+- Official X API: no free read tier since Feb 2026 — pay-per-read ($0.005/post, 2M/mo cap).
+  Confirmed too expensive for a hobby device.
+- Unofficial mechanisms exist but neither fits well:
+  - **Public syndication widget** (`cdn.syndication.twimg.com/srv/timeline-profile/screen-name/{handle}`):
+    no personal login needed, proven live (200 OK) during the spike, but only returns one
+    account's own public posts — not a real personal timeline, and shares a strict 30 req/window
+    rate limit per IP that a shared network can exhaust on its own.
+  - **Authenticated session scrape** (X is now a pure GraphQL SPA, no server-rendered HTML
+    fallback): would need Rory's own `auth_token`/`ct0` browser cookies replayed against X's
+    internal GraphQL endpoints (what tools like `twscrape` do) to get an actual personal home
+    timeline. Technically workable and Rory was fine with it — reads for himself, own account,
+    read-only. Cookies reportedly need refreshing every few weeks; breaks whenever X rotates
+    internal query IDs.
+- Bigger issue was product-level, not technical: the value of a scraped feed didn't justify the
+  fragility/maintenance either way. Rory chose to cut the screen rather than accept either
+  compromise.
+
+**Outcome:**
+- Preset 3 repointed from `feed` → `photo` in `src/device-ui/src/shell/model.ts`.
+- Feed host service (`host/lib/paper_weight/feed/**`) and device screen
+  (`src/device-ui/src/screens/feed/**`, `src/device-ui/src/protocol/feed.ts`) deleted.
+- Design doc (`docs/design/carthing-context.md`) updated: five locked screens, Feed section
+  removed, Photo noted as owning preset 3.
+- Follow-ups F3 (#88), F3a (#136), F4a (#137), F4b (#138) closed as moot — all were live-feed
+  refinements on top of a mechanism that's no longer being built.
+- New card: rewire shell routing/screens to drop `feed`, confirm Photo renders correctly on
+  preset 3 (`src/device-ui/src/shell/**`).
+
 ## Next Session Context Chunk
 
-- **Feed epic complete** (F1 + F2): host snapshot service + `FeedScreen` 4f UI.
-- F1: `host/lib/paper_weight/feed/**` — strip/accent/snapshot/Service; not registered in Application yet.
-- F2: `src/device-ui/src/screens/feed/**` — pure `reduceFeedUi` (`scroll-feed` / toggle enlarge); BERG desk + cream selected card + mustard footer + receipt rail; 12 vitest.
-- Shell already emits `scroll-feed` + `feed-detail` overlay; wave 3 wires props into ShellApp. Leave `sample/FeedSample` as P4 artifact.
-- Branch: `lane/feed-f2` for F2.
+- Feed lane is **closed** — do not resume F1/F2 work here. See "FS1 Verdict" above for why.
+- Cleanup card **#161** (`chore/drop-feed-lane-161`): host `mix test` 226 green; device-ui
+  `npm run check` 198 green. Remaining acceptance: **preset 3 → Photo on-device**, then merge.
+- If a future card wants a "what's happening" screen again, treat it as new scope: re-evaluate
+  data sources from scratch rather than reviving this deleted code from git history blindly —
+  the syndication/session-scrape tradeoffs above still apply.
 
-## Next Session Context Chunk — F3 (2026-07-18)
+## Next Session Context Chunk (2026-07-24)
 
-- F3 #88 is Backlog until P7 #85 supplies the shared EnvironmentFile activation contract.
-- Own only Feed paths; keep the frozen envelope and shared shell/Application files unchanged.
-- Accept mocked atomic-refresh/failure recovery plus live feed interaction on the physical device.
+- #161 physical acceptance passed: real preset 3 opened Photo on the Car Thing.
+- Retained screen rails corrected from stale `3:fd` to `3:ph`; four regression tests added.
+- `npm run check` passes (198 tests) and Feed product-reference grep is clean.
+- PR #163 required `ci` is green; merge and remote Done synchronization complete the closeout.

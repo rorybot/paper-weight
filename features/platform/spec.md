@@ -30,6 +30,9 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 | W3-E | [#48](https://github.com/rorybot/paper-weight/issues/48) | Host gateway intent handlers | **Done** (closed, PR #73) |
 | W3-F | [#50](https://github.com/rorybot/paper-weight/issues/50) | End-to-end fixture host → desktop UI smoke | **Done** (closed, PR #77) |
 | P10 | [#126](https://github.com/rorybot/paper-weight/issues/126) | Wheel long-press input (≥3s) | **Done** (PR #153 merged) |
+| P12 | [#158](https://github.com/rorybot/paper-weight/issues/158) | Spike — evaluate yocto-superbird as device OS | **Backlog** |
+| P13 | [#159](https://github.com/rorybot/paper-weight/issues/159) | Paper Weight Yocto layer + flashthing image | **Backlog** (blocked by P12 GO) |
+| P14 | [#160](https://github.com/rorybot/paper-weight/issues/160) | Cut over device baseline nixos → yocto | **Backlog** (blocked by P13) |
 
 ## Stack slice (do not re-litigate)
 
@@ -341,3 +344,13 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
 - Issue #126 Status set to In review (not Done) — do not close until the acceptance script's
   log shows the on-device checklist passing.
 - If the sprite survives, attempt B is a transparent cursor-theme package — new PR, same card.
+
+## Next Session Context Chunk — P12/P13/P14 backlog (2026-07-22)
+
+- Created explore-first yocto migration chain on GitHub Project #1 as **Backlog**:
+  **P12 #158** spike go/no-go; **P13 #159** Paper Weight Yocto layer (blocked by P12 GO);
+  **P14 #160** cutover docs/flash-keep/scripts/acceptance (blocked by P13).
+- Current device OS remains **nixos-superbird** (P0/P6-N); candidate is
+  [yocto-superbird](https://github.com/JoeyEamigh/yocto-superbird) (mainline kernel, flashthing,
+  kiosk-example fork template). Do not start P13/P14 until P12 writes GO + pin.
+- Mirrors: `kanban/board.md` + this table. No image build/flash in the ticket-create session.
