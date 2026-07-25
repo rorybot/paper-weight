@@ -16,6 +16,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N6b | [#173](https://github.com/rorybot/paper-weight/issues/173) | Preserve queue when playing selected item | **Done** (PR #174) |
 | N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **Done** (PR #148) |
 | N8 | [#131](https://github.com/rorybot/paper-weight/issues/131) | Lyrics provider — lrclib.net | **In progress** |
+| N7 | [#130](https://github.com/rorybot/paper-weight/issues/130) | Device queue UI — wheel scrolls, press plays | **In progress** (PR #172 draft, blocked on physical acceptance) |
+| N10 | [#156](https://github.com/rorybot/paper-weight/issues/156) | Keep queue coherent across track changes and playlist end | **Backlog** (blocked on N7 #130 merge) |
 
 ## Ownership (only these paths)
 
@@ -302,3 +304,19 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
   Stance`, `My Freeze Ray`, `Meet The Plastics`, and others). Launcher stopped cleanly afterward.
 - No sibling implementation was reusable. #173 is closed and Project Done; PR #174 is ready for
   final green-head verification and merge.
+
+## Next Session Context Chunk — N10 #156 (2026-07-25, re-scoped, doc-sync only)
+
+- #156 re-scoped from "Adaptive host poll" (size 2, Ready) to "Keep queue coherent across track
+  changes and playlist end" (size 5, `cross-lane`, Backlog) — the original poll scope is folded
+  in unchanged as a subsection; nothing about it was implemented this session.
+- **Blocked**: N7 #130's PR #172 remains draft/open with its physical queue-preservation
+  acceptance item unchecked, even though the upstream corruption cause (#173) merged via #174.
+  Per the re-scope decision, #156 implementation must not start until #130 merges with that
+  acceptance passed — do not infer #130 passed from anecdote.
+- This session did doc/metadata sync only (GitHub issue #156 + `kanban/board.md` + this file) in
+  a dedicated `chore/n10-156-rescope-doc-sync` worktree — no `NowPlayingTrackV1.id`, cursor-reset,
+  adaptive-poll, or context/offset code was touched.
+- Resume: once #130/PR #172 merges with physical acceptance logged, create
+  `.worktrees/n10-queue-lifecycle-156` on `fix/n10-queue-lifecycle-156` from fresh
+  `origin/master` and start N10 implementation per issue #156's full requirements.
