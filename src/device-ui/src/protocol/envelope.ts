@@ -24,6 +24,10 @@ export type IntentV1 = {
   readonly v: 1;
   readonly ts: number;
   readonly type: "intent";
-  readonly name: "set_volume" | "play_playlist" | "refresh_channel";
+  readonly name:
+    | "set_volume"
+    | "play_playlist"
+    | "play_queue_item"
+    | "refresh_channel";
   readonly args?: Readonly<Record<string, unknown>>;
 };

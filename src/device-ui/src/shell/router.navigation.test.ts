@@ -125,7 +125,7 @@ describe("shell navigation — presets / hold / back / konami", () => {
     });
   });
 
-  it("konami progress survives wheel-turn (now-playing wheel-turn is a no-op)", () => {
+  it("konami progress survives now-playing wheel-turn commands", () => {
     let state = initialShellState("now-playing");
     state = stateAfter(state, { type: "konami-key", key: "up" });
     state = stateAfter(state, { type: "konami-key", key: "up" });
@@ -133,7 +133,9 @@ describe("shell navigation — presets / hold / back / konami", () => {
 
     const afterWheel = route(state, { type: "wheel-turn", delta: 1 });
     expect(afterWheel.state.konamiIndex).toBe(2);
-    expect(afterWheel.commands).toEqual([]);
+    expect(afterWheel.commands).toEqual([
+      { type: "move-queue-selection", delta: 1 },
+    ]);
   });
 
   it("wrong konami key resets or restarts sequence", () => {
@@ -148,13 +150,19 @@ describe("shell navigation — presets / hold / back / konami", () => {
 });
 
 describe("interaction map — wheel / press per screen", () => {
-  it("Now Playing: wheel = —, short press = —, long press = toggle lyrics (P10)", () => {
+  it("Now Playing: wheel selects queue, short press plays, long press toggles lyrics", () => {
     const base = initialShellState("now-playing");
 
-    expect(commandsAfter(base, { type: "wheel-turn", delta: 3 })).toEqual([]);
-    expect(commandsAfter(base, { type: "wheel-turn", delta: -2 })).toEqual([]);
+    expect(commandsAfter(base, { type: "wheel-turn", delta: 3 })).toEqual([
+      { type: "move-queue-selection", delta: 3 },
+    ]);
+    expect(commandsAfter(base, { type: "wheel-turn", delta: -2 })).toEqual([
+      { type: "move-queue-selection", delta: -2 },
+    ]);
 
-    expect(route(base, { type: "wheel-press" }).commands).toEqual([]);
+    expect(route(base, { type: "wheel-press" }).commands).toEqual([
+      { type: "play-selected-queue-item" },
+    ]);
     expect(stateAfter(base, { type: "wheel-press" })).toBe(base);
 
     const open = stateAfter(base, { type: "wheel-long-press" });

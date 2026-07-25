@@ -1,12 +1,25 @@
 import type { JSX } from "preact";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 
 import { designTokens } from "../../design";
 import type { NowPlayingSnapshotV1 } from "../../protocol/now_playing";
-import { buildNowPlayingViewModel } from "./model";
+import {
+  consumeNowPlayingCommand,
+  initialNowPlayingUiState,
+  reconcileNowPlayingUiState,
+  type NowPlayingUiCommand,
+  type NowPlayingUiState,
+  type PlayQueueItemArgs,
+  buildNowPlayingViewModel,
+} from "./model";
 import "./now-playing.css";
 
 export type NowPlayingScreenProps = Readonly<{
   snapshot: NowPlayingSnapshotV1;
+  ui?: NowPlayingUiState;
+  command?: NowPlayingUiCommand | null;
+  onUiChange?: (state: NowPlayingUiState) => void;
+  onPlaySelected?: (args: PlayQueueItemArgs) => void;
 }>;
 
 const screenTheme = (): string => {
@@ -24,8 +37,47 @@ const screenTheme = (): string => {
 
 export const NowPlayingScreen = ({
   snapshot,
+  ui: controlledUi,
+  command = null,
+  onUiChange,
+  onPlaySelected,
 }: NowPlayingScreenProps): JSX.Element => {
-  const view = buildNowPlayingViewModel(snapshot);
+  const [internal, setInternal] = useState(() =>
+    initialNowPlayingUiState(snapshot),
+  );
+  const consumedCommand = useRef<NowPlayingUiCommand | null>(null);
+  const state = reconcileNowPlayingUiState(controlledUi ?? internal, snapshot);
+
+  useEffect(() => {
+    if (
+      controlledUi === undefined &&
+      state.selectedIndex !== internal.selectedIndex
+    ) {
+      setInternal(state);
+    }
+  }, [controlledUi, state, internal]);
+
+  useEffect(() => {
+    const consumption = consumeNowPlayingCommand(
+      consumedCommand.current,
+      command,
+      state,
+      snapshot,
+    );
+    consumedCommand.current = consumption.consumedCommand;
+    const { state: next, play } = consumption.result;
+    if (next.selectedIndex !== state.selectedIndex) {
+      if (controlledUi === undefined) setInternal(next);
+      onUiChange?.(next);
+    }
+    if (play) onPlaySelected?.(play);
+  }, [command, snapshot, state, controlledUi, onUiChange, onPlaySelected]);
+
+  const view = useMemo(
+    () => buildNowPlayingViewModel(snapshot, state.selectedIndex),
+    [snapshot, state.selectedIndex],
+  );
+  const activeQueueItem = view.queue.find((item) => item.selected);
 
   return (
     <section
@@ -80,34 +132,47 @@ export const NowPlayingScreen = ({
             </div>
           </div>
 
-          <div class="np-volume" aria-label={`Volume ${view.volume.level}%`}>
-            <span>↻ wheel = volume</span>
-            <span class="np-volume__cells" aria-hidden="true">
-              {view.volume.segments.map((filled, index) => (
-                <i key={index} data-filled={String(filled)} />
-              ))}
-            </span>
+          <div class="np-queue-controls" aria-label="Queue controls">
+            <span>wheel: select queue</span>
+            <span>press: play</span>
           </div>
         </section>
 
-        <aside class="np-queue" data-queue-mode="display-only" aria-label="Up next queue, display only">
+        <aside class="np-queue" data-queue-mode="interactive" aria-label="Up next queue">
           <h2>QUEUE ↓</h2>
-          <ol>
+          <ol
+            role="listbox"
+            aria-label="Up next"
+            aria-activedescendant={
+              activeQueueItem ? `np-queue-item-${activeQueueItem.id}` : undefined
+            }
+          >
             {view.queue.map((item) => (
-              <li key={`${item.title}-${item.artist}`} data-selected={String(item.selected)}>
+              <li
+                id={`np-queue-item-${item.id}`}
+                key={item.id}
+                role="option"
+                aria-selected={item.selected}
+                data-queue-id={item.id}
+                data-queue-index={String(item.index)}
+                data-selected={String(item.selected)}
+              >
                 <span class="np-queue__title">{item.selected ? "▸ " : ""}{item.title}</span>
                 <span class="np-queue__artist">{item.artist}</span>
               </li>
             ))}
           </ol>
           <p class="np-queue__more">
-            {view.queueRemainder > 0 ? `+${view.queueRemainder} more` : "queue ends here"}
+            {view.queueRemainder > 0
+              ? `${view.queuePosition} · +${view.queueRemainder} more`
+              : view.queuePosition}
           </p>
         </aside>
       </main>
 
       <footer class="np-footer">
-        <span><strong>press</strong> lyrics</span>
+        <span><strong>press:</strong> play</span>
+        <span><strong>long press:</strong> lyrics</span>
         <span><strong>◂ back</strong> home</span>
         <span class="np-footer__transport">transport: flagged off</span>
       </footer>

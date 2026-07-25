@@ -368,6 +368,18 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   `Wrecking Ball` after a beyond-row-four press; the queue stayed varied (`Buffalo Stance`,
   `My Freeze Ray`, `Meet The Plastics`, and others). Live launcher stopped after capture.
 
+### N7 [now-playing] Interactive queue UI · #130 · In progress
+- **Goal**: wheel-turn moves the selected queue row; short wheel-press plays that Spotify item.
+- **Scope**: device protocol types/helpers, shell router, Now Playing queue reducer/window/UI,
+  shell edge wiring, and focused device-ui tests. No host, input-bridge, or Nix changes.
+- **Constraints**: positional clamped selection; four visible rows; long-press lyrics unchanged;
+  keep legacy `volume` payload and `set_volume` intent type. Reuse the local playlist reducer/window.
+- **Acceptance**: full device-ui check and required `ci` green; then live Car Thing selection beyond
+  the first four rows starts the highlighted track. One production UI/live-launcher cycle only;
+  no Nix build, deploy, flash, or reboot.
+- **Current evidence**: device-ui check green (31 files / 206 tests, typecheck, production build);
+  GitHub `ci` and physical Car Thing acceptance remain pending.
+
 ### N10 [now-playing] Keep queue coherent across track changes and playlist end · #156 · Backlog
 - **Goal**: keep the displayed queue, device selection, and Spotify playback context coherent
   when songs change or a playlist ends. Selecting the bottom of a scrolled queue and then

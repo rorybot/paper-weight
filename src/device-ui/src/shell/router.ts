@@ -134,6 +134,8 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
   }
 
   switch (state.screen) {
+    case "now-playing":
+      return emit(state, { type: "move-queue-selection", delta });
     case "weather":
       return emit(state, { type: "toggle-weather-range" });
     case "playlist":
@@ -150,12 +152,12 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
 };
 
 /**
- * design spec §Interaction — wheel press column. Now Playing short press is
- * "—" here: lyrics moved to long-press (P10); queue select (N6/N7) will claim
- * this slot next.
+ * design spec §Interaction — wheel press column.
  */
 const pressWheel = (state: ShellState): ShellTransition => {
   switch (state.screen) {
+    case "now-playing":
+      return emit(state, { type: "play-selected-queue-item" });
     case "playlist":
       return emit(state, { type: "play-selected-playlist" });
     case "photo":
@@ -165,7 +167,7 @@ const pressWheel = (state: ShellState): ShellTransition => {
     case "etymology":
       return emit(state, { type: "dig-etymology" });
     default:
-      // Weather / home / now-playing: press is "—".
+      // Weather / home: press is "—".
       return unchanged(state);
   }
 };

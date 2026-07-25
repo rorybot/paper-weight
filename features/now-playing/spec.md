@@ -145,6 +145,27 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - [x] No shell / Application edits (shell already toggles `lyrics`)
 - [ ] Wave-3: `ShellApp.renderOverlay("lyrics")` → `LyricsOverlay`
 
+### N7
+- [x] Wheel-turn applies the full delta, clamps positional selection, and keeps it in a four-row window.
+- [x] Short wheel-press emits exactly one `play_queue_item` intent for the selected queue `id`.
+- [x] Empty and shortened queue snapshots remain safe; retained shell commands cannot replay.
+- [x] Volume strip/display-only copy is replaced with queue guidance; long-press lyrics is unchanged.
+- [x] Full device-ui `npm run check` passes (31 files / 206 tests, typecheck, production build).
+- [ ] Required GitHub `ci` passes.
+- [ ] Physical Car Thing pass: select beyond the initial four rows and start the highlighted track.
+
+### N7 Vertical-slice check
+- **First visible action**: on preset 1, turn the wheel past row four and press the highlighted track.
+- **Smallest path**: fixture queue + keyboard/evdev first, then the branch-local launcher in Spotify live mode.
+- **True blockers**: N7 implementation/checks, existing kiosk/input bridge, live credentials, UI/gateway health.
+- **Deferred**: host changes, generic transport, wheel volume, Nix/image work, reconnect, lyrics-provider changes.
+- **Reuse**: `screens/playlist/model.ts` reducer/window pattern; sibling repos had no compatible immutable model.
+
+### N7 Cycle budget
+- One branch-local production UI build/live-launcher cycle after package checks pass.
+- Evidence before launch: device-ui check green, live configuration valid, device/UI/gateway healthy.
+- Abort before launch on failed checks/config/health; no Nix build, deploy, flash, or reboot.
+
 ## Deps request
 
 - mix: none added — client/auth use Erlang `:httpc` (like the weather lane), injected
@@ -291,6 +312,13 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Resume: run `mix test`, fix any compile/API mismatch, then physical acceptance (real synced
   lyrics advance in time for a popular track; a track with no lrclib match shows the existing
   "no lyrics" overlay state) before closing #131.
+
+## Next Session Context Chunk — N7 #130 (2026-07-25)
+
+- Branch `chore/n7-queue-ui-130` in `.worktrees/n7-queue-ui-130` implements clamped wheel queue selection, a centered four-row window, and short-press `play_queue_item`; long-press lyrics is unchanged.
+- Retained shell commands are identity-consumed once at `NowPlayingScreen`; snapshot/callback rerenders cannot replay movement or playback.
+- Device-ui `npm run check` passes: typecheck, 31 test files / 206 tests, and production build; issue #130's unit-tested acceptance box is checked.
+- Remaining gates: draft PR, required `ci`, then branch-local live Car Thing selection/playback evidence before merge/Done/closeout.
 
 ## Next Session Context Chunk — N6b #173 (2026-07-25)
 
