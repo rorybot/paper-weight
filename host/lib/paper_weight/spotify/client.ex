@@ -7,7 +7,8 @@ defmodule PaperWeight.Spotify.Client do
 
   **Explicit ban:** no generic `play`, `pause`, `skip`, or `previous`. Only explicit,
   device-selected targets are allowed: `play_playlist/4` (W3-E, playlist screen) and
-  `play_track/4` (N6, the queue item the device chose on Now Playing).
+  `play_queue_items/4` (N6b, the queue item the device chose on Now Playing plus the
+  remaining cached queue context).
   """
 
   alias PaperWeight.Spotify.{Config, JsonLite}
@@ -113,17 +114,25 @@ defmodule PaperWeight.Spotify.Client do
   end
 
   @doc """
-  Play a single, device-selected track by id (a `queue[].id` from the snapshot).
+  Play a device-selected queue item plus the remaining cached queue context.
 
-  Starts `spotify:track:<id>` via `PUT /me/player/play` — the explicit N6 counterpart to
-  `play_playlist/4`. Still no generic skip/next/previous.
+  Starts the first id and preserves the ordered ids that follow it via one
+  `PUT /me/player/play` request. This is the explicit N6 counterpart to
+  `play_playlist/4`; it does not expose generic skip/next/previous controls.
   """
-  @spec play_track(Config.t(), String.t(), String.t(), http()) :: :ok | {:error, term()}
-  def play_track(config, access_token, track_id, http)
-      when is_function(http, 4) and is_binary(track_id) do
-    with true <- valid_track_id?(track_id) do
+  @spec play_queue_items(Config.t(), String.t(), [String.t()], http()) ::
+          :ok | {:error, term()}
+  def play_queue_items(config, access_token, track_ids, http)
+      when is_function(http, 4) and is_list(track_ids) do
+    with true <- valid_track_ids?(track_ids) do
       url = config.api_base <> "/me/player/play"
-      body = ~s({"uris":["spotify:track:#{track_id}"]})
+
+      uris =
+        Enum.map_join(track_ids, ",", fn track_id ->
+          ~s("spotify:track:#{track_id}")
+        end)
+
+      body = ~s({"uris":[#{uris}]})
 
       headers = auth_headers(access_token) ++ [{"Content-Type", "application/json"}]
 
@@ -214,7 +223,13 @@ defmodule PaperWeight.Spotify.Client do
 
   defp valid_playlist_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
 
-  defp valid_track_id?(id), do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
+  defp valid_track_id?(id) when is_binary(id),
+    do: id != "" and Regex.match?(~r/^[A-Za-z0-9]+$/, id)
+
+  defp valid_track_id?(_id), do: false
+
+  defp valid_track_ids?([]), do: false
+  defp valid_track_ids?(ids), do: Enum.all?(ids, &valid_track_id?/1)
 
   defp parse_now_playing(body) do
     with {:ok, json} <- json_decode(body),

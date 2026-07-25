@@ -135,17 +135,36 @@ defmodule PaperWeight.Spotify.ClientTest do
              Client.play_playlist(config(), "tok", "bad/id", mock_http())
   end
 
-  test "play_track PUTs only the selected track uri and rejects a malformed id" do
+  test "play_queue_items PUTs the selected track plus remaining queue uris" do
     http = fn :put, url, _headers, body ->
       assert String.ends_with?(url, "/me/player/play")
-      assert body == ~s({"uris":["spotify:track:trk123"]})
+
+      assert body ==
+               ~s({"uris":["spotify:track:selected123","spotify:track:next456","spotify:track:last789"]})
+
       {:ok, 204, ""}
     end
 
-    assert :ok = Client.play_track(config(), "tok", "trk123", http)
+    assert :ok =
+             Client.play_queue_items(
+               config(),
+               "tok",
+               ["selected123", "next456", "last789"],
+               http
+             )
+  end
+
+  test "play_queue_items rejects empty or malformed queue ids before HTTP" do
+    http = fn _method, _url, _headers, _body -> flunk("invalid ids must not reach HTTP") end
 
     assert {:error, :invalid_track_id} =
-             Client.play_track(config(), "tok", "bad/id", http)
+             Client.play_queue_items(config(), "tok", ["valid123", "bad/id"], http)
+
+    assert {:error, :invalid_track_id} =
+             Client.play_queue_items(config(), "tok", ["valid123", 123], http)
+
+    assert {:error, :invalid_track_id} =
+             Client.play_queue_items(config(), "tok", [], http)
   end
 
   test "playlists returns id/name with null covers and skips invalid items" do
@@ -197,7 +216,9 @@ defmodule PaperWeight.Spotify.ClientTest do
   test "client surfaces non-200 HTTP status errors for each read endpoint" do
     http = fn :get, _url, _headers, nil -> {:ok, 500, "server error"} end
 
-    assert {:error, {:http_status, 500, "server error"}} = Client.now_playing(config(), "tok", http)
+    assert {:error, {:http_status, 500, "server error"}} =
+             Client.now_playing(config(), "tok", http)
+
     assert {:error, {:http_status, 500, "server error"}} = Client.queue(config(), "tok", http)
     assert {:error, {:http_status, 500, "server error"}} = Client.playlists(config(), "tok", http)
   end
