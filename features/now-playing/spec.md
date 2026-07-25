@@ -161,8 +161,8 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
   and 1 unique title (`We Got You (Reprise)`); the UI received ten duplicates from the host.
 - Leading cause to validate: N6 `play_queue_item` starts a one-item `uris` playback context, after
   which Spotify reports the queue as repetitions of that item. This invalidates N7's no-host-change assumption.
-- Host behavior is a separate acceptance boundary; do not edit it or merge PR #172 until Rory
-  approves re-scoping/splitting and queue preservation passes on the Car Thing.
+- Host behavior is split to N6b #173; do not merge PR #172 until #173 lands and queue preservation
+  passes on the Car Thing.
 
 ### N7 Vertical-slice check
 - **First visible action**: on preset 1, turn the wheel past row four and press the highlighted track.

@@ -380,7 +380,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Current evidence**: device-ui check green (31 files / 206 tests, typecheck, production build);
   draft PR #172 required `ci` green. Live playback exposed queue corruption: a gateway snapshot
   contained 10 copies of one track (1 unique ID/title) after selection. Host playback scope requires
-  approval before implementation; PR must not merge until queue preservation passes physically.
+  N6b #173 first; PR must not merge until queue preservation passes physically.
 
 ### N10 [now-playing] Keep queue coherent across track changes and playlist end · #156 · Backlog
 - **Goal**: keep the displayed queue, device selection, and Spotify playback context coherent
