@@ -13,7 +13,7 @@ defmodule PaperWeight.Spotify.Service do
   Wave 3 registers `{PaperWeight.Spotify.Service, []}` — do not add to
   Application here. **No generic** `play`, `pause`, `skip`, or `previous`; only explicit,
   device-selected targets: `play_playlist/2` (W3-E playlist grid) and `play_track/2`
-  (N6 — the queue item chosen on Now Playing).
+  (N6b — the queue item chosen on Now Playing, with its remaining cached queue context).
   """
 
   use GenServer
@@ -185,7 +185,9 @@ defmodule PaperWeight.Spotify.Service do
     reply =
       case state.token do
         %{access_token: access_token} ->
-          Client.play_track(state.config, access_token, track_id, state.http)
+          with {:ok, track_ids} <- queue_suffix_ids(state.snapshot, track_id) do
+            Client.play_queue_items(state.config, access_token, track_ids, state.http)
+          end
 
         nil ->
           {:error, :no_token}
@@ -215,7 +217,14 @@ defmodule PaperWeight.Spotify.Service do
     case Fetch.fetch_snapshot(state.config, state.token, state.http_post, state.http) do
       {:ok, snapshot, token} ->
         {snapshot, lyrics_cache} = with_lyrics(snapshot, state.lyrics_cache, state.http)
-        %{state | snapshot: snapshot, token: token, gen: state.gen + 1, lyrics_cache: lyrics_cache}
+
+        %{
+          state
+          | snapshot: snapshot,
+            token: token,
+            gen: state.gen + 1,
+            lyrics_cache: lyrics_cache
+        }
 
       {:error, _reason} ->
         case state.snapshot do
@@ -282,6 +291,15 @@ defmodule PaperWeight.Spotify.Service do
 
   defp queue_reply(%{snapshot: nil}), do: {:error, :no_snapshot}
   defp queue_reply(%{snapshot: snap}), do: {:ok, Map.get(snap, "queue", [])}
+
+  defp queue_suffix_ids(%{"queue" => queue}, selected_id) when is_list(queue) do
+    case Enum.drop_while(queue, &(Map.get(&1, "id") != selected_id)) do
+      [] -> {:error, :queue_item_not_found}
+      suffix -> {:ok, Enum.map(suffix, &Map.get(&1, "id"))}
+    end
+  end
+
+  defp queue_suffix_ids(_snapshot, _selected_id), do: {:error, :queue_item_not_found}
 
   defp current_volume_level(%{snapshot: %{"volume" => %{"level" => level}}}), do: level
   defp current_volume_level(_state), do: 0

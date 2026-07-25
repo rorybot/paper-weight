@@ -13,6 +13,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 | N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 | N6 | [#129](https://github.com/rorybot/paper-weight/issues/129) | Host queue channel + play-selected intent | **In review** (envelope frozen) |
+| N6b | [#173](https://github.com/rorybot/paper-weight/issues/173) | Preserve queue when playing selected item | **Done** (PR #174) |
 | N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **Done** (PR #148) |
 | N8 | [#131](https://github.com/rorybot/paper-weight/issues/131) | Lyrics provider — lrclib.net | **In progress** |
 
@@ -80,9 +81,11 @@ N6 adds one explicit, device-selected play intent (`id` = a `queue[].id`):
 { "v": 1, "type": "intent", "name": "play_queue_item", "args": { "id": "<track id>" } }
 ```
 
-Dispatch: `play_queue_item` → `Spotify.Service.play_track/2` →
-`PUT /me/player/play` with body `{"uris":["spotify:track:<id>"]}`. Still **no** generic
-play/pause/skip/previous — only the item the device chose.
+Dispatch: `play_queue_item` → `Spotify.Service.play_track/2`, which finds the selected id in
+the cached queue and passes that item plus the remaining queue suffix to one
+`PUT /me/player/play` request. The body is an ordered
+`{"uris":["spotify:track:<selected>","spotify:track:<next>",...]}` array. Still **no** generic
+play/pause/skip/previous — only the item the device chose and its cached continuation.
 
 ### Constraints
 - **NO generic play/pause** API or UI. Only `play_playlist` (device grid) and
@@ -286,3 +289,16 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Resume: run `mix test`, fix any compile/API mismatch, then physical acceptance (real synced
   lyrics advance in time for a popular track; a track with no lrclib match shows the existing
   "no lyrics" overlay state) before closing #131.
+
+## Next Session Context Chunk — N6b #173 (2026-07-25)
+
+- Root cause confirmed: `Client.play_track/4` replaced Spotify playback context with one URI.
+- Fix: `Service.play_track/2` derives the selected cached queue suffix and sends it through one
+  validated `Client.play_queue_items/4` ordered-URI request; unknown ids do not write playback.
+- Validation: focused intent/client/service tests 42/42; full host suite 228/228; PR #174 required
+  `ci` and host jobs green.
+- Physical acceptance passed with PR #172's UI artifact: a beyond-row-four press changed playback
+  from `We Got You (Reprise)` to `Wrecking Ball`; the following queue stayed varied (`Buffalo
+  Stance`, `My Freeze Ray`, `Meet The Plastics`, and others). Launcher stopped cleanly afterward.
+- No sibling implementation was reusable. #173 is closed and Project Done; PR #174 is ready for
+  final green-head verification and merge.

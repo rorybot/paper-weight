@@ -177,7 +177,7 @@ defmodule PaperWeight.Spotify.ServiceTest do
     assert String.ends_with?(url, "/me/player/play")
   end
 
-  test "play_track dispatches the selected queue item uri through the authenticated client" do
+  test "play_track preserves the selected item and remaining cached queue order" do
     {:ok, ref} = Agent.start_link(fn -> nil end)
 
     http = fn
@@ -191,9 +191,31 @@ defmodule PaperWeight.Spotify.ServiceTest do
 
     server = start_service(http: http)
 
-    assert :ok = Service.play_track(server, "trk123")
-    assert {url, ~s({"uris":["spotify:track:trk123"]})} = Agent.get(ref, & &1)
+    assert :ok = Service.play_track(server, "queueid000000next01")
+
+    assert {url,
+            ~s({"uris":["spotify:track:queueid000000next01","spotify:track:queueid000another002"]})} =
+             Agent.get(ref, & &1)
+
     assert String.ends_with?(url, "/me/player/play")
+  end
+
+  test "play_track rejects an id absent from the cached queue without replacing context" do
+    {:ok, ref} = Agent.start_link(fn -> 0 end)
+
+    http = fn
+      :get, url, headers, body ->
+        ok_http().(:get, url, headers, body)
+
+      :put, _url, _headers, _body ->
+        Agent.update(ref, &(&1 + 1))
+        {:ok, 204, ""}
+    end
+
+    server = start_service(http: http)
+
+    assert {:error, :queue_item_not_found} = Service.play_track(server, "notinthequeue")
+    assert Agent.get(ref, & &1) == 0
   end
 
   test "playlists returns a PlaylistSnapshotV1 and advances playlist gen on refresh" do
