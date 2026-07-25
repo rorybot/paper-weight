@@ -378,7 +378,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   the first four rows starts the highlighted track. One production UI/live-launcher cycle only;
   no Nix build, deploy, flash, or reboot.
 - **Current evidence**: device-ui check green (31 files / 206 tests, typecheck, production build);
-  GitHub `ci` and physical Car Thing acceptance remain pending.
+  draft PR #172 open; GitHub `ci` running; physical Car Thing acceptance remains pending.
 
 ### N10 [now-playing] Keep queue coherent across track changes and playlist end · #156 · Backlog
 - **Goal**: keep the displayed queue, device selection, and Spotify playback context coherent

@@ -318,7 +318,7 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Branch `chore/n7-queue-ui-130` in `.worktrees/n7-queue-ui-130` implements clamped wheel queue selection, a centered four-row window, and short-press `play_queue_item`; long-press lyrics is unchanged.
 - Retained shell commands are identity-consumed once at `NowPlayingScreen`; snapshot/callback rerenders cannot replay movement or playback.
 - Device-ui `npm run check` passes: typecheck, 31 test files / 206 tests, and production build; issue #130's unit-tested acceptance box is checked.
-- Remaining gates: draft PR, required `ci`, then branch-local live Car Thing selection/playback evidence before merge/Done/closeout.
+- Draft PR #172 is open; remaining gate after `ci` is branch-local live Car Thing selection/playback evidence before merge/Done/closeout.
 
 ## Next Session Context Chunk — N6b #173 (2026-07-25)
 
