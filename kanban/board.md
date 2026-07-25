@@ -20,8 +20,8 @@ Status snapshot (2026-07-25, verified against remote project):
 | Status | Cards |
 |--------|--------|
 | **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126; drop Feed lane #161 |
-| **In progress** | N6b queue preservation #173 |
-| **In review** | - |
+| **In progress** | - |
+| **In review** | N6b queue preservation #173 |
 | **Ready** | Kiosk recover host-after-device #112; N7 queue UI #130; P9a unattended cold boot #139; N9 lyrics clock #155; N10 adaptive host poll #156 |
 | **Backlog** | P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111; P12 #158; P13 #159; P14 #160 |
 
@@ -353,7 +353,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   WebSocket, found during this card's physical verification — see
   `docs/resolutions/stale-kiosk-websocket-after-host-restart.md`.
 
-### N6b [now-playing] Preserve queue when playing selected item · #173 · In progress
+### N6b [now-playing] Preserve queue when playing selected item · #173 · In review
 - **Goal**: selecting a Now Playing queue item starts it without replacing the remaining queue
   with duplicate entries.
 - **Scope**: correct host `play_queue_item` behavior; preserve the selected item plus cached queue

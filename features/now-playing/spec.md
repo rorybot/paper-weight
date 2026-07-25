@@ -13,7 +13,7 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N3 | [#8](https://github.com/rorybot/paper-weight/issues/8) | Lyrics overlay | **Done** (PR #36) |
 | N4 | [#89](https://github.com/rorybot/paper-weight/issues/89) | Live Spotify acceptance | **Done** (PR #96) |
 | N6 | [#129](https://github.com/rorybot/paper-weight/issues/129) | Host queue channel + play-selected intent | **In review** (envelope frozen) |
-| N6b | [#173](https://github.com/rorybot/paper-weight/issues/173) | Preserve queue when playing selected item | **In progress** |
+| N6b | [#173](https://github.com/rorybot/paper-weight/issues/173) | Preserve queue when playing selected item | **In review** |
 | N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **Done** (PR #148) |
 | N8 | [#131](https://github.com/rorybot/paper-weight/issues/131) | Lyrics provider — lrclib.net | **In progress** |
 
@@ -295,6 +295,7 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Root cause confirmed: `Client.play_track/4` replaced Spotify playback context with one URI.
 - Fix: `Service.play_track/2` derives the selected cached queue suffix and sends it through one
   validated `Client.play_queue_items/4` ordered-URI request; unknown ids do not write playback.
-- Validation: focused intent/client/service tests 42/42; full package-only host suite 228/228.
-- No sibling implementation was reusable. Remaining: required PR `ci`, then branch-local live
-  Car Thing selection beyond row four; keep the PR open until physical acceptance passes.
+- Validation: focused intent/client/service tests 42/42; full host suite 228/228; PR #174 required
+  `ci` and host jobs green.
+- No sibling implementation was reusable. Remaining: branch-local live Car Thing selection beyond
+  row four; keep PR #174 open until physical acceptance passes.
