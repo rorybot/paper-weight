@@ -7,20 +7,22 @@ import {
   encodeIntentFrame,
   INTENT_NAMES,
   playPlaylistRequest,
+  playQueueItemRequest,
   refreshChannelRequest,
   setVolumeRequest,
 } from "./intents";
 
 describe("intent requests", () => {
-  it("exposes exactly the three allowed intent names (no play/pause)", () => {
+  it("exposes exactly the allowed intent names (no generic play/pause)", () => {
     expect(INTENT_NAMES).toEqual([
       "set_volume",
       "play_playlist",
+      "play_queue_item",
       "refresh_channel",
     ]);
   });
 
-  it("builds set_volume / play_playlist / refresh_channel requests", () => {
+  it("builds volume, playlist, queue-item, and refresh requests", () => {
     expect(setVolumeRequest(-2)).toEqual({
       name: "set_volume",
       args: { delta: -2 },
@@ -28,6 +30,10 @@ describe("intent requests", () => {
     expect(playPlaylistRequest("pl-1")).toEqual({
       name: "play_playlist",
       args: { id: "pl-1" },
+    });
+    expect(playQueueItemRequest("trk-1")).toEqual({
+      name: "play_queue_item",
+      args: { id: "trk-1" },
     });
     expect(refreshChannelRequest("weather")).toEqual({
       name: "refresh_channel",
@@ -78,6 +84,20 @@ describe("intent frames", () => {
       type: "intent",
       name: "refresh_channel",
       args: { channel: "photo" },
+    });
+  });
+
+  it("encodes the exact play_queue_item envelope", () => {
+    expect(
+      JSON.parse(
+        encodeIntentFrame(buildIntent(playQueueItemRequest("trk-7"), 42)),
+      ),
+    ).toEqual({
+      v: 1,
+      ts: 42,
+      type: "intent",
+      name: "play_queue_item",
+      args: { id: "trk-7" },
     });
   });
 });

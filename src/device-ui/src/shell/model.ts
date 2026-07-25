@@ -54,6 +54,8 @@ export type ShellInput =
  */
 export type ShellCommand =
   | { readonly type: "toggle-weather-range" }
+  | { readonly type: "move-queue-selection"; readonly delta: number }
+  | { readonly type: "play-selected-queue-item" }
   | { readonly type: "move-playlist-selection"; readonly delta: number }
   | { readonly type: "play-selected-playlist" }
   | { readonly type: "skip-photo"; readonly delta: number }

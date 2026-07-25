@@ -169,30 +169,13 @@
   background: var(--np-positive);
 }
 
-.np-volume {
+.np-queue-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 12px;
   color: var(--np-muted);
   font-size: 12px;
-}
-
-.np-volume__cells {
-  display: flex;
-  gap: 5px;
-}
-
-.np-volume__cells i {
-  display: block;
-  width: 7px;
-  height: 11px;
-  border: 1px solid var(--np-muted);
-  background: transparent;
-}
-
-.np-volume__cells i[data-filled="true"] {
-  background: var(--np-muted);
 }
 
 .np-queue {

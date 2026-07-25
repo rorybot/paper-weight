@@ -8,6 +8,7 @@ export type ShellIntentRequest = Pick<IntentV1, "name" | "args">;
 export const INTENT_NAMES: readonly IntentV1["name"][] = Object.freeze([
   "set_volume",
   "play_playlist",
+  "play_queue_item",
   "refresh_channel",
 ]);
 
@@ -18,6 +19,11 @@ export const setVolumeRequest = (delta: number): ShellIntentRequest => ({
 
 export const playPlaylistRequest = (id: string): ShellIntentRequest => ({
   name: "play_playlist",
+  args: { id },
+});
+
+export const playQueueItemRequest = (id: string): ShellIntentRequest => ({
+  name: "play_queue_item",
   args: { id },
 });
 

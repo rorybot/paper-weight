@@ -16,8 +16,8 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | N6b | [#173](https://github.com/rorybot/paper-weight/issues/173) | Preserve queue when playing selected item | **Done** (PR #174) |
 | N5 | [#128](https://github.com/rorybot/paper-weight/issues/128) | BUG — album artwork missing on device | **Done** (PR #148) |
 | N8 | [#131](https://github.com/rorybot/paper-weight/issues/131) | Lyrics provider — lrclib.net | **In progress** |
-| N7 | [#130](https://github.com/rorybot/paper-weight/issues/130) | Device queue UI — wheel scrolls, press plays | **In progress** (PR #172 draft, blocked on physical acceptance) |
-| N10 | [#156](https://github.com/rorybot/paper-weight/issues/156) | Keep queue coherent across track changes and playlist end | **Backlog** (blocked on N7 #130 merge) |
+| N7 | [#130](https://github.com/rorybot/paper-weight/issues/130) | Device queue UI — wheel scrolls, press plays | **Done** (PR #172) |
+| N10 | [#156](https://github.com/rorybot/paper-weight/issues/156) | Keep queue coherent across track changes and playlist end | **Ready** (N7 #130 merged) |
 
 ## Ownership (only these paths)
 
@@ -144,6 +144,37 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - [x] Empty state when `lyrics` null
 - [x] No shell / Application edits (shell already toggles `lyrics`)
 - [ ] Wave-3: `ShellApp.renderOverlay("lyrics")` → `LyricsOverlay`
+
+### N7
+- [x] Wheel-turn applies the full delta, clamps positional selection, and keeps it in a four-row window.
+- [x] Short wheel-press emits exactly one `play_queue_item` intent for the selected queue `id`.
+- [x] Empty and shortened queue snapshots remain safe; retained shell commands cannot replay.
+- [x] Volume strip/display-only copy is replaced with queue guidance; long-press lyrics is unchanged.
+- [x] Full device-ui `npm run check` passes (31 files / 206 tests, typecheck, production build).
+- [x] Required GitHub `ci` passes (PR #172, rebased on master post-#174, green 2026-07-25).
+- [x] Live selection starts the requested track without corrupting/replacing the remaining queue.
+- [x] Physical Car Thing pass: select beyond the initial four rows and start the highlighted track.
+
+### N7 Reproduced queue-corruption defect — 2026-07-25 (resolved via N6b #173/PR #174)
+- Rory reports that selecting a song sometimes fills the entire queue with that song.
+- Read-only gateway capture reproduced upstream data corruption: 10 queue entries, 1 unique ID,
+  and 1 unique title (`We Got You (Reprise)`); the UI received ten duplicates from the host.
+- Root cause was host-side (`Client.play_track/4` replacing the Spotify playback context); fixed
+  by N6b #173/PR #174. Physical re-check using PR #172's UI artifact against the fixed host: a
+  beyond-row-four press changed playback from `We Got You (Reprise)` to `Wrecking Ball`, and the
+  following queue stayed varied (`Buffalo Stance`, `My Freeze Ray`, `Meet The Plastics`, others).
+
+### N7 Vertical-slice check
+- **First visible action**: on preset 1, turn the wheel past row four and press the highlighted track.
+- **Smallest path**: fixture queue + keyboard/evdev first, then the branch-local launcher in Spotify live mode.
+- **True blockers**: N7 implementation/checks, existing kiosk/input bridge, live credentials, UI/gateway health.
+- **Deferred**: host changes, generic transport, wheel volume, Nix/image work, reconnect, lyrics-provider changes.
+- **Reuse**: `screens/playlist/model.ts` reducer/window pattern; sibling repos had no compatible immutable model.
+
+### N7 Cycle budget
+- One branch-local production UI build/live-launcher cycle after package checks pass.
+- Evidence before launch: device-ui check green, live configuration valid, device/UI/gateway healthy.
+- Abort before launch on failed checks/config/health; no Nix build, deploy, flash, or reboot.
 
 ## Deps request
 
@@ -292,6 +323,14 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
   lyrics advance in time for a popular track; a track with no lrclib match shows the existing
   "no lyrics" overlay state) before closing #131.
 
+## Next Session Context Chunk — N7 #130 (2026-07-25)
+
+- Branch `chore/n7-queue-ui-130` in `.worktrees/n7-queue-ui-130` implements clamped wheel queue selection, a centered four-row window, and short-press `play_queue_item`; long-press lyrics is unchanged.
+- Retained shell commands are identity-consumed once at `NowPlayingScreen`; snapshot/callback rerenders cannot replay movement or playback.
+- Device-ui `npm run check` passes: typecheck, 31 test files / 206 tests, and production build; issue #130's unit-tested acceptance box is checked.
+- Draft PR #172 remains open with required `ci` green, but live acceptance failed: the gateway
+  snapshot reproduced 10 copies of one selected track. Await Rory's host-scope decision before fixing.
+
 ## Next Session Context Chunk — N6b #173 (2026-07-25)
 
 - Root cause confirmed: `Client.play_track/4` replaced Spotify playback context with one URI.
@@ -320,3 +359,17 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Resume: once #130/PR #172 merges with physical acceptance logged, create
   `.worktrees/n10-queue-lifecycle-156` on `fix/n10-queue-lifecycle-156` from fresh
   `origin/master` and start N10 implementation per issue #156's full requirements.
+
+## Next Session Context Chunk — N7 #130 closeout (2026-07-25)
+
+- PR #172 rebased onto post-#175 `origin/master` (conflicts were doc-only: `kanban/board.md` +
+  this file, resolved commit-by-commit; no code conflicts). Required `ci` green post-rebase.
+- Physical acceptance for the queue-corruption scenario was already logged under N6b #173/PR
+  #174's Done entry (beyond-row-four press using PR #172's UI artifact against the #174-fixed
+  host: playback changed track, queue stayed varied) — confirmed via GitHub PR #174 body, not
+  from anecdote. N7's own acceptance boxes updated to reflect this.
+- PR #172 merged (squash) and issue #130 closed via its `Closes #130` body text.
+- **N10 #156 is now unblocked**: its dependency on #130 merging is satisfied. Next session should
+  verify GitHub state fresh (issue #156, `origin/master`) before creating
+  `.worktrees/n10-queue-lifecycle-156` on `fix/n10-queue-lifecycle-156` and starting
+  implementation per issue #156's full requirements.

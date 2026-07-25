@@ -23,7 +23,7 @@ import {
   type ChannelStoreState,
 } from "./channelStore";
 import { mapDevKeyboardEvent } from "./devKeyboard";
-import { commandsToIntentRequests } from "./intents";
+import { commandsToIntentRequests, playQueueItemRequest } from "./intents";
 import {
   initialShellState,
   type OverlayId,
@@ -79,6 +79,15 @@ const isPlaylistCommand = (
   command.type === "move-playlist-selection" ||
   command.type === "play-selected-playlist";
 
+const isNowPlayingCommand = (
+  command: ShellCommand,
+): command is Extract<
+  ShellCommand,
+  { type: "move-queue-selection" | "play-selected-queue-item" }
+> =>
+  command.type === "move-queue-selection" ||
+  command.type === "play-selected-queue-item";
+
 const isPhotoCommand = (
   command: ShellCommand,
 ): command is Extract<
@@ -125,7 +134,7 @@ export interface ShellAppProps {
   readonly initialScreen?: ScreenId;
   /** Test / debug: observe commands without host services. */
   readonly onCommands?: (commands: readonly ShellCommand[]) => void;
-  /** Device → host intents (`set_volume`, `play_playlist`). main.tsx wires the W3-D gateway here when `?gateway=` is present. */
+  /** Device → host intents. main.tsx wires the W3-D gateway here when `?gateway=` is present. */
   readonly onIntent?: (intent: IntentV1) => void;
   /** Override weather snapshot (defaults to the channel store's fixture). */
   readonly weatherSnapshot?: typeof weatherFixtureSnapshot;
@@ -236,7 +245,20 @@ export const ShellApp = ({
     }
 
     if (screen === "now-playing") {
-      return <NowPlayingScreen snapshot={channelStore.snapshots.now_playing} />;
+      return (
+        <NowPlayingScreen
+          snapshot={channelStore.snapshots.now_playing}
+          command={lastCommands.find(isNowPlayingCommand) ?? null}
+          onPlaySelected={(args) =>
+            onIntent?.({
+              v: 1,
+              ts: Date.now(),
+              type: "intent",
+              ...playQueueItemRequest(args.id),
+            })
+          }
+        />
+      );
     }
 
     if (screen === "weather") {
