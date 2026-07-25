@@ -152,9 +152,17 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - [x] Volume strip/display-only copy is replaced with queue guidance; long-press lyrics is unchanged.
 - [x] Full device-ui `npm run check` passes (31 files / 206 tests, typecheck, production build).
 - [x] Required GitHub `ci` passes (PR #172).
-- [x] Live Car Thing keyboard/CDP diagnostic: selected index 5 with rows 3–6 visible, emitted one
-  `play_queue_item`, and the live track changed from “Bone Dry” to “Sweet Scorched Earth.”
+- [ ] Live selection starts the requested track without corrupting/replacing the remaining queue.
 - [ ] Physical Car Thing pass: select beyond the initial four rows and start the highlighted track.
+
+### N7 Reproduced queue-corruption defect — 2026-07-25
+- Rory reports that selecting a song sometimes fills the entire queue with that song.
+- Read-only gateway capture reproduced upstream data corruption: 10 queue entries, 1 unique ID,
+  and 1 unique title (`We Got You (Reprise)`); the UI received ten duplicates from the host.
+- Leading cause to validate: N6 `play_queue_item` starts a one-item `uris` playback context, after
+  which Spotify reports the queue as repetitions of that item. This invalidates N7's no-host-change assumption.
+- Host behavior is a separate acceptance boundary; do not edit it or merge PR #172 until Rory
+  approves re-scoping/splitting and queue preservation passes on the Car Thing.
 
 ### N7 Vertical-slice check
 - **First visible action**: on preset 1, turn the wheel past row four and press the highlighted track.
@@ -320,7 +328,8 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 - Branch `chore/n7-queue-ui-130` in `.worktrees/n7-queue-ui-130` implements clamped wheel queue selection, a centered four-row window, and short-press `play_queue_item`; long-press lyrics is unchanged.
 - Retained shell commands are identity-consumed once at `NowPlayingScreen`; snapshot/callback rerenders cannot replay movement or playback.
 - Device-ui `npm run check` passes: typecheck, 31 test files / 206 tests, and production build; issue #130's unit-tested acceptance box is checked.
-- Draft PR #172 is open with required `ci` and live keyboard/CDP playback evidence green; the remaining gate is Rory repeating selection/playback with the physical wheel before merge/Done/closeout.
+- Draft PR #172 remains open with required `ci` green, but live acceptance failed: the gateway
+  snapshot reproduced 10 copies of one selected track. Await Rory's host-scope decision before fixing.
 
 ## Next Session Context Chunk — N6b #173 (2026-07-25)
 
