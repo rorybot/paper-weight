@@ -19,11 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-25, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126; drop Feed lane #161; N6b queue preservation #173 |
-| **In progress** | N7 queue UI #130 (PR #172 draft, blocked on physical queue-preservation check) |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126; drop Feed lane #161; N6b queue preservation #173; N7 queue UI #130 |
+| **In progress** | - |
 | **In review** | - |
-| **Ready** | Kiosk recover host-after-device #112; P9a unattended cold boot #139; N9 lyrics clock #155 |
-| **Backlog** | P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111; P12 #158; P13 #159; P14 #160; N10 queue coherence #156 (blocked on N7 #130 merge) |
+| **Ready** | Kiosk recover host-after-device #112; P9a unattended cold boot #139; N9 lyrics clock #155; N10 queue coherence #156 |
+| **Backlog** | P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111; P12 #158; P13 #159; P14 #160 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -368,7 +368,7 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   `Wrecking Ball` after a beyond-row-four press; the queue stayed varied (`Buffalo Stance`,
   `My Freeze Ray`, `Meet The Plastics`, and others). Live launcher stopped after capture.
 
-### N7 [now-playing] Interactive queue UI · #130 · In progress
+### N7 [now-playing] Interactive queue UI · #130 · ✅ Done
 - **Goal**: wheel-turn moves the selected queue row; short wheel-press plays that Spotify item.
 - **Scope**: device protocol types/helpers, shell router, Now Playing queue reducer/window/UI,
   shell edge wiring, and focused device-ui tests. No host, input-bridge, or Nix changes.
@@ -377,12 +377,15 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
 - **Acceptance**: full device-ui check and required `ci` green; then live Car Thing selection beyond
   the first four rows starts the highlighted track. One production UI/live-launcher cycle only;
   no Nix build, deploy, flash, or reboot.
-- **Current evidence**: device-ui check green (31 files / 206 tests, typecheck, production build);
-  draft PR #172 required `ci` green. Live playback exposed queue corruption: a gateway snapshot
-  contained 10 copies of one track (1 unique ID/title) after selection. Host playback scope requires
-  N6b #173 first; PR must not merge until queue preservation passes physically.
+- **Done**: device-ui check green (31 files / 206 tests, typecheck, production build); PR #172
+  rebased onto `origin/master` post-#175 (doc-only conflicts resolved) with required `ci` green.
+  The queue-corruption defect found during initial live testing (gateway snapshot with 10 copies
+  of one track) was host-side and fixed by N6b #173/PR #174; the physical re-check using PR
+  #172's UI artifact against the fixed host passed (beyond-row-four press changed playback and
+  the queue stayed varied — logged under N6b's Done entry and PR #174's body). PR #172 merged,
+  #130 closed.
 
-### N10 [now-playing] Keep queue coherent across track changes and playlist end · #156 · Backlog
+### N10 [now-playing] Keep queue coherent across track changes and playlist end · #156 · Ready
 - **Goal**: keep the displayed queue, device selection, and Spotify playback context coherent
   when songs change or a playlist ends. Selecting the bottom of a scrolled queue and then
   hitting a track change (natural, external, or device-selected) must return the four-row
@@ -397,14 +400,12 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   replaced); `cross-lane` (host context/offset work + device selection-reset both apply here).
   Frozen `play_queue_item` `{id}` intent; four-row layout, one-shot commands, and long-press
   lyrics unchanged; no generic play/pause/skip controls; no Nix build/deploy/flash/reboot.
-- **Depends**: **blocked on N7 #130** — #130's PR #172 must pass its physical queue-preservation
-  check and merge before this card's implementation begins. Do not broaden #130 or start this
-  card from an anecdotal report of #130 passing.
+- **Depends**: N7 #130 merged 2026-07-25 (PR #172) — no longer blocked.
 - **Acceptance**: see issue #156 for full host/device test list and the three physical-acceptance
   steps (track-change cursor reset, playlist-end → Radio continuation, contextless fallback).
 - **Status**: re-scoped from the original "Adaptive host poll" card (still size 2, Ready) into
-  this queue-coherence card (size 5, Backlog) to fold in live queue-corruption findings from
-  #130/#173. Not started — waiting on #130.
+  this queue-coherence card (size 5, `cross-lane`) to fold in live queue-corruption findings from
+  #130/#173. Unblocked now that #130 is merged; not yet started.
 
 ### N8 [now-playing] Lyrics provider — lrclib.net · #131 · In progress
 - **Goal**: real synced lyrics on-device. The N3 overlay exists but is fixture-only.
