@@ -116,6 +116,7 @@ run_builder() {
     --rm
     --network=host
     --volume "$builder_workdir:/workdir"
+    --volume "${PAPER_WEIGHT_NIX_STORE_VOLUME:-paper-weight-nix-store}:/nix"
   )
 
   if [[ -n "$BUILDER_OUTPUT_DIR" ]]; then
@@ -154,7 +155,9 @@ EOF
 
         export NIX_CONFIG="${NIX_CONFIG:+$NIX_CONFIG
 }builders = ssh://$HOST x86_64-linux - 100 1 big-parallel,benchmark ; ssh://$HOST aarch64-linux - 100 1 big-parallel,benchmark
-builders-use-substitutes = true"
+builders-use-substitutes = true
+max-jobs = 0
+download-buffer-size = 1073741824"
 
         exec "$@"
       ' sh "$@"

@@ -130,6 +130,27 @@ foreseeable, checkable condition is not an acceptable cost of doing business.
   outside systemd), **kill it before ending the session**. A live orphaned process is the kind of
   device state a future session needs to be able to trust is clean.
 
+## Build/deploy failure diagnosis (mandatory)
+
+A real build had never succeeded once, for about a week, because sessions kept re-diagnosing
+device-level symptoms (dead buttons, stuck generation, corrupted flash) instead of reading the
+actual build/deploy error text — which had the answer in plain English the whole time. See
+`resolutions/nixbuild-aarch64-exec-format-error.md` ("Process failure" section).
+
+- When a build/deploy command fails, **read the full raw error output yourself before proposing
+  a fix**. Do not pattern-match a failure to a previously-seen device symptom (input-bridge
+  crash, stuck generation, corrupted flash) without first confirming the literal error text
+  actually says that. A failure on the host/builder side is a build problem, not a device
+  problem, until the error text proves otherwise.
+- Grep `resolutions/` for the exact error string (or a distinctive substring) before treating a
+  build/deploy failure as novel.
+- If a fix is genuinely new, **write it and commit it in the same session** — the script/config
+  edit plus a `resolutions/*.md` entry. A fix only described in chat does not survive past that
+  conversation; the next session re-pays the diagnosis cost.
+- If the same class of failure recurs despite an existing `resolutions/` entry claiming it's
+  fixed, check `git log` for the file/behavior that entry describes before re-diagnosing from
+  scratch — the fix may have been said out loud but never actually committed.
+
 ## Host paths vs agent paths (mandatory)
 
 Agent sessions may see the machine through a Distrobox bind mount (`/run/host/...`). Rory's own
