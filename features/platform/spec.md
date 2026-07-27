@@ -312,9 +312,8 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   `weston.ini` `cursor-theme=transparent` and `XCURSOR_THEME`/`XCURSOR_PATH` on the
   `weston-tty1` service — so any cursor drawn by Weston OR Chromium is 0-alpha regardless of
   input source. Touches compositor/screen platform → senior review.
-- Physical validation pending: Rory reruns `scripts/verify-kiosk-pointer.sh` from a native host
-  shell; the decisive gate is "cursor gone after cold boot AND stays gone on wheel/touch." Done
-  only when it passes.
+- Physically validated 2026-07-27 (`scripts/verify-kiosk-pointer.sh`): pointer gone after Weston
+  restart AND cold boot, host/dev workflows still OK. Acceptance met. PR #124 merged, #111 closed.
 
 ## Next Session Context Chunk (P10 — 2026-07-22, closed out)
 
