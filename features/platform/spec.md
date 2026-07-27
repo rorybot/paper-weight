@@ -302,11 +302,19 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   upstream `hide-cursor=true` is a no-op key in stock Weston 14.
 - Attempt A (weston.ini cursor-size=0, PR #120) hid the idle sprite but the cursor returned on
   rotary interaction: over the fullscreen kiosk the cursor is set by Chromium, not the shell.
-- Attempt B shipped: udev `LIBINPUT_IGNORE_DEVICE=1` on `event0`/`event1` in
-  `device/nix/input-bridge.nix` — the bridge reads them raw, so libinput/Weston drop pointer
-  capability entirely and no client can draw a cursor. See `docs/architecture/device-nixos-kiosk.md`.
+- Attempt B: udev `LIBINPUT_IGNORE_DEVICE=1` on `event0`/`event1` in
+  `device/nix/input-bridge.nix` — the bridge reads them raw, so libinput drops the rotary as a
+  pointer. Verified on-device: cursor gone at rest after cold boot; rotary no longer moves a
+  pointer. But a cursor still returned on touch/interaction — the touchscreen (`event3`) is not
+  ignored and Chromium redraws a pointer over the fullscreen kiosk (matches attempt A's finding).
+- Attempt B+ (redundancy, current): keep the udev ignore + `cursor-size=0`, and add a fully
+  transparent Xcursor theme (`flake.nix` `transparentCursorTheme`) selected via
+  `weston.ini` `cursor-theme=transparent` and `XCURSOR_THEME`/`XCURSOR_PATH` on the
+  `weston-tty1` service — so any cursor drawn by Weston OR Chromium is 0-alpha regardless of
+  input source. Touches compositor/screen platform → senior review.
 - Physical validation pending: Rory reruns `scripts/verify-kiosk-pointer.sh` from a native host
-  shell (deploy → Weston restart → cold boot → rollback drill, logged); Done only when it passes.
+  shell; the decisive gate is "cursor gone after cold boot AND stays gone on wheel/touch." Done
+  only when it passes.
 
 ## Next Session Context Chunk (P10 — 2026-07-22, closed out)
 
