@@ -50,6 +50,15 @@ Goal: Make complex projects dramatically cheaper and more reliable than traditio
    - Automation hooks (reminders, start-feature scripts, context chunking).
    - SOLID + functional = easy to fix/extend later.
 
+6. **One-Command Human Handoffs**
+   - Treat an ordered command sequence that a human must copy, run, and interpret as missing
+     automation, not as a finished handoff.
+   - Before delegating execution, create or extend one canonical idempotent launcher that owns
+     cwd selection, preflight, orchestration, logging, exit status, and safe retry/resume behavior.
+   - Environment, privilege, credential, and physical-device boundaries do not waive this rule.
+     Carry the workflow to the irreducible human boundary; if one action cannot be scripted, stop
+     there with one precise next action rather than a discovery or diagnostic checklist.
+
 ---
 
 ## Recommended Agent Pipeline (Pseudo-Code Style)

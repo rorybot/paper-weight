@@ -3,6 +3,10 @@
 # Allow: labels cross-lane|chore|platform  OR branch chore/*|fix/*|docs/*|ci/*
 set -euo pipefail
 
+# Keep the human handoff boundary synchronized even for process/infra branches that
+# intentionally bypass product-lane ownership checks below.
+bash scripts/ci/check-agent-instructions.sh
+
 BASE_SHA="${BASE_SHA:-origin/master}"
 HEAD_SHA="${HEAD_SHA:-HEAD}"
 PR_LABELS="${PR_LABELS:-}"
