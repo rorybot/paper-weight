@@ -166,6 +166,16 @@ actual build/deploy error text — which had the answer in plain English the who
 
 ## Launchers and dependency preflight (mandatory)
 
+- Treat any ordered sequence of commands that Rory would have to copy, run, and interpret as
+  missing automation. Before handing it off, create or extend one canonical idempotent launcher
+  in the active card's worktree, verify that exact file, and give Rory one self-contained command
+  that runs it. The launcher owns cwd selection, dependency/configuration/artifact preflight,
+  orchestration, logging, exit status, and safe retry/resume behavior.
+- A host/container/device/credential boundary does **not** make a manual preflight or orchestration
+  checklist acceptable. Do every inspectable step inside the agent environment, then make the
+  launcher carry the workflow to the irreducibly privileged, physical, or interactive boundary.
+  If one human action truly cannot be scripted, the launcher must stop there with one precise
+  next action; do not delegate a discovery checklist or a sequence of raw diagnostic commands.
 - A canonical launcher must own dependency readiness for every stack it starts. Check/bootstrap
   missing dependencies before starting any child process or opening any listener; do not expose a
   briefly healthy UI port and then tear it down because a second process failed.
@@ -226,8 +236,10 @@ agent session:
 
 If a normal invocation reports stale-pause removal, missing helpers, or
 host-exec status `126`/`127`, stop. Do not try alternate wiring or auto-install
-anything. Report the exact error and, when useful, hand Rory a host-native
-command with `/run/host` stripped from repo paths.
+anything. Report the exact error. This stops runtime repair attempts; it does not waive the
+launcher rule or permit offloading a host-side preflight checklist. Package the remaining
+authorized workflow behind one verified host-native launcher command with `/run/host` stripped
+from repo paths.
 
 Ask Rory first and wait for a clear yes only for an intentional engine or
 container lifecycle change not already requested by the active card.
