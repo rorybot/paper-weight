@@ -42,7 +42,38 @@
             nixos-superbird.nixosModules.superbird
             ./input-bridge.nix
             (
-              { lib, ... }:
+              { lib, pkgs, ... }:
+              let
+                # #111 (redundancy): a fully transparent Xcursor theme. Even if a
+                # client (Chromium, over the fullscreen kiosk) or an un-ignored
+                # input device gives the seat pointer capability, the glyph it
+                # draws is a 0-alpha image — invisible. Xcursor files are
+                # arch-independent data (xcursorgen runs on the builder), so this
+                # adds no aarch64 build cost. Complements the udev
+                # LIBINPUT_IGNORE_DEVICE rules and weston.ini cursor-size=0.
+                transparentCursorTheme =
+                  pkgs.runCommand "transparent-cursor-theme"
+                    { nativeBuildInputs = [ pkgs.xorg.xcursorgen pkgs.coreutils ]; }
+                    ''
+                      mkdir -p theme/cursors
+                      echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=' \
+                        | base64 -d > blank.png
+                      printf '1 0 0 blank.png\n' > blank.cfg
+                      xcursorgen blank.cfg theme/cursors/left_ptr
+                      # Alias every cursor role Weston/Chromium might request.
+                      for name in default arrow top_left_arrow right_ptr hand hand1 hand2 \
+                        pointer pointing_hand text xterm ibeam crosshair cross watch wait \
+                        progress fleur move all-scroll grabbing size_all col-resize \
+                        row-resize sb_h_double_arrow sb_v_double_arrow e-resize w-resize \
+                        n-resize s-resize; do
+                        ln -sf left_ptr "theme/cursors/$name"
+                      done
+                      printf '[Icon Theme]\nName=transparent\nComment=Transparent cursor (#111)\n' \
+                        > theme/index.theme
+                      install -d "$out/share/icons/transparent"
+                      cp -r theme/. "$out/share/icons/transparent/"
+                    '';
+              in
               {
                 superbird.gui.kiosk_url = "http://172.16.42.1:8080/?keyboard=0&gateway=ws://172.16.42.1:9138/";
 
@@ -51,8 +82,19 @@
                 superbird.installer.manualScript = true;
 
                 # #111: upstream's weston.ini relies on hide-cursor, which stock
-                # Weston 14 ignores; ship a corrected ini with cursor-size=0.
+                # Weston 14 ignores; ship a corrected ini (cursor-size=0 plus a
+                # transparent cursor-theme).
                 environment.etc."weston/weston.ini".source = lib.mkForce ./resources/weston.ini;
+
+                # #111 redundancy: make the transparent theme discoverable and
+                # select it for both Weston's own sprite and the Chromium client
+                # Weston launches (env is inherited by the child process).
+                environment.systemPackages = [ transparentCursorTheme ];
+                systemd.services."weston-tty1".environment = {
+                  XCURSOR_THEME = "transparent";
+                  XCURSOR_SIZE = "24";
+                  XCURSOR_PATH = "${transparentCursorTheme}/share/icons";
+                };
 
                 superbird.stateVersion = "0.2";
                 system.stateVersion = "24.11";

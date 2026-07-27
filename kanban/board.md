@@ -19,11 +19,11 @@ In progress / Done here unless the same change succeeded on the remote project.
 Status snapshot (2026-07-25, verified against remote project):
 | Status | Cards |
 |--------|--------|
-| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126; drop Feed lane #161; N6b queue preservation #173; N7 queue UI #130 |
+| **Done** | P0-1 #22; P0 #21; P1 #2; P2 #1; P3 #3; P3-1 #23; P4 #4; P5 #5; W1 #9; W2 #10; F1 #12; F2 #13; N1 #6; N2 #7; N3 #8; L1 #11; D2 #19; H1 #14; H2 #15; W3-P1 #43; W3-B #45; E1 #16; W3-A #44; D1 #18; E2 #17; W3-C #46; W3-D #47; W3-E #48; W3-G #49; W3-F #50; E2-1 #79; P6-H #83; P6-N #84; P6-I #82; P7 #85; P8 #86; N4 #89; W4 #87; stale-branch cleanup #105; W5 #109; N6 #129; E3 #135; N5 #128; N8 lyrics provider #131; P10 wheel long-press #126; drop Feed lane #161; N6b queue preservation #173; N7 queue UI #130; Kiosk hide pointer #111 |
 | **In progress** | - |
 | **In review** | - |
 | **Ready** | Kiosk recover host-after-device #112; P9a unattended cold boot #139; N9 lyrics clock #155; N10 queue coherence #156 |
-| **Backlog** | P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; P11 kiosk stale-WS indicator #149; Kiosk hide pointer #111; P12 #158; P13 #159; P14 #160 |
+| **Backlog** | P9 #90; D3 #20; agent-instructions review #108; wheel doesn't toggle 5d/7d on Weather #114; verify Weather stale/recovery on real outage #115; distrobox-host-exec 127 #122; W6c wheel scrub #134; P11 kiosk stale-WS indicator #149; P12 #158; P13 #159; P14 #160 |
 
 Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `features/_lanes/agent-prompts.md`
 
@@ -180,11 +180,14 @@ Parallel playbook: `docs/architecture/parallel-lanes-v1.md` · prompts: `feature
   `resolutions/deploy-rollback-from-stray-manual-input-bridge.md` and a
   `scripts/device-nixos.sh` hygiene fix (chore/device-deploy-hygiene-126).
 
-### P6-N1 [platform] Hide kiosk pointer reliably · #111 · Backlog
+### P6-N1 [platform] Hide kiosk pointer reliably · #111 · ✅ Done
 - **Goal**: remove the visible Chromium/Weston pointer from the production 800×480 kiosk.
 - **Scope**: identify pointer ownership; apply the smallest declarative fix; validate restart and boot.
 - **Constraints**: preserve host/dev browser and keyboard workflows; do not reopen P8.
 - **Acceptance**: no pointer on-device; relevant checks and physical validation pass.
+- **Done**: udev `LIBINPUT_IGNORE_DEVICE` on the rotary + a transparent Xcursor theme (Weston
+  `cursor-theme` + `XCURSOR_*` for Chromium) as redundancy. Physically validated 2026-07-27
+  (`restart`/`cold_boot` pointer gone, dev workflows OK). PR #124 merged, issue closed.
 
 ### P6-N2 [platform] Recover when host UI starts after device · #112 · Backlog
 - **Goal**: load the kiosk automatically when the host fixture becomes ready after device startup.

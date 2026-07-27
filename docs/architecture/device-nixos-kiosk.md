@@ -68,13 +68,23 @@ not build the kernel or full device system; the full build occurs during `build`
   device, and the seat's pointer capability makes Weston draw the sprite.
 - Upstream `weston.ini` sets `[core] hide-cursor=true`, but that key does not exist in stock
   Weston 14 — it is silently ignored.
-- Fix: `device/nix/flake.nix` overrides `environment.etc."weston/weston.ini".source`
-  (`lib.mkForce`) with `device/nix/resources/weston.ini`, identical to upstream except
-  `[shell] cursor-size=0`. Fallback if the sprite survives on-device: ship a fully
-  transparent `cursor-theme` instead.
-- Weston only reads the ini at startup: after `deploy`, restart `weston-tty1.service`
-  (or `reboot`) before judging the result. `scripts/verify-kiosk-pointer.sh` walks the
-  full deploy → restart → cold-boot → rollback observation loop and logs the evidence.
+- Attempt A (merged, insufficient): `device/nix/flake.nix` overrides
+  `environment.etc."weston/weston.ini".source` (`lib.mkForce`) with
+  `device/nix/resources/weston.ini`, identical to upstream except `[shell] cursor-size=0`.
+  On-device result (2026-07-19): pointer hidden at idle but reappears after rotary
+  interaction — `cursor-size=0` only affects the shell's own sprite, while the cursor over
+  the fullscreen kiosk is set by the client (Chromium) once the pointer enters its surface.
+- Attempt B (the actual fix): udev rules in `device/nix/input-bridge.nix` set
+  `ENV{LIBINPUT_IGNORE_DEVICE}="1"` on `event0`/`event1` — the two nodes the input-bridge
+  already owns via raw evdev. libinput (Weston's only input path) then never creates a
+  pointer device, the seat has no pointer capability, and neither Weston nor Chromium can
+  ever draw a cursor. This also stops the dial's relative-wheel events from reaching
+  Chromium as stray horizontal scroll. The weston.ini override stays as harmless
+  belt-and-braces.
+- Weston only reads the ini at startup, and udev rules apply on device add: after `deploy`,
+  restart `weston-tty1.service` — a `reboot` is the clean full check since it re-enumerates
+  input devices under the new rules. `scripts/verify-kiosk-pointer.sh` walks the full
+  deploy → restart → cold-boot → rollback observation loop and logs the evidence.
 
 ## Evidence (2026-07-18 physical run)
 
