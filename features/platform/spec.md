@@ -345,14 +345,10 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   untouched, just unused from the shell; `NowPlayingScreen`'s "↻ wheel = volume" hint is now
   stale copy (real UI bug, out of this card's scope — worth a follow-up card).
   `npm run check` (typecheck + 218 tests + build) green.
-- PR #153 (`feat/p10-wheel-long-press`), label `cross-lane` (touches both lanes). Left **open**:
-  deploy-heavy, needs physical wheel short/long-press validation. `p10-acceptance.sh` sits
-  untracked at the worktree root (deploys this branch's input-bridge to the Car Thing via
-  `device-nixos.sh`, serves this branch's device-ui via the documented temporary dev-host
-  path, then CDP-verifies the lyrics overlay objectively instead of asking for an eyeball
-  check) — Rory runs it from `~/repos/paper-weight/.worktrees/p10-wheel-long-press`.
-- Issue #126 Status set to In review (not Done) — do not close until the acceptance script's
-  log shows the on-device checklist passing.
+- PR #153 (`feat/p10-wheel-long-press`), label `cross-lane` (touches both lanes), was left open
+  for physical wheel short/long-press validation. The later closed-out chunk above records the
+  passing device evidence and final Done state; no local acceptance harness is required to
+  recover that evidence.
 - If the sprite survives, attempt B is a transparent cursor-theme package — new PR, same card.
 
 ## Next Session Context Chunk — P12/P13/P14 backlog (2026-07-22)

@@ -5,6 +5,7 @@ coverage/
 target/
 result
 result-*
+.worktrees/
 
 .env
 .env.local

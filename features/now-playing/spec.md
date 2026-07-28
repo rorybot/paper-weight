@@ -255,12 +255,13 @@ Device tree: `src/device-ui/src/screens/now-playing/{LyricsOverlay,lyricsModel,f
 ## Next Session Context Chunk — N4 (2026-07-19, closed)
 
 - Physical acceptance passed: live metadata + 50 real playlists on device; scripted ethernet-outage
-  drill confirmed stale=true frozen snapshot then gen 1670→1688 fresh recovery (`.n4-drill.log`).
+  drill confirmed stale=true frozen snapshot then gen 1670→1688 fresh recovery; the durable
+  procedure and evidence are in `resolutions/spotify-stale-recovery-after-host-outage.md`.
 - Waived/deferred: playlist *selection* (no shell-router path reaches PlaylistScreen — presets 1–4
   only; needs a future shell card) and wheel volume (kiosk runs `bridge=0`; P8 owns input).
 - Known quirks: stale flag only reaches *new* WS connections (gen doesn't advance on failure);
-  `art_pbm_base64` stays nil; USB replug drops host `172.16.42.1` (re-add + kiosk restart —
-  see `.n4-failure-drill.py` preflight).
+  `art_pbm_base64` stays nil; USB replug can drop host `172.16.42.1`, recovered through the
+  canonical `scripts/try-kick-device.sh` path before restarting the kiosk.
 
 ## Next Session Context Chunk — N5 #128 (2026-07-21)
 
