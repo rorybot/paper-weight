@@ -185,10 +185,13 @@ describe("interaction map — wheel / press per screen", () => {
     }
   });
 
-  it("Weather: wheel = toggle range, press = —", () => {
+  it("Weather: wheel scrubs by the physical tick delta, press = —", () => {
     const base = initialShellState("weather");
-    expect(commandsAfter(base, { type: "wheel-turn", delta: 1 })).toEqual([
-      { type: "toggle-weather-range" },
+    expect(commandsAfter(base, { type: "wheel-turn", delta: 3 })).toEqual([
+      { type: "scrub-weather-timeline", delta: 3 },
+    ]);
+    expect(commandsAfter(base, { type: "wheel-turn", delta: -2 })).toEqual([
+      { type: "scrub-weather-timeline", delta: -2 },
     ]);
     expect(route(base, { type: "wheel-press" }).commands).toEqual([]);
     expect(stateAfter(base, { type: "wheel-press" })).toBe(base);

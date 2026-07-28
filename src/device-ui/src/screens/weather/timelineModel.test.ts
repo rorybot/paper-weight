@@ -3,10 +3,14 @@ import { describe, expect, it } from "vitest";
 import { weatherTimelineFixture } from "./timelineFixture";
 import {
   barCenterPct,
+  clampTimelineIndex,
   nowMarkerPct,
+  selectedMarkerPct,
+  selectedTimelinePoint,
   seriesHeights,
   tickMarks,
   timelineHourLabel,
+  timelinePointLabel,
   timelineSeries,
 } from "./timelineModel";
 
@@ -45,12 +49,30 @@ describe("barCenterPct", () => {
   });
 });
 
+describe("selected timeline point", () => {
+  it("clamps the scrub cursor and positions it at the selected bar center", () => {
+    expect(clampTimelineIndex(-2, 4)).toBe(0);
+    expect(clampTimelineIndex(9, 4)).toBe(3);
+    expect(selectedTimelinePoint(weatherTimelineFixture, 999)).toBe(
+      weatherTimelineFixture.series.at(-1),
+    );
+    expect(selectedMarkerPct(weatherTimelineFixture, 25)).toBeCloseTo(
+      barCenterPct(25, weatherTimelineFixture.series.length),
+    );
+  });
+});
+
 describe("timelineHourLabel", () => {
   it("formats 12h am/pm from ISO local time", () => {
     expect(timelineHourLabel("2026-07-19T13:00")).toBe("1p");
     expect(timelineHourLabel("2026-07-19T09:30")).toBe("9a");
     expect(timelineHourLabel("2026-07-19T00:00")).toBe("12a");
     expect(timelineHourLabel("2026-07-19T12:00")).toBe("12p");
+  });
+
+  it("formats a compact local selected-point label without timezone conversion", () => {
+    expect(timelinePointLabel("2026-07-19T13:30")).toBe("jul 19 · 1:30p");
+    expect(timelinePointLabel("2026-07-19T09:00")).toBe("jul 19 · 9a");
   });
 });
 

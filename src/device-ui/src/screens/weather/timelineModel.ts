@@ -1,3 +1,13 @@
+import type {
+  WeatherTimelinePointV1,
+  WeatherTimelineV1,
+} from "../../protocol/weather";
+
+export type {
+  WeatherTimelinePointV1,
+  WeatherTimelineV1,
+} from "../../protocol/weather";
+
 /**
  * Pure model for the half-hourly weather timeline graph (W6b).
  *
@@ -7,24 +17,6 @@
  * Open-Meteo window can have gaps; a null renders as a zero-height (absent)
  * bar without disturbing its series' min/max scaling. precip is inches.
  */
-
-export type WeatherTimelinePointV1 = Readonly<{
-  /** ISO-8601 local time "YYYY-MM-DDTHH:MM", spaced every `step_minutes`. */
-  time_local: string;
-  temp_f: number | null;
-  wind_mph: number | null;
-  /** precipitation amount, inches. */
-  precip_in: number | null;
-}>;
-
-export type WeatherTimelineV1 = Readonly<{
-  /** Sample spacing in minutes (30 for half-hourly). */
-  step_minutes: number;
-  /** Index into `series` pointing at "now" (boundary of past vs. forecast). */
-  now_index: number;
-  /** Half-hourly samples across −12h…+24h. */
-  series: readonly WeatherTimelinePointV1[];
-}>;
 
 export type TimelineSeriesKey = "temp" | "wind" | "precip";
 
@@ -73,6 +65,25 @@ export const barCenterPct = (index: number, length: number): number => {
   return ((index + 0.5) / length) * 100;
 };
 
+/** Clamp a cursor to the available timeline points. Empty timelines use 0. */
+export const clampTimelineIndex = (index: number, length: number): number => {
+  if (length <= 0) return 0;
+  return Math.min(Math.max(Math.trunc(index), 0), length - 1);
+};
+
+/** Selected-point marker position as a percentage across the track. */
+export const selectedMarkerPct = (
+  timeline: WeatherTimelineV1,
+  index: number,
+): number =>
+  barCenterPct(clampTimelineIndex(index, timeline.series.length), timeline.series.length);
+
+export const selectedTimelinePoint = (
+  timeline: WeatherTimelineV1,
+  index: number,
+): WeatherTimelinePointV1 | null =>
+  timeline.series[clampTimelineIndex(index, timeline.series.length)] ?? null;
+
 /** "now" marker position as a percentage across the track. */
 export const nowMarkerPct = (timeline: WeatherTimelineV1): number =>
   barCenterPct(timeline.now_index, timeline.series.length);
@@ -97,6 +108,24 @@ export const timelineHourLabel = (iso: string): string => {
   const hour12 = ((h + 11) % 12) + 1;
   const suffix = h >= 12 ? "p" : "a";
   return `${hour12}${suffix}`;
+};
+
+/** Compact local date/time label without applying the browser timezone. */
+export const timelinePointLabel = (iso: string): string => {
+  const [date = "", clock = ""] = iso.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = clock.split(":").map(Number);
+  if (!year || !month || !day || !Number.isFinite(hour) || !Number.isFinite(minute)) {
+    return iso;
+  }
+  const months = [
+    "jan", "feb", "mar", "apr", "may", "jun",
+    "jul", "aug", "sep", "oct", "nov", "dec",
+  ] as const;
+  const hour12 = ((hour + 11) % 12) + 1;
+  const suffix = hour >= 12 ? "p" : "a";
+  const minuteLabel = minute === 0 ? "" : `:${String(minute).padStart(2, "0")}`;
+  return `${months[month - 1] ?? month} ${day} · ${hour12}${minuteLabel}${suffix}`;
 };
 
 export type TimelineTick = Readonly<{

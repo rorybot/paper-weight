@@ -3,8 +3,11 @@ import type { JSX } from "preact";
 import { themeClassName, type ThemeName } from "../../design";
 import {
   nowMarkerPct,
+  selectedMarkerPct,
+  selectedTimelinePoint,
   seriesHeights,
   tickMarks,
+  timelinePointLabel,
   timelineSeries,
   type WeatherTimelineV1,
 } from "./timelineModel";
@@ -15,7 +18,14 @@ export type TimelineGraphProps = Readonly<{
   theme?: ThemeName;
   /** Hours between hour-tick labels (default 3). */
   tickEveryHours?: number;
+  /** Active scrub cursor; omitted for the W6b static graph. */
+  selectedIndex?: number;
 }>;
+
+const valueLabel = (value: number | null, unit: string, digits = 0): string =>
+  value === null || !Number.isFinite(value)
+    ? "—"
+    : `${value.toFixed(digits)}${unit}`;
 
 /**
  * Static half-hourly bar-graph timeline: three stacked series (temp / wind /
@@ -26,11 +36,18 @@ export const TimelineGraph = ({
   timeline,
   theme = "gruvbox",
   tickEveryHours = 3,
+  selectedIndex,
 }: TimelineGraphProps): JSX.Element => {
   const series = timelineSeries(timeline);
   const nowPct = nowMarkerPct(timeline);
   const ticks = tickMarks(timeline, tickEveryHours);
   const count = timeline.series.length;
+  const selected = selectedIndex === undefined
+    ? null
+    : selectedTimelinePoint(timeline, selectedIndex);
+  const selectedPct = selectedIndex === undefined
+    ? 0
+    : selectedMarkerPct(timeline, selectedIndex);
 
   return (
     <section
@@ -42,6 +59,15 @@ export const TimelineGraph = ({
       aria-label="Half-hourly weather timeline"
       style={{ width: "800px" }}
     >
+      {selected ? (
+        <header class="wx-tl__readout" data-scrub-readout="true">
+          <strong>{timelinePointLabel(selected.time_local)}</strong>
+          <span>temp {valueLabel(selected.temp_f, "°")}</span>
+          <span>wind {valueLabel(selected.wind_mph, " mph")}</span>
+          <span>precip {valueLabel(selected.precip_in, " in", 2)}</span>
+        </header>
+      ) : null}
+
       <div class="wx-tl__grid">
         {series.map((s) => {
           const heights = seriesHeights(s.values);
@@ -79,6 +105,18 @@ export const TimelineGraph = ({
             <span class="wx-tl__nowlabel">now</span>
           </div>
         </div>
+
+        {selected ? (
+          <div class="wx-tl__scrublayer" aria-hidden="true">
+            <div
+              class="wx-tl__scrubline"
+              data-scrub-index={selectedIndex}
+              style={{ left: `${selectedPct}%` }}
+            >
+              <span class="wx-tl__scrubdot" />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div class="wx-tl__axis" aria-hidden="true">

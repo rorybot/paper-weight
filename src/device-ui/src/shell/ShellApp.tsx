@@ -15,7 +15,7 @@ import { SettingsScreen } from "../screens/settings";
 import {
   WeatherScreen,
   weatherFixtureSnapshot,
-  type WeatherRange,
+  type WeatherUiCommand,
 } from "../screens/weather";
 import { bridgePayloadToShellInput } from "./bridge";
 import {
@@ -49,20 +49,6 @@ const applyInputs = (
     commands.push(...transition.commands);
   }
   return { state: next, commands };
-};
-
-/** Pure: apply each `toggle-weather-range` command to local range state. */
-export const applyWeatherRangeToggles = (
-  range: WeatherRange,
-  commands: readonly ShellCommand[],
-): WeatherRange => {
-  let next = range;
-  for (const command of commands) {
-    if (command.type === "toggle-weather-range") {
-      next = next === "5d" ? "7d" : "5d";
-    }
-  }
-  return next;
 };
 
 // Canonical command → intent mapping lives in `./intents` (W3-D);
@@ -113,6 +99,10 @@ const isSettingsCommand = (
 > =>
   command.type === "move-settings-field" ||
   command.type === "edit-settings-field";
+
+const isWeatherCommand = (
+  command: ShellCommand,
+): command is WeatherUiCommand => command.type === "scrub-weather-timeline";
 
 /**
  * Pure: `lyrics` renders the real N3 overlay from the now-playing snapshot.
@@ -166,10 +156,6 @@ export const ShellApp = ({
   const [lastCommands, setLastCommands] = useState<readonly ShellCommand[]>(
     [],
   );
-  const [weatherRange, setWeatherRange] = useState<WeatherRange>("5d");
-  const weatherRangeRef = useRef(weatherRange);
-  weatherRangeRef.current = weatherRange;
-
   const dispatch = (inputs: readonly ShellInput[]) => {
     if (inputs.length === 0) {
       return;
@@ -185,14 +171,6 @@ export const ShellApp = ({
       onIntent?.({ v: 1, ts: Date.now(), type: "intent", ...request });
     }
 
-    const nextRange = applyWeatherRangeToggles(
-      weatherRangeRef.current,
-      result.commands,
-    );
-    if (nextRange !== weatherRangeRef.current) {
-      weatherRangeRef.current = nextRange;
-      setWeatherRange(nextRange);
-    }
   };
 
   useEffect(() => {
@@ -265,7 +243,7 @@ export const ShellApp = ({
       return (
         <WeatherScreen
           snapshot={resolvedWeatherSnapshot}
-          range={weatherRange}
+          command={lastCommands.find(isWeatherCommand) ?? null}
           theme="gruvbox"
         />
       );
@@ -318,7 +296,7 @@ export const ShellApp = ({
   };
 
   return (
-    <div class="shell-root" data-shell-root data-weather-range={weatherRange}>
+    <div class="shell-root" data-shell-root>
       <ScreenShell
         state={state}
         renderScreen={renderScreen}
@@ -330,7 +308,6 @@ export const ShellApp = ({
         <span>
           {state.screen}
           {state.overlay ? ` · overlay:${state.overlay}` : ""}
-          {state.screen === "weather" ? ` · range:${weatherRange}` : ""}
         </span>
         <span class="shell-hud__hint">
           1–4 presets · H hold · Esc back · ↑↓ wheel · Enter press · konami

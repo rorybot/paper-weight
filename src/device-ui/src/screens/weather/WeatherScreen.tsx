@@ -1,5 +1,5 @@
 import type { JSX } from "preact";
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 
 import { themeClassName, type ThemeName } from "../../design";
 import type { WeatherDayV1, WeatherSnapshotV1 } from "../../protocol/weather";
@@ -8,26 +8,25 @@ import {
   gradeUvIndex,
   hourLabel,
   initialWeatherUiState,
+  reconcileWeatherUiState,
   reduceWeatherUi,
+  returnWeatherToCurrent,
+  WEATHER_IDLE_MS,
   weekdayShort,
-  type WeatherRange,
   type WeatherUiCommand,
+  type WeatherUiState,
 } from "./model";
+import { TimelineGraph } from "./TimelineGraph";
 import "./weather.css";
 
 export type WeatherScreenProps = Readonly<{
   snapshot: WeatherSnapshotV1;
   theme?: ThemeName;
-  /** Controlled range; when set, component is controlled. */
-  range?: WeatherRange;
-  initialRange?: WeatherRange;
-  /**
-   * Optional command stream from shell (e.g. `toggle-weather-range`).
-   * Wave 3 wires this from ShellApp; tests pass one-shot commands via key change.
-   */
+  /** Controlled UI for focused rendering/tests; omit for shell-owned commands. */
+  ui?: WeatherUiState;
   command?: WeatherUiCommand | null;
-  /** Fires when range changes (controlled or internal). */
-  onRangeChange?: (range: WeatherRange) => void;
+  onUiChange?: (state: WeatherUiState) => void;
+  idleMs?: number;
 }>;
 
 const SunIcon = (): JSX.Element => (
@@ -79,46 +78,18 @@ const uvBarHeightPct = (index: number): number => {
   return Math.max(10, Math.round((capped / 12) * 100));
 };
 
-export const WeatherScreen = ({
+const CurrentConditions = ({
   snapshot,
-  theme = "gruvbox",
-  range: controlledRange,
-  initialRange = "5d",
-  command = null,
-  onRangeChange,
-}: WeatherScreenProps): JSX.Element => {
-  const [internal, setInternal] = useState(() =>
-    initialWeatherUiState(initialRange),
-  );
-
-  const range = controlledRange ?? internal.range;
-
-  useEffect(() => {
-    if (!command) return;
-    setInternal((prev) => {
-      const next = reduceWeatherUi(prev, command);
-      if (next.range !== prev.range) {
-        onRangeChange?.(next.range);
-      }
-      return next;
-    });
-  }, [command, onRangeChange]);
-
-  const days = range === "7d" ? snapshot.days7 : snapshot.days5;
+}: {
+  readonly snapshot: WeatherSnapshotV1;
+}): JSX.Element => {
   const hourly = useMemo(
     () => snapshot.hourly_uv.slice(0, 10),
     [snapshot.hourly_uv],
   );
 
   return (
-    <main
-      class={`${themeClassName(theme)} wx-screen`}
-      data-theme={theme}
-      data-range={range}
-      data-stale={String(snapshot.stale)}
-      data-screen="weather"
-      style={{ width: "800px", height: "480px" }}
-    >
+    <>
       <header class="wx-topbar">
         <span>[cthing]</span>
         <nav class="wx-topbar__presets" aria-label="Presets">
@@ -130,11 +101,7 @@ export const WeatherScreen = ({
         <span class="wx-topbar__loc">{snapshot.location_label}</span>
       </header>
 
-      <section
-        class="wx-uv"
-        aria-label="Walk UV band"
-        data-uv-grade={snapshot.uv.grade}
-      >
+      <section class="wx-uv" aria-label="Walk UV band" data-uv-grade={snapshot.uv.grade}>
         <div>
           <p class="wx-uv__label">
             WALK? <span>UV · next 5h · 30-min</span>
@@ -161,22 +128,16 @@ export const WeatherScreen = ({
         </div>
 
         <div class="wx-uv__legend" aria-label="UV legend">
-          <div class="wx-uv__legend-row">
-            <span class="wx-uv__swatch" data-grade="extreme" />
-            extreme
-          </div>
-          <div class="wx-uv__legend-row">
-            <span class="wx-uv__swatch" data-grade="high" />
-            high
-          </div>
-          <div class="wx-uv__legend-row">
-            <span class="wx-uv__swatch" data-grade="low" />
-            low
-          </div>
+          {(["extreme", "high", "low"] as const).map((grade) => (
+            <div class="wx-uv__legend-row" key={grade}>
+              <span class="wx-uv__swatch" data-grade={grade} />
+              {grade}
+            </div>
+          ))}
         </div>
       </section>
 
-      <section class="wx-main" aria-label="Conditions and forecast">
+      <section class="wx-main" aria-label="Current conditions and forecast">
         <div class="wx-current">
           <SunIcon />
           <p class="wx-current__temp">{Math.round(snapshot.current.temp_f)}°</p>
@@ -187,26 +148,105 @@ export const WeatherScreen = ({
           </p>
         </div>
 
-        <div
-          class="wx-days"
-          data-day-count={days.length}
-          aria-label={range === "7d" ? "7-day forecast" : "5-day forecast"}
-        >
-          {days.map((day) => (
+        <div class="wx-days" data-day-count={snapshot.days5.length} aria-label="5-day forecast">
+          {snapshot.days5.map((day) => (
             <DayRow key={day.date} day={day} />
           ))}
         </div>
       </section>
 
       <footer class="wx-footer">
-        <span>◉ wheel</span>
-        <span class="wx-footer__range" data-range={range}>
-          <span data-active={String(range === "5d")}>today</span>
-          {" ↔ "}
-          <span data-active={String(range === "7d")}>7-day</span>
-        </span>
-        <span class="wx-footer__src">nws · openuv</span>
+        <span>◉ wheel scrub</span>
+        <span>−12h ↔ now ↔ +24h</span>
+        <span class="wx-footer__src">open-meteo</span>
       </footer>
+    </>
+  );
+};
+
+export const WeatherScreen = ({
+  snapshot,
+  theme = "gruvbox",
+  ui: controlledUi,
+  command = null,
+  onUiChange,
+  idleMs = WEATHER_IDLE_MS,
+}: WeatherScreenProps): JSX.Element => {
+  const timeline = snapshot.timeline;
+  const [internal, setInternal] = useState(() => initialWeatherUiState(timeline));
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const state = reconcileWeatherUiState(controlledUi ?? internal, timeline);
+
+  useEffect(() => {
+    if (controlledUi !== undefined) return;
+    setInternal((previous) => reconcileWeatherUiState(previous, timeline));
+  }, [controlledUi, timeline]);
+
+  useEffect(() => {
+    if (!command) return;
+
+    setInternal((previous) => {
+      const start = reconcileWeatherUiState(controlledUi ?? previous, timeline);
+      const next = reduceWeatherUi(start, command, timeline);
+      if (next !== start) onUiChange?.(next);
+      return next;
+    });
+
+    if (idleTimer.current !== null) clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => {
+      setInternal((previous) => {
+        const start = reconcileWeatherUiState(controlledUi ?? previous, timeline);
+        const next = returnWeatherToCurrent(start, timeline);
+        if (next !== start) onUiChange?.(next);
+        return next;
+      });
+      idleTimer.current = null;
+    }, idleMs);
+
+    return () => {
+      if (idleTimer.current !== null) {
+        clearTimeout(idleTimer.current);
+        idleTimer.current = null;
+      }
+    };
+  }, [command, controlledUi, idleMs, onUiChange, timeline]);
+
+  const timelineActive = state.mode === "timeline";
+
+  return (
+    <main
+      class={`${themeClassName(theme)} wx-screen`}
+      data-theme={theme}
+      data-stale={String(snapshot.stale)}
+      data-screen="weather"
+      data-mode={state.mode}
+      data-scrub-index={String(state.scrubIndex)}
+      style={{ width: "800px", height: "480px" }}
+    >
+      <div
+        class="wx-view wx-view--current"
+        data-active={String(!timelineActive)}
+        aria-hidden={timelineActive}
+      >
+        <CurrentConditions snapshot={snapshot} />
+      </div>
+
+      <div
+        class="wx-view wx-view--timeline"
+        data-active={String(timelineActive)}
+        aria-hidden={!timelineActive}
+      >
+        <header class="wx-timeline-topbar">
+          <span>[cthing]</span>
+          <strong>weather timeline</strong>
+          <span>{snapshot.location_label}</span>
+        </header>
+        <TimelineGraph timeline={timeline} theme={theme} selectedIndex={state.scrubIndex} />
+        <footer class="wx-timeline-footer">
+          <span>◉ wheel · one point per detent</span>
+          <span>current conditions return after 7s idle</span>
+        </footer>
+      </div>
     </main>
   );
 };

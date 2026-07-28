@@ -41,7 +41,7 @@ describe("commandsToIntentRequests", () => {
     expect(
       commandsToIntentRequests([
         { type: "skip-photo", delta: 1 },
-        { type: "toggle-weather-range" },
+        { type: "scrub-weather-timeline", delta: 1 },
       ]),
     ).toEqual([]);
   });

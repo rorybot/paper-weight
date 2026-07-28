@@ -1,4 +1,5 @@
 import type { WeatherSnapshotV1 } from "../../protocol/weather";
+import { weatherTimelineFixture } from "./timelineFixture";
 
 /** Fixture snapshot shaped for `spec/weather-4b.png` (W2 UI-ahead). */
 export const weatherFixtureSnapshot: WeatherSnapshotV1 = Object.freeze({
@@ -103,4 +104,5 @@ export const weatherFixtureSnapshot: WeatherSnapshotV1 = Object.freeze({
     Object.freeze({ hour_local: "21:00", index: 0.4 }),
     Object.freeze({ hour_local: "22:00", index: 6.5 }),
   ]),
+  timeline: weatherTimelineFixture,
 });

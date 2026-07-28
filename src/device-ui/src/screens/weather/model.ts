@@ -1,28 +1,77 @@
-/** Pure weather screen UI state — shell emits `toggle-weather-range`; we reduce locally. */
+import type { WeatherTimelineV1 } from "../../protocol/weather";
+import { clampTimelineIndex } from "./timelineModel";
 
-export type WeatherRange = "5d" | "7d";
+export const WEATHER_IDLE_MS = 7_000;
+
+export type WeatherUiMode = "current" | "timeline";
 
 export type WeatherUiState = Readonly<{
-  range: WeatherRange;
+  mode: WeatherUiMode;
+  scrubIndex: number;
 }>;
 
-export type WeatherUiCommand = Readonly<{ type: "toggle-weather-range" }>;
+export type WeatherUiCommand = Readonly<{
+  type: "scrub-weather-timeline";
+  delta: number;
+}>;
+
+const nowIndex = (timeline: WeatherTimelineV1): number =>
+  clampTimelineIndex(timeline.now_index, timeline.series.length);
 
 export const initialWeatherUiState = (
-  range: WeatherRange = "5d",
-): WeatherUiState => Object.freeze({ range });
+  timeline: WeatherTimelineV1,
+): WeatherUiState =>
+  Object.freeze({ mode: "current", scrubIndex: nowIndex(timeline) });
 
+export const reconcileWeatherUiState = (
+  state: WeatherUiState,
+  timeline: WeatherTimelineV1,
+): WeatherUiState => {
+  if (timeline.series.length === 0) {
+    return state.mode === "current" && state.scrubIndex === 0
+      ? state
+      : Object.freeze({ mode: "current", scrubIndex: 0 });
+  }
+
+  const scrubIndex = clampTimelineIndex(
+    state.mode === "current" ? timeline.now_index : state.scrubIndex,
+    timeline.series.length,
+  );
+  return scrubIndex === state.scrubIndex
+    ? state
+    : Object.freeze({ ...state, scrubIndex });
+};
+
+/** One physical wheel detent moves one adjacent timeline point. */
 export const reduceWeatherUi = (
   state: WeatherUiState,
   command: WeatherUiCommand,
+  timeline: WeatherTimelineV1,
 ): WeatherUiState => {
-  if (command.type === "toggle-weather-range") {
-    return Object.freeze({
-      range: state.range === "5d" ? "7d" : "5d",
-    });
-  }
-  return state;
+  if (command.delta === 0 || timeline.series.length === 0) return state;
+
+  const start = state.mode === "timeline" ? state.scrubIndex : nowIndex(timeline);
+  const scrubIndex = clampTimelineIndex(
+    start + Math.trunc(command.delta),
+    timeline.series.length,
+  );
+  if (state.mode === "timeline" && scrubIndex === state.scrubIndex) return state;
+  return Object.freeze({ mode: "timeline", scrubIndex });
 };
+
+export const returnWeatherToCurrent = (
+  state: WeatherUiState,
+  timeline: WeatherTimelineV1,
+): WeatherUiState => {
+  const scrubIndex = nowIndex(timeline);
+  if (state.mode === "current" && state.scrubIndex === scrubIndex) return state;
+  return Object.freeze({ mode: "current", scrubIndex });
+};
+
+export const weatherIdleElapsed = (
+  elapsedMs: number,
+  idleMs: number = WEATHER_IDLE_MS,
+): boolean => elapsedMs >= idleMs;
 
 /** Locked UV grade rules (same as host W1). */
 export type UvGrade = "extreme" | "high" | "low";

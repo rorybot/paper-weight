@@ -47,7 +47,9 @@ describe("commandToIntentRequest", () => {
     expect(
       commandToIntentRequest({ type: "play-selected-playlist" }),
     ).toBeNull();
-    expect(commandToIntentRequest({ type: "toggle-weather-range" })).toBeNull();
+    expect(
+      commandToIntentRequest({ type: "scrub-weather-timeline", delta: 1 }),
+    ).toBeNull();
     expect(
       commandToIntentRequest({ type: "keep-photo-on-show" }),
     ).toBeNull();

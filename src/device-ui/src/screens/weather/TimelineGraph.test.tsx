@@ -33,6 +33,21 @@ describe("TimelineGraph", () => {
     expect(out).toContain("now");
   });
 
+  it("renders the active scrub cursor with time and all three values", () => {
+    const out = render(
+      <TimelineGraph
+        timeline={weatherTimelineFixture}
+        theme="gruvbox"
+        selectedIndex={25}
+      />,
+    );
+    expect(out).toContain('data-scrub-index="25"');
+    expect(out).toContain('data-scrub-readout="true"');
+    expect(out).toContain("temp ");
+    expect(out).toContain("wind ");
+    expect(out).toContain("precip ");
+  });
+
   it("marks past bars distinctly from forecast bars", () => {
     const out = html();
     expect(out).toContain('data-past="true"');

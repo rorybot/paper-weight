@@ -1,8 +1,7 @@
 /* W2 weather screen 4b — scoped under .wx-screen; 800×480 */
 
 .wx-screen {
-  display: grid;
-  grid-template-rows: 32px minmax(108px, 26%) 1fr 30px;
+  position: relative;
   width: 800px;
   height: 480px;
   overflow: hidden;
@@ -11,6 +10,45 @@
   font-family: var(--pw-font-mono);
   font-size: var(--pw-text-min);
   letter-spacing: -0.03em;
+}
+
+.wx-view {
+  position: absolute;
+  inset: 0;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease-out;
+}
+
+.wx-view[data-active="true"] {
+  z-index: 1;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wx-view--current {
+  display: grid;
+  grid-template-rows: 32px minmax(108px, 26%) 1fr 30px;
+  background: var(--pw-desk);
+}
+
+.wx-view--timeline {
+  display: grid;
+  grid-template-rows: 32px 1fr 30px;
+  background: color-mix(in srgb, var(--pw-desk) 88%, #000);
+}
+
+.wx-view--timeline .wx-tl {
+  align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wx-view {
+    transition: none;
+  }
 }
 
 .wx-screen[data-stale="true"] {
@@ -292,11 +330,33 @@
   font-weight: 700;
 }
 
-.wx-footer__range [data-active="true"] {
-  color: var(--pw-paper);
-}
-
 .wx-footer__src {
   margin-left: auto;
   text-transform: lowercase;
+}
+
+/* —— full-screen scrub view —— */
+.wx-timeline-topbar,
+.wx-timeline-footer {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: color-mix(in srgb, var(--pw-paper) 58%, transparent);
+  font-weight: 700;
+}
+
+.wx-timeline-topbar {
+  justify-content: space-between;
+  border-bottom: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+}
+
+.wx-timeline-topbar strong {
+  color: var(--pw-accent);
+  text-transform: uppercase;
+}
+
+.wx-timeline-footer {
+  justify-content: space-between;
+  border-top: 1px solid color-mix(in srgb, var(--pw-paper) 12%, transparent);
+  background: color-mix(in srgb, var(--pw-desk) 70%, #000);
 }

@@ -2,58 +2,52 @@ import render from "preact-render-to-string";
 import { describe, expect, it } from "vitest";
 
 import { weatherFixtureSnapshot } from "./fixture";
-import {
-  gradeUvIndex,
-  initialWeatherUiState,
-  reduceWeatherUi,
-} from "./model";
+import { gradeUvIndex } from "./model";
 import { WeatherScreen } from "./WeatherScreen";
 
 describe("WeatherScreen", () => {
-  it("renders 800×480 fixture layout matching mockup intent", () => {
+  it("renders the current 800×480 fixture view", () => {
     const html = render(
       <WeatherScreen snapshot={weatherFixtureSnapshot} theme="gruvbox" />,
     );
 
-    expect(html).toContain("wx-screen");
+    expect(html).toContain('data-screen="weather"');
     expect(html).toContain('data-theme="gruvbox"');
-    expect(html).toContain('data-range="5d"');
+    expect(html).toContain('data-mode="current"');
     expect(html).toMatch(/800px/);
     expect(html).toMatch(/480px/);
-    expect(html).toContain("3:ph");
     expect(html).toContain("exampleville, ex");
     expect(html).toContain("92°");
     expect(html).toContain("sunny");
     expect(html).toContain("WALK?");
-    // HTML escapes & → &amp;
     expect(html).toContain("good window right now");
-    expect(html).toContain("home by 5");
-    expect(html).toContain("nws · openuv");
-    expect(html).toContain("today");
-    expect(html).toContain("7-day");
     expect(html).toContain('data-day-count="5"');
+    expect(html).toContain("wheel scrub");
+    expect(html).not.toContain("7-day");
   });
 
-  it("shows 7-day rows when range is 7d (wheel toggle target)", () => {
-    const toggled = reduceWeatherUi(initialWeatherUiState("5d"), {
-      type: "toggle-weather-range",
-    });
-    expect(toggled.range).toBe("7d");
-
+  it("crossfades the whole view to a controlled scrub position", () => {
     const html = render(
       <WeatherScreen
         snapshot={weatherFixtureSnapshot}
-        range={toggled.range}
+        ui={{ mode: "timeline", scrubIndex: 25 }}
         theme="gruvbox"
       />,
     );
 
-    expect(html).toContain('data-range="7d"');
-    expect(html).toContain('data-day-count="7"');
-    expect(html).toContain("7-day forecast");
+    expect(html).toContain('data-mode="timeline"');
+    expect(html).toContain('class="wx-view wx-view--current" data-active="false"');
+    expect(html).toContain('class="wx-view wx-view--timeline" data-active="true"');
+    expect(html).toContain('data-screen="weather-timeline"');
+    expect(html).toContain('data-scrub-index="25"');
+    expect(html).toContain('data-scrub-readout="true"');
+    expect(html).toContain("temp ");
+    expect(html).toContain("wind ");
+    expect(html).toContain("precip ");
+    expect(html).toContain("return after 7s idle");
   });
 
-  it("renders UV bars for all three grades from hourly fixture", () => {
+  it("renders UV bars for all three grades", () => {
     const html = render(
       <WeatherScreen snapshot={weatherFixtureSnapshot} theme="gruvbox" />,
     );
@@ -64,7 +58,6 @@ describe("WeatherScreen", () => {
     expect(grades).toContain("extreme");
     expect(grades).toContain("high");
     expect(grades).toContain("low");
-
     expect(html).toContain('data-grade="extreme"');
     expect(html).toContain('data-grade="high"');
     expect(html).toContain('data-grade="low"');

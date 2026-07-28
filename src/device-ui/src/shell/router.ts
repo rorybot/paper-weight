@@ -137,7 +137,7 @@ const turnWheel = (state: ShellState, delta: number): ShellTransition => {
     case "now-playing":
       return emit(state, { type: "move-queue-selection", delta });
     case "weather":
-      return emit(state, { type: "toggle-weather-range" });
+      return emit(state, { type: "scrub-weather-timeline", delta });
     case "playlist":
       return emit(state, { type: "move-playlist-selection", delta });
     case "photo":

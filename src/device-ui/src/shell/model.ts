@@ -53,7 +53,7 @@ export type ShellInput =
  * pure screens reduce these later. Router owns *when* they fire.
  */
 export type ShellCommand =
-  | { readonly type: "toggle-weather-range" }
+  | { readonly type: "scrub-weather-timeline"; readonly delta: number }
   | { readonly type: "move-queue-selection"; readonly delta: number }
   | { readonly type: "play-selected-queue-item" }
   | { readonly type: "move-playlist-selection"; readonly delta: number }

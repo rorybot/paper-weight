@@ -14,6 +14,9 @@ Protocol envelope: `docs/architecture/host-device-protocol-v1.md`.
 | W4-1 | [#114](https://github.com/rorybot/paper-weight/issues/114) | Wheel does not toggle 5-day/7-day on physical device | **Backlog** |
 | W4-2 | [#115](https://github.com/rorybot/paper-weight/issues/115) | Verify stale/recovery on real physical-device network outage | **Backlog** |
 | W5 | [#109](https://github.com/rorybot/paper-weight/issues/109) | Migrate Weather from NWS/OpenUV to Open-Meteo | ✅ Done |
+| W6a | [#132](https://github.com/rorybot/paper-weight/issues/132) | Host half-hourly timeline data | **Done** |
+| W6b | [#133](https://github.com/rorybot/paper-weight/issues/133) | Device timeline graph component | **Done** |
+| W6c | [#134](https://github.com/rorybot/paper-weight/issues/134) | Wheel scrub — fade current, scrub timeline | **Backlog** |
 
 ## Ownership (only these paths)
 
@@ -127,9 +130,19 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 
 ## Screen (W2) — local only
 
-- Shell already emits `toggle-weather-range` on wheel; screen reduces `range: "5d" | "7d"`.
+- Historical W2 shipped a 5d/7d wheel toggle; W6c supersedes and removes that interaction.
 - Mockup: `spec/weather-4b.png` only.
 - Theme: gruvbox/TUI chrome OK until D3.
+
+## Screen interaction (W6c)
+
+- Weather wheel turns emit `scrub-weather-timeline` with the physical tick delta.
+- First input starts at `timeline.now_index`; each detent moves one adjacent point and clamps at
+  the available endpoints, including partial live timelines.
+- The complete current view crossfades to the 800×480 timeline with a cursor and local
+  time/temp/wind/precip readout. Null values display as `—`.
+- Seven seconds after the last wheel input, the current view returns and the cursor resets to
+  `now_index`. The old 5d/7d toggle no longer exists.
 
 ## Acceptance
 
@@ -152,6 +165,13 @@ Pure function of temp / UV / precip windows → one plain-spoken sentence. Fixtu
 - [x] `OPENUV_API_KEY` removed from P7 runtime validation, `.env.example`, and live-runtime docs
 - [x] Mocked malformed-response, stale-cache, network-loss, recovery tests pass
 - [x] Required `ci` green; card/issue/spec/kanban closeout synchronized
+
+### W6c
+- [x] Router emits signed timeline scrub deltas; no 5d/7d toggle remains
+- [x] Pure model covers adjacent-point movement, endpoint clamps, partial/empty timelines, and 7s idle boundary
+- [x] Current/timeline views and selected time/temp/wind/precip readout render at 800×480
+- [ ] Physical wheel feel and live Open-Meteo timeline accepted on the Car Thing
+- [ ] Required `ci` green
 
 ## Deps request
 
@@ -271,3 +291,10 @@ _(lane agents append here; do not edit mix.exs)_
 - This closes the W5 lane. No further Weather kanban work is queued from this card; remaining
   Weather backlog items (#114 wheel toggle, #115 real-outage stale/recovery verification) are
   independent cards untouched by this migration.
+
+## Next Session Context Chunk — W6c #134 (2026-07-28)
+
+- Branch `chore/weather-w6c-134` in `.worktrees/w6c-weather-scrub`; device UI check is green at 210 tests.
+- Implemented signed one-point-per-detent scrub, whole-view crossfade, selected values, and 7s idle return; removed the 5d/7d command path.
+- The Yocto device still needs one verified last-good NixOS flash and one branch `device-nixos.sh deploy`; neither lifecycle operation has started.
+- Resume with GitHub status sync, fixture/live launch, announced `ready`/`done` hardware gates, physical acceptance, then CI/merge/closeout.

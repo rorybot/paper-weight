@@ -9,6 +9,19 @@ export type WeatherDayV1 = {
   readonly summary: string;
 };
 
+export type WeatherTimelinePointV1 = {
+  readonly time_local: string;
+  readonly temp_f: number | null;
+  readonly wind_mph: number | null;
+  readonly precip_in: number | null;
+};
+
+export type WeatherTimelineV1 = {
+  readonly step_minutes: number;
+  readonly now_index: number;
+  readonly series: readonly WeatherTimelinePointV1[];
+};
+
 export type WeatherSnapshotV1 = {
   readonly location_label: string;
   readonly as_of: string;
@@ -28,4 +41,5 @@ export type WeatherSnapshotV1 = {
     readonly hour_local: string;
     readonly index: number;
   }[];
+  readonly timeline: WeatherTimelineV1;
 };
