@@ -360,3 +360,12 @@ Foundation for all screens. Stack decision lives in `docs/architecture/workflow-
   [yocto-superbird](https://github.com/JoeyEamigh/yocto-superbird) (mainline kernel, flashthing,
   kiosk-example fork template). Do not start P13/P14 until P12 writes GO + pin.
 - Mirrors: `kanban/board.md` + this table. No image build/flash in the ticket-create session.
+
+## Next Session Context Chunk — worktree artifact salvage (2026-07-28)
+
+- `chore/worktree-artifact-salvage` preserves N4 outage/recovery evidence in a canonical
+  resolution, removes stale N4/P10 local-file references, and ignores `.worktrees/`.
+- Removed 19 merged worktrees plus two superseded card-161 setup artifacts; every local and
+  remote branch was retained.
+- Preserved newer active worktrees for #108, #158, and #134 untouched. Merge the cleanup PR,
+  then remove its worktree; no build, deploy, reboot, or physical acceptance is required.
